@@ -1,3 +1,4 @@
+import PeopleIcon from "../PeopleIcon";
 import AccountSettingsIcon from "./AccountSettings";
 import AdminEcommerceIcon from "./AdminEcommerce";
 import CalendarIcon from "./Calendar";
@@ -31,4 +32,5 @@ export default {
   AdminEcommerceIcon,
   UserManagementIcon,
   AccountSettingsIcon,
+  PeopleIcon,
 };

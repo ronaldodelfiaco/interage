@@ -23,7 +23,13 @@
     "next": "12.1.5",
     "nprogress": "^0.2.0",
     "react": "18.0.0",
-    "react-dom": "18.0.0"
+    "react-beautiful-dnd": "^13.1.0",
+    "react-dom": "18.0.0",
+    "react-hot-toast": "^2.2.0",
+    "react-i18next": "^11.16.7",
+    "simplebar-react": "^2.3.7",
+    "stylis-plugin-rtl": "^2.1.1",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@types/lodash.merge": "^4.6.7",

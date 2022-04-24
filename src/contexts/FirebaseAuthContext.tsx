@@ -9,7 +9,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
-import { collection, doc, getFirestore, setDoc } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 import { createContext, ReactNode, useEffect, useReducer } from "react";
 import { ActionMap, AuthState, AuthUser } from "./JWTAuthContext";
 
@@ -54,7 +54,7 @@ const reducer = (state: AuthState, action: FirebaseActions) => {
 
 const AuthContext = createContext({
   ...initialState,
-  method: "heroku",
+  method: "firebase",
   register: (email: string, password: string, name: string) =>
     Promise.resolve(),
   login: (email: string, password: string) => Promise.resolve(),
@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               id: user.uid,
               email: user.email,
               avatar: user.photoURL,
-              name: user.displayName || "Jason Alexander",
+              name: user.displayName || "Unknown User",
             },
           },
         });
@@ -103,27 +103,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [dispatch, auth]);
 
   const login = (email: string, password: string) => {
-    
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  const register = (email: string, password: string, name: string) =>
-    createUserWithEmailAndPassword(auth, email, password).then(
-      async (response) => {
-        const userCollection = collection(db, "users");
-        const findDoc = doc(userCollection, response.user?.uid);
-        await setDoc(findDoc, {
-          email,
-          displayName: name,
-          uid: response.user.uid,
-        });
-      }
-    );
-  // .catch((error) => error);
+  //   const register = (email: string, password: string, name: string) =>
+  //     createUserWithEmailAndPassword(auth, email, password).then(
+  //       async (response) => {
+  //         const userCollection = collection(db, "users");
+  //         const findDoc = doc(userCollection, response.user?.uid);
+  //         await setDoc(findDoc, {
+  //           email,
+  //           displayName: name,
+  //           uid: response.user.uid,
+  //         });
+  //       }
+  //     );
 
-  // const register = (email: string, password: string, name: string) => {
-  //   return createUserWithEmailAndPassword(auth, email, password);
-  // };
+  const register = (email: string, password: string, name: string) => {
+    return createUserWithEmailAndPassword(auth, email, password);
+  };
 
   const loginWithGoogle = () => {
     const provider = new GoogleAuthProvider();
@@ -145,7 +143,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     <AuthContext.Provider
       value={{
         ...state,
-        method: "heroku",
+        method: "firebase",
         //@ts-ignore
         login,
         logout,
