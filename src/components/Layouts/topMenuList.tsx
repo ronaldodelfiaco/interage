@@ -28,17 +28,17 @@ const index = [
     Icon: Icons.PeopleIcon,
     path: "/Pessoas",
   },
-  
-  
-
-  
   {
     title: "Eventos",
-    Icon: Icons.KanbanIcon,
+    Icon: Icons.DashboardIcon,
     path: "/Eventos",
   },
  
-
+  {
+    title: "Kanban",
+    Icon: Icons.KanbanIcon,
+    path: "/TodoList",
+  },
 ];
 
 export default index;

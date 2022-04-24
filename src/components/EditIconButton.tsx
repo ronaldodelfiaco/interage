@@ -1,5 +1,5 @@
 import { IconButton, IconButtonProps, useTheme } from "@mui/material";
-import PencilIcon from "icons/PencilIcon";
+import PencilIcon from "../icons/PencilIcon";
 
 const EditIconButton = (props: IconButtonProps) => {
   const theme = useTheme();

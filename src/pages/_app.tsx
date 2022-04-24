@@ -10,13 +10,14 @@ import Link from 'next/link'
 import TitleContextProvider from '../contexts/TitleContext';
 import { AuthProvider } from '../contexts/FirebaseAuthContext';
 import SettingsProvider from '../contexts/SettingsContext'
-import { StyledEngineProvider, ThemeProvider } from '@mui/material'
+import { CssBaseline, StyledEngineProvider, ThemeProvider } from '@mui/material'
 import { ukoTheme } from '../theme'
 import useSettings from '../hooks/useSettings'
 import { useEffect } from 'react'
 import router from 'next/router'
 import RTL from '../components/RTL'
 import DashboardLayout from '../components/Layouts/DashboardLayout'
+import { Toaster } from 'react-hot-toast'
 
 
 function InterageApp({ Component, pageProps }: AppProps) {
@@ -63,6 +64,8 @@ return (
           <ThemeProvider theme={appTheme}>
           <RTL direction={appTheme.direction}>
           <DashboardLayout >
+          <CssBaseline />
+          <Toaster toastOptions={toasterOptions} />
             <Component {...pageProps} />
           </DashboardLayout>
             </RTL>   

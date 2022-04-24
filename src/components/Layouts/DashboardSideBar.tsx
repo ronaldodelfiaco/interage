@@ -18,7 +18,8 @@ import {
   import ScrollBar from "simplebar-react";
   import FlexBox from "../FlexBox";
   import topMenuList from "./topMenuList";
-  
+  import Image from 'next/image';
+
   // root component interface
   interface SideNavBarProps {
     showSideBar: boolean;
@@ -139,7 +140,7 @@ import {
     const mainSideBarContent = (
       <List sx={{ height: "100%" }}>
         <StyledListItemButton disableRipple>
-          <img src="/static/logo/logo.svg" alt="UKO Logo" width={31} />
+          <Image src="/favicon.png" alt="UKO Logo" width={31} height={31} />
         </StyledListItemButton>
   
         <ScrollBar style={{ maxHeight: "calc(100% - 50px)" }}>

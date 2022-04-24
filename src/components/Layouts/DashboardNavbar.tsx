@@ -85,7 +85,7 @@ const DashboardNavbar: FC<DashboardNavBarProps> = (props) => {
 
         <Box flexGrow={1} ml={1} />
 
-        {settings.direction === "ltr" ? (
+        {/* {settings.direction === "ltr" ? (
           <StyledIconButton
             disableRipple
             onClick={() => handleChangeDirection("rtl")}
@@ -99,9 +99,9 @@ const DashboardNavbar: FC<DashboardNavBarProps> = (props) => {
           >
             <LTR sx={{ color: "text.disabled" }} />
           </StyledIconButton>
-        )}
+        )} */}
 
-        {settings.theme === "light" ? (
+        {/* {settings.theme === "light" ? (
           <StyledIconButton
             disableRipple
             onClick={() => handleChangeTheme(THEMES.DARK)}
@@ -115,13 +115,13 @@ const DashboardNavbar: FC<DashboardNavBarProps> = (props) => {
           >
             <Brightness4 />
           </StyledIconButton>
-        )}
+        )} */}
 
         {upSm && (
           <>
             <LanguagePopover />
             <NotificationsPopover />
-            <ServicePopover />
+            {/* <ServicePopover /> */}
             <ActivityPopover />
           </>
         )}
