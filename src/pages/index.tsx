@@ -7,13 +7,14 @@ import { useRouter } from 'next/router'
 
 const Home: NextPage = () => {
   const router = useRouter()
+  const user = localStorage.getItem('user');
 
-  // useEffect(() => {
-  //    {
-  //     router.push('/Eventos')
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [])
+
+  useEffect(() => {
+    if (user !== null) {
+      router.push('/authentication/Login')
+    }
+  }, [])
 
   return (
     <>

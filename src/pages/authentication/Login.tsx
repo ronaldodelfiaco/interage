@@ -1,53 +1,40 @@
-import { LoadingButton } from "@mui/lab";
-import {
-  Box,
-  Button,
-  ButtonBase,
-  Card,
-  Divider,
-  FormControlLabel,
-  FormHelperText,
-  Switch,
-} from "@mui/material";
-import {
-  SocialIconButton,
-  StyledTextField,
-  TextFieldWrapper,
-} from "../../components/authentication/StyledComponents";
-import FlexBox from "../../components/FlexBox";
-import { H1, H3, Paragraph, Small } from "../../components/Typography";
-import { useFormik } from "formik";
-import useAuth from "../../hooks/useAuth";
-import FacebookIcon from "../../icons/FacebookIcon";
-import GoogleIcon from "../../icons/GoogleIcon";
-import Link from "next/link";
-import { FC, useState } from "react";
-import toast from "react-hot-toast";
-import * as Yup from "yup";
-import { useRouter } from 'next/router';
+import { LoadingButton } from '@mui/lab';
+import { Box, Button, Card, FormHelperText } from '@mui/material';
+import { TextFieldWrapper } from '../../components/authentication/StyledComponents';
+import FlexBox from '../../components/FlexBox';
+import LightTextField from '../../components/LightTextField';
+import { H1, Paragraph, Small } from '../../components/Typography';
+import { useFormik } from 'formik';
+import useAuth from '../../hooks/useAuth';
+
 import Image from 'next/image';
+import Link from 'next/link';
+import { FC, useState } from 'react';
+import toast from 'react-hot-toast';
+import { useRouter } from 'next/router';
+import * as Yup from 'yup';
 
 const Login: FC = () => {
   const navigate = useRouter();
-  const { login,  loginWithFacebook, loginWithGoogle } = useAuth();
-  const [error, setError] = useState("");
+  const { login } = useAuth();
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const initialValues = {
-    email: "jason@ui-lib.com",
-    password: "123456",
+    email: '',
+    password: '',
     submit: null,
     remember: true,
   };
   // form field value validation schema
   const validationSchema = Yup.object().shape({
     email: Yup.string()
-      .email("Must be a valid email")
+      // .email("Precisa digitar um email valido")
       .max(255)
-      .required("Email is required"),
+      .required('Este campo e obrigatorio'),
     password: Yup.string()
-      .min(6, "Password should be of minimum 6 characters length")
-      .required("Password is required"),
+      // .min(6, "A senha precisa no minimo de 6 caracteres")
+      .required('A senha e obrigatoria'),
   });
 
   const { errors, values, touched, handleBlur, handleChange, handleSubmit } =
@@ -59,11 +46,12 @@ const Login: FC = () => {
         login(values.email, values.password)
           .then(() => {
             setLoading(false);
-            toast.success("You Logged In Successfully");
+            toast.success('Login efetuado com sucesso');
             navigate.push('/pessoas');
           })
           .catch((error) => {
-            setError(error.message);
+            /* setError(error.message); */
+            toast.error('Login errado');
             setLoading(false);
           });
       },
@@ -76,45 +64,35 @@ const Login: FC = () => {
       flexDirection="column"
       justifyContent="center"
     >
-      <Card sx={{ padding: 4, maxWidth: 600, marginTop: 4, boxShadow: 1 }}>
-        <Box textAlign="center" mb={5}>
-          <Image src="/favicon.png" width="100%" height="100%" alt="Logo"  />
-          <H1 fontWeight={700}>Sign In to Uko</H1>
-        </Box>
+      <Card sx={{ padding: 4, maxWidth: 600, boxShadow: 1 }}>
+        <FlexBox
+          alignItems="center"
+          flexDirection="column"
+          justifyContent="center"
+          mb={5}
+        >
+          <Box width={38} mb={1}>
+            <Image src="/favicon.png" width="100%" height="100%" alt="Logo" />{' '}
+          </Box>
+          <H1 fontSize={24} fontWeight={700}>
+            ENTRAR
+          </H1>
+        </FlexBox>
 
         <FlexBox justifyContent="space-between" flexWrap="wrap" my="1rem">
-          <SocialIconButton
-             onClick={loginWithGoogle}
-            startIcon={<GoogleIcon sx={{ mr: "0.5rem" }} />}
-          >
-            Sign in with Google
-          </SocialIconButton>
-          <SocialIconButton
-           // onClick={loginWithFacebook}
-            startIcon={<FacebookIcon sx={{ mr: "0.5rem" }} />}
-          >
-            Sign in with Facebook
-          </SocialIconButton>
-
-          <Divider sx={{ my: 3, width: "100%", alignItems: "flex-start" }}>
-            <H3 color="text.disabled" px={1}>
-              Or
-            </H3>
-          </Divider>
-
-          <form noValidate onSubmit={handleSubmit} style={{ width: "100%" }}>
+          <form noValidate onSubmit={handleSubmit} style={{ width: '100%' }}>
             <FlexBox justifyContent="space-between" flexWrap="wrap">
               <TextFieldWrapper>
                 <Paragraph fontWeight={600} mb={1}>
-                  Email
+                  Login
                 </Paragraph>
-                <StyledTextField
+                <LightTextField
                   fullWidth
                   name="email"
                   type="email"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.email || ""}
+                  value={values.email || ''}
                   error={Boolean(touched.email && errors.email)}
                   helperText={touched.email && errors.email}
                 />
@@ -122,39 +100,28 @@ const Login: FC = () => {
 
               <TextFieldWrapper>
                 <Paragraph fontWeight={600} mb={1}>
-                  Password
+                  Senha
                 </Paragraph>
-                <StyledTextField
+                <LightTextField
                   fullWidth
                   name="password"
                   type="password"
                   onBlur={handleBlur}
                   onChange={handleChange}
-                  value={values.password || ""}
+                  value={values.password || ''}
                   error={Boolean(touched.password && errors.password)}
                   helperText={touched.password && errors.password}
                 />
               </TextFieldWrapper>
             </FlexBox>
 
-            <FlexBox mt={2} alignItems="center" justifyContent="space-between">
-              <FormControlLabel
-                control={
-                  <Switch
-                    name="remember"
-                    checked={values.remember}
-                    onChange={handleChange}
-                  />
-                }
-                label="Remember Me"
-                sx={{
-                  "& .MuiTypography-root": { fontWeight: 600 },
-                }}
-              />
-              <ButtonBase disableRipple>
-                <Small color="secondary.red">Forgot Password?</Small>
-              </ButtonBase>
-            </FlexBox>
+            {/* <FlexBox mt={2} alignItems="center" justifyContent="space-between">
+              <Link href="/authentication/ForgetPassword" passHref>
+                <Small color="secondary.red">
+                   <a>Esqueceu a senha? </a>
+                   </Small>
+              </Link>
+            </FlexBox> */}
 
             {error && (
               <FormHelperText
@@ -163,7 +130,7 @@ const Login: FC = () => {
                   mt: 2,
                   fontSize: 13,
                   fontWeight: 500,
-                  textAlign: "center",
+                  textAlign: 'center',
                 }}
               >
                 {error}
@@ -173,22 +140,15 @@ const Login: FC = () => {
             <Box sx={{ mt: 4 }}>
               {loading ? (
                 <LoadingButton loading fullWidth variant="contained">
-                  Sign In
+                  Entrar
                 </LoadingButton>
               ) : (
                 <Button fullWidth type="submit" variant="contained">
-                  Sign In
+                  Entrar
                 </Button>
               )}
             </Box>
           </form>
-
-          <Small margin="auto" mt={3} color="text.disabled">
-            Don&apos;t have an account?{" "}
-            <Link href="/authentication/Register">
-              <a style={{ color: "#61A9FF" }}>Create an account</a>
-            </Link>
-          </Small>
         </FlexBox>
       </Card>
     </FlexBox>

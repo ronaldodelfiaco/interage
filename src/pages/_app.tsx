@@ -23,6 +23,7 @@ import { Toaster } from 'react-hot-toast'
 function InterageApp({ Component, pageProps }: AppProps) {
 const { settings } = useSettings();
 
+
 // Configuração do tema
 const appTheme = ukoTheme({
   theme: settings.theme,
@@ -72,7 +73,7 @@ return (
             </ThemeProvider>
           </StyledEngineProvider>
         </TitleContextProvider>
-      </SettingsProvider>
+      </SettingsProvider> 
     </AuthProvider>
 
 
