@@ -1,11 +1,22 @@
-import React from 'react';
-import InputMask from 'react-input-mask';
-import LightTextField from '../LightTextField';
+import React from "react";
+import InputMask from "react-input-mask";
+import LightTextField from "../LightTextField";
 
-const maskCPFCNPJ = ({ value, onChange }) => {
+const maskCPFCNPJ = ( props ) => {
   return (
-    <InputMask mask="999.999.999-99" value={value} onChange={onChange}>
-      <LightTextField fullWidth label="cpf ou cnpj" name='cpf'/>
+    <InputMask
+      mask="999.999.999-99"
+      value={props.value}
+      onChange={props.onChange}
+    >
+      {(inputProps) => (
+        <LightTextField
+          {...inputProps}
+          fullWidth
+          label={props.label}
+          name={props.name}
+        />
+      )}
     </InputMask>
   );
 };

@@ -1,11 +1,18 @@
-import React from 'react';
-import InputMask from 'react-input-mask';
-import LightTextField from '../LightTextField';
+import React from "react";
+import InputMask from "react-input-mask";
+import LightTextField from "../LightTextField";
 
-const maskDt = ({ value, onChange, label, name }) => {
+const maskDt = (props) => {
   return (
-    <InputMask mask="99/99/9999" value={value} onChange={onChange}>
-      <LightTextField fullWidth name={name} label={label} />
+    <InputMask mask="99/99/9999" value={props.value} onChange={props.onChange}>
+      {(inputProps) => (
+        <LightTextField
+          {...inputProps}
+          fullWidth
+          name={props.name}
+          label={props.label}
+        />
+      )}
     </InputMask>
   );
 };
