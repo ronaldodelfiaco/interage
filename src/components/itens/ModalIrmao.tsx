@@ -9,7 +9,7 @@ interface ModalIrmaoProps {
   setOpen: Dispatch<React.SetStateAction<boolean>>;
   // openDados: Array<any>;
   // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
-  setDadosAtributos: Dispatch<React.SetStateAction<Array<any>>>;
+  setDadosAtributos: any;
   itemDados: Array<any>;
 }
 
