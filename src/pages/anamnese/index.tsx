@@ -43,8 +43,7 @@ type irmao = {
 };
 
 const anamnese: FC = () => {
-  var title = "Anamnese";
-  useTitle(title);
+  let title = "Anamnese";
 
   const [openModalFilho, setOpenModalFilho] = useState(false);
   const [openModalIrmao, setOpenModalIrmao] = useState(false);
@@ -57,9 +56,6 @@ const anamnese: FC = () => {
 
   const [newFilhoDados, setNewFilhoDados] = useState<filho>();
   const [newIrmaoDados, setNewIrmaoDados] = useState<irmao>();
-
-  // const [cpf, setCPF] = useState('');
-  // const [dataNascimento, setDataNascimento] = useState('');
 
   useEffect(() => {
     filho1 = [];
@@ -110,16 +106,12 @@ const anamnese: FC = () => {
     estadoCivil: "",
     naturalidade: "",
     nomeEsposa: "",
-    idadeEsposa: "",
     tempoCasado: "",
-    idadeCasado: "",
+    idadeEsposa: "",
     profissaoEsposa: "",
-    UsuariaAlcool: false,
-    UsuariaDrogas: false,
-    UsuariaTabaco: false,
+    esposaUsuaria: [],
     estadoCivilPais: "",
-    paiVivo: false,
-    maeVivo: false,
+    paisVivos: [],
     nomePai: "",
     idadePai: "",
     profissaoPai: "",
@@ -136,41 +128,28 @@ const anamnese: FC = () => {
     escolaridade: "",
     motivoAbandono: "",
     drogasAlcool: "",
-    usaAlcool: false,
+    usaQuaisDrogas: [],
     idadeAlcool: "",
-    usaMaconha: false,
     idadeMaconha: "",
-    usaCocainaI: false,
     idadeCocainaI: "",
-    usaCocainaA: false,
     idadeCocainaA: "",
-    usaCrack: false,
     idadeCrack: "",
-    usaComprimido: false,
     idadeComprimido: "",
-    usaLSD: false,
     idadeLSD: "",
-    usaInalantes: false,
     idadeInalantes: "",
-    usaMesclado: false,
     idadeMesclado: "",
-    usaTabaco: false,
     idadeTabaco: "",
-    usaOutras: false,
     idadeOutras: "",
     quaisOutras: "",
     motivoInicio: "",
     tipodroga: "",
     observacoes: "",
     periodoAbstinencia: "",
-    situacoesUsoSozinho: false,
-    situacoesUsoAcompanhado: false,
-    situacoesUsoFora: false,
-    situacoesUsoDentro: false,
+    situacoesUso: [],
     observacoesB: "",
     familiaUsaDrogas: "",
     familiaGrauParentesco: "",
-    namorada: "",
+    temNamorada: "",
     namoradaNome: "",
     namoradaTempo: "",
     namoradaUsaDrogas: "",
@@ -198,24 +177,20 @@ const anamnese: FC = () => {
     alimentecao: "",
     temAlucinacao: "",
     qtdTipoAlucinacaoDroga: "",
-    qtdTipoAlucinacao: "",
     alucinacaoSemDrogas: "",
+    qtdTipoAlucinacao: "",
     tipoAlucinacao: "",
     descricaoAlucinacao: "",
     desmaioComDrogas: "",
-    desmaioSemDrogas: "",
     qndTipoDrogaDesmaio: "",
+    desmaioSemDrogas: "",
     qndDesmaio: "",
     desmaioDescricao: "",
     temOverdose: "",
     qtdTipoDrogaOverdose: "",
     tomaRemedio: "",
     sobreRemedio: "",
-    sintomasAnterioresCaxumba: false,
-    sintomasAnterioresCatapora: false,
-    sintomasAnterioresMeningite: false,
-    sintomasAnterioresSarampo: false,
-    sintomasAnterioresOutros: false,
+    sintomasAnteriores: [],
     outroSintomasAnteriores: "",
     acidentes: "",
     cirurgias: "",
@@ -236,9 +211,9 @@ const anamnese: FC = () => {
     cpf: Yup.string().min(14, "CPF muito curto").required("Campo obrigatório!"),
   });
 
-  const { values, handleChange, handleSubmit } = useFormik({
+  const { values, touched, errors, handleChange, handleSubmit } = useFormik({
     initialValues,
-    // validationSchema: fieldValidationSchema,
+    validationSchema: fieldValidationSchema,
     onSubmit: (values) => {
       const dia: number = +values.dataNascimento.split("/")[0];
       const mes: number = +values.dataNascimento.split("/")[1];
@@ -265,6 +240,7 @@ const anamnese: FC = () => {
   useEffect(() => {
     title = "Anamnese - " + values.nome;
   }, [values.nome]);
+  useTitle(title);
 
   return (
     <Card sx={{ padding: "1.5rem", pb: "4rem" }}>
@@ -286,24 +262,13 @@ const anamnese: FC = () => {
             alignItems="center"
             justifyContent="space-between"
           >
-            {/* <LightTextField
-            fullWidth
-            name="cpf"
-            label="cpf ou cnpj"
-            hiddenLabel
-            value={values.cpf}
-            // helperText={touched.cpf && errors.cpf}
-            // error={Boolean(touched.cpf && errors.cpf)}
-            
-            InputProps={{
-              inputComponent: maskCPFCNPJ as any,
-            }}
-          /> */}
             <MaskCPFCNPJ
               value={values.cpf}
               onChange={handleChange}
               name="cpf"
               label="cpf ou cnpj"
+              helperText={touched.cpf && errors.cpf}
+              error={Boolean(touched.cpf && errors.cpf)}
             />
           </Box>
           <Box
@@ -319,8 +284,8 @@ const anamnese: FC = () => {
               label="Nome"
               value={values.nome}
               onChange={handleChange}
-              // helperText={touched.nome && errors.nome}
-              // error={Boolean(touched.nome && errors.nome)}
+              helperText={touched.nome && errors.nome}
+              error={Boolean(touched.nome && errors.nome)}
             />
           </Box>
           <Box
@@ -330,14 +295,6 @@ const anamnese: FC = () => {
             alignItems="center"
             justifyContent="space-between"
           >
-            {/* <LightTextField
-            fullWidth
-            name="dataNascimento"
-            label="Data de Nascimento"
-            InputProps={{
-              inputComponent: maskDt as any,
-            }}
-          /> */}
             <MaskDt
               value={values.dataNascimento}
               onChange={handleChange}
@@ -358,45 +315,43 @@ const anamnese: FC = () => {
               label="Naturalidade"
               value={values.naturalidade}
               onChange={handleChange}
-              // helperText={touched.naturalidade && errors.naturalidade}
-              // error={Boolean(touched.naturalidade && errors.naturalidade)}
             />
           </Box>
           <Box display="flex" my="1rem">
             <Typography>{"Estado Civil"}</Typography>
             <RadioGroup row name="estadoCivil" onChange={handleChange}>
               <FormControlLabel
-                value="SO"
+                value="Solteiro"
                 control={<Radio />}
                 label={"Solteiro (a)"}
               />
               <FormControlLabel
-                value="C"
+                value="Casado"
                 control={<Radio />}
                 label={"Casado (a)"}
               />
               <FormControlLabel
-                value="A"
+                value="Amasiado"
                 control={<Radio />}
                 label={"Amasiado (a)"}
               />
               <FormControlLabel
-                value="V"
+                value="Viuvo"
                 control={<Radio />}
                 label={"Viúvo (a)"}
               />
               <FormControlLabel
-                value="SE"
+                value="Separado"
                 control={<Radio />}
                 label={"Separado (a)"}
               />
               <FormControlLabel
-                value="DE"
+                value="Desquitado"
                 control={<Radio />}
                 label={"Desquitado (a)"}
               />
               <FormControlLabel
-                value="DI"
+                value="Divorciado"
                 control={<Radio />}
                 label={"Divorciado (a)"}
               />
@@ -426,8 +381,6 @@ const anamnese: FC = () => {
               label="Nome da (o) esposa (o)"
               value={values.nomeEsposa}
               onChange={handleChange}
-              // helperText={touched.nomeEsposa && errors.nomeEsposa}
-              // error={Boolean(touched.nomeEsposa && errors.nomeEsposa)}
             />
           </Box>
           <Grid container spacing={4}>
@@ -463,8 +416,6 @@ const anamnese: FC = () => {
               label="Profissão do(a) Esposo(a)"
               value={values.profissaoEsposa}
               onChange={handleChange}
-              // helperText={touched.profissaoEsposa && errors.profissaoEsposa}
-              // error={Boolean(touched.profissaoEsposa && errors.profissaoEsposa)}
             />
           </Box>
           <Box display="flex" my="1rem">
@@ -473,17 +424,20 @@ const anamnese: FC = () => {
               <FormControlLabel
                 control={<Checkbox />}
                 label="álcool"
-                name="UsuariaAlcool"
+                value="UsuariaAlcool"
+                name="esposaUsuaria"
               />
               <FormControlLabel
                 control={<Checkbox />}
                 label="drogas"
-                name="UsuariaDrogas"
+                value="UsuariaDrogas"
+                name="esposaUsuaria"
               />
               <FormControlLabel
                 control={<Checkbox />}
                 label="tabaco"
-                name="UsuariaTabaco"
+                value="UsuariaTabaco"
+                name="esposaUsuaria"
               />
             </FormGroup>
           </Box>
@@ -544,37 +498,37 @@ const anamnese: FC = () => {
             <Typography>{"Estado Civil"}</Typography>
             <RadioGroup row name="estadoCivilPais" onChange={handleChange}>
               <FormControlLabel
-                value="SO"
+                value="Solteiro"
                 control={<Radio />}
                 label={"Solteiro (a)"}
               />
               <FormControlLabel
-                value="C"
+                value="Casado"
                 control={<Radio />}
                 label={"Casado (a)"}
               />
               <FormControlLabel
-                value="A"
+                value="Amasiado"
                 control={<Radio />}
                 label={"Amasiado (a)"}
               />
               <FormControlLabel
-                value="V"
+                value="Viuvo"
                 control={<Radio />}
                 label={"Viúvo (a)"}
               />
               <FormControlLabel
-                value="SE"
+                value="Separado"
                 control={<Radio />}
                 label={"Separado (a)"}
               />
               <FormControlLabel
-                value="DE"
+                value="Desquitado"
                 control={<Radio />}
                 label={"Desquitado (a)"}
               />
               <FormControlLabel
-                value="DI"
+                value="Divorciado"
                 control={<Radio />}
                 label={"Divorciado (a)"}
               />
@@ -586,12 +540,14 @@ const anamnese: FC = () => {
               <FormControlLabel
                 control={<Checkbox />}
                 label="Pai"
-                name="paiVivo"
+                value="paiVivo"
+                name="paisVivos"
               />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Mãe"
-                name="maeVivo"
+                value="maeVivo"
+                name="paisVivos"
               />
             </FormGroup>
           </Box>
@@ -609,8 +565,6 @@ const anamnese: FC = () => {
                 label="Nome do pai"
                 value={values.nomePai}
                 onChange={handleChange}
-                // helperText={touched.nomePai && errors.nomePai}
-                // error={Boolean(touched.nomePai && errors.nomePai)}
               />
             </Box>
             <Grid container spacing={4}>
@@ -649,8 +603,6 @@ const anamnese: FC = () => {
                 label="Nome do mãe"
                 value={values.nomeMae}
                 onChange={handleChange}
-                // helperText={touched.nomeMae && errors.nomeMae}
-                // error={Boolean(touched.nomeMae && errors.nomeMae)}
               />
             </Box>
             <Grid container spacing={4}>
@@ -772,7 +724,7 @@ const anamnese: FC = () => {
             </Box>
           ) : null}
           <Box display="flex" my="1rem">
-            <Typography>{"Está afastado pela Previdência Social?"}</Typography>
+            <Typography>Está afastado pela Previdência Social?</Typography>
             <RadioGroup row name="afastado" onChange={handleChange}>
               <FormControlLabel value="N" control={<Radio />} label="Não" />
               <FormControlLabel value="Y" control={<Radio />} label="Sim" />
@@ -862,17 +814,17 @@ const anamnese: FC = () => {
           <Box display="flex" my="1rem">
             <RadioGroup row name="drogasAlcool" onChange={handleChange}>
               <FormControlLabel
-                value="A"
+                value="Alcool"
                 control={<Radio />}
                 label={"Álcool"}
               />
               <FormControlLabel
-                value="D"
+                value="Drogas"
                 control={<Radio />}
                 label={"Drogas"}
               />
               <FormControlLabel
-                value="AD"
+                value="Alcool e Drogas"
                 control={<Radio />}
                 label={"Álcool e Drogas"}
               />
@@ -884,170 +836,159 @@ const anamnese: FC = () => {
               <FormControlLabel
                 control={<Checkbox />}
                 label="Álcool"
-                name="usaAlcool"
+                value="usaAlcool"
+                name="usaQuaisDrogas"
               />
-              {values.usaAlcool ? (
-                <LightTextField
-                  fullWidth
-                  name="idadeAlcool"
-                  label="Idade"
-                  value={values.idadeAlcool}
-                  onChange={handleChange}
-                />
-              ) : null}
+              <LightTextField
+                fullWidth
+                name="idadeAlcool"
+                label="Idade"
+                value={values.idadeAlcool}
+                onChange={handleChange}
+              />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Maconha"
-                name="usaMaconha"
+                value="usaMaconha"
+                name="usaQuaisDrogas"
               />
-              {values.usaMaconha ? (
-                <LightTextField
-                  fullWidth
-                  name="idadeMaconha"
-                  label="Idade"
-                  value={values.idadeMaconha}
-                  onChange={handleChange}
-                />
-              ) : null}
+              <LightTextField
+                fullWidth
+                name="idadeMaconha"
+                label="Idade"
+                value={values.idadeMaconha}
+                onChange={handleChange}
+              />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Cocaína (I)"
-                name="usaCocainaI"
+                value="usaCocainaI"
+                name="usaQuaisDrogas"
               />
-              {values.usaCocainaI ? (
-                <LightTextField
-                  fullWidth
-                  name="idadeCocainaI"
-                  label="Idade"
-                  value={values.idadeCocainaI}
-                  onChange={handleChange}
-                />
-              ) : null}
+              <LightTextField
+                fullWidth
+                name="idadeCocainaI"
+                label="Idade"
+                value={values.idadeCocainaI}
+                onChange={handleChange}
+              />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Cocaína (A)"
-                name="usaCocainaA"
+                value="usaCocainaA"
+                name="usaQuaisDrogas"
               />
-              {values.usaCocainaA ? (
-                <LightTextField
-                  fullWidth
-                  name="idadeCocainaA"
-                  label="Idade"
-                  value={values.idadeCocainaA}
-                  onChange={handleChange}
-                />
-              ) : null}
+              <LightTextField
+                fullWidth
+                name="idadeCocainaA"
+                label="Idade"
+                value={values.idadeCocainaA}
+                onChange={handleChange}
+              />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Crack"
-                name="usaCrack"
+                value="usaCrack"
+                name="usaQuaisDrogas"
               />
-              {values.usaCrack ? (
-                <LightTextField
-                  fullWidth
-                  name="idadeCrack"
-                  label="Idade"
-                  value={values.idadeCrack}
-                  onChange={handleChange}
-                />
-              ) : null}
+              <LightTextField
+                fullWidth
+                name="idadeCrack"
+                label="Idade"
+                value={values.idadeCrack}
+                onChange={handleChange}
+              />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Comprimido"
-                name="usaComprimido"
+                value="usaComprimido"
+                name="usaQuaisDrogas"
               />
-              {values.usaComprimido ? (
-                <LightTextField
-                  fullWidth
-                  name="idadeComprimido"
-                  label="Idade"
-                  value={values.idadeComprimido}
-                  onChange={handleChange}
-                />
-              ) : null}
+              <LightTextField
+                fullWidth
+                name="idadeComprimido"
+                label="Idade"
+                value={values.idadeComprimido}
+                onChange={handleChange}
+              />
               <FormControlLabel
                 control={<Checkbox />}
                 label="LSD"
-                name="usaLSD"
+                value="usaLSD"
+                name="usaQuaisDrogas"
               />
-              {values.usaLSD ? (
-                <LightTextField
-                  fullWidth
-                  name="idadeLSD"
-                  label="Idade"
-                  value={values.idadeLSD}
-                  onChange={handleChange}
-                />
-              ) : null}
+              <LightTextField
+                fullWidth
+                name="idadeLSD"
+                label="Idade"
+                value={values.idadeLSD}
+                onChange={handleChange}
+              />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Inalantes"
-                name="usaInalantes"
+                value="usaInalantes"
+                name="usaQuaisDrogas"
               />
-              {values.usaInalantes ? (
-                <LightTextField
-                  fullWidth
-                  name="idadeInalantes"
-                  label="Idade"
-                  value={values.idadeInalantes}
-                  onChange={handleChange}
-                />
-              ) : null}
+              <LightTextField
+                fullWidth
+                name="idadeInalantes"
+                label="Idade"
+                value={values.idadeInalantes}
+                onChange={handleChange}
+              />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Mesclado"
-                name="usaMesclado"
+                value="usaMesclado"
+                name="usaQuaisDrogas"
               />
-              {values.usaMesclado ? (
-                <LightTextField
-                  fullWidth
-                  name="idadeMesclado"
-                  label="Idade"
-                  value={values.idadeMesclado}
-                  onChange={handleChange}
-                />
-              ) : null}
+              <LightTextField
+                fullWidth
+                name="idadeMesclado"
+                label="Idade"
+                value={values.idadeMesclado}
+                onChange={handleChange}
+              />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Tabaco"
-                name="usaTabaco"
+                value="usaTabaco"
+                name="usaQuaisDrogas"
               />
-              {values.usaTabaco ? (
-                <LightTextField
-                  fullWidth
-                  name="idadeTabaco"
-                  label="Idade"
-                  value={values.idadeTabaco}
-                  onChange={handleChange}
-                />
-              ) : null}
+              <LightTextField
+                fullWidth
+                name="idadeTabaco"
+                label="Idade"
+                value={values.idadeTabaco}
+                onChange={handleChange}
+              />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Outras"
-                name="usaOutras"
+                value="usaOutras"
+                name="usaQuaisDrogas"
               />
-              {values.usaOutras ? (
-                <Grid container spacing={4}>
-                  <Grid item xs={12} sm={6}>
-                    <LightTextField
-                      fullWidth
-                      name="idadeOutras"
-                      label="Idade"
-                      value={values.idadeOutras}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <LightTextField
-                      fullWidth
-                      name="quaisOutras"
-                      label="Quais?"
-                      value={values.quaisOutras}
-                      onChange={handleChange}
-                    />
-                  </Grid>
+              <Grid container spacing={4}>
+                <Grid item xs={12} sm={6}>
+                  <LightTextField
+                    fullWidth
+                    name="idadeOutras"
+                    label="Idade"
+                    value={values.idadeOutras}
+                    onChange={handleChange}
+                  />
                 </Grid>
-              ) : null}
+                <Grid item xs={12} sm={6}>
+                  <LightTextField
+                    fullWidth
+                    name="quaisOutras"
+                    label="Quais?"
+                    value={values.quaisOutras}
+                    onChange={handleChange}
+                  />
+                </Grid>
+              </Grid>
             </FormGroup>
           </Box>
           <Box
@@ -1117,21 +1058,25 @@ const anamnese: FC = () => {
                 control={<Checkbox />}
                 label="Sozinho"
                 name="situacoesUso"
+                value={"Sozinho"}
               />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Acompanhado"
                 name="situacoesUso"
+                value={"Acompanhado"}
               />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Fora de casa"
                 name="situacoesUso"
+                value={"foraCasa"}
               />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Dentro de casa"
                 name="situacoesUso"
+                value={"dentroCasa"}
               />
             </FormGroup>
           </Box>
@@ -1192,7 +1137,7 @@ const anamnese: FC = () => {
             <Grid item xs={12} sm={6}>
               <Box display="flex" my="1rem">
                 <Typography>Namorada</Typography>
-                <RadioGroup row name="namorada" onChange={handleChange}>
+                <RadioGroup row name="TemNamorada" onChange={handleChange}>
                   <FormControlLabel
                     value="N"
                     control={<Radio />}
@@ -1206,7 +1151,7 @@ const anamnese: FC = () => {
                 </RadioGroup>
               </Box>
             </Grid>
-            {values.namorada === "Y" ? (
+            {values.temNamorada === "Y" ? (
               <Grid item xs={12} sm={6}>
                 <Box
                   display="flex"
@@ -1226,7 +1171,7 @@ const anamnese: FC = () => {
               </Grid>
             ) : null}
           </Grid>
-          {values.namorada === "Y" ? (
+          {values.temNamorada === "Y" ? (
             <div>
               <Box
                 display="flex"
@@ -1673,7 +1618,7 @@ const anamnese: FC = () => {
               >
                 <LightTextField
                   fullWidth
-                  name="qtdTipoAlucinacaoDroga"
+                  name="qtdTipoAlucinacao"
                   label="Quantidade e tipo de droga"
                   value={values.qtdTipoAlucinacao}
                   onChange={handleChange}
@@ -1834,27 +1779,32 @@ const anamnese: FC = () => {
               <FormControlLabel
                 control={<Checkbox />}
                 label="Caxumba"
-                name="sintomasAnterioresCaxumba"
+                value="sintomasAnterioresCaxumba"
+                name="sintomasAnteriores"
               />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Catapora"
-                name="sintomasAnterioresCatapora"
+                value="sintomasAnterioresCatapora"
+                name="sintomasAnteriores"
               />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Meningite"
-                name="sintomasAnterioresMeningite"
+                value="sintomasAnterioresMeningite"
+                name="sintomasAnteriores"
               />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Sarampo"
-                name="sintomasAnterioresSarampo"
+                value="sintomasAnterioresSarampo"
+                name="sintomasAnteriores"
               />
               <FormControlLabel
                 control={<Checkbox />}
                 label="Outros"
-                name="sintomasAnterioresOutros"
+                value="sintomasAnterioresOutros"
+                name="sintomasAnteriores"
               />
             </FormGroup>
           </Box>

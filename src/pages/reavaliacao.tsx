@@ -10,19 +10,15 @@ import {
 } from "@mui/material";
 import { format } from "date-fns";
 import { useFormik } from "formik";
-import { t } from "i18next";
 import router from "next/router";
 import * as React from "react";
 import { FC } from "react";
 import LightTextField from "../components/LightTextField";
-import useTitle from "../hooks/useTitle";
 import MaskCPFCNPJ from "../components/masks/maskCPFCNPJ";
 import MaskDt from "../components/masks/maskDt";
+import useTitle from "../hooks/useTitle";
 
-const reavaliacao: FC = () => {
-  var title = "Reavaliação";
-  useTitle(title);
-
+const reavaliacao: FC<{}> = () => {
   const initialValues = {
     cpf: "",
     nome: "",
@@ -33,13 +29,13 @@ const reavaliacao: FC = () => {
     porQue: "",
     medicamentos: "",
     medicamentosTipo: "",
-    tontura: "",
+    temTontura: "",
     tentativaSuicidio: "",
     QualidadeSono: "",
     comendo: "",
-    agua: "",
+    ingestaoAgua: "",
     deficiencia: "",
-    deficienciaQuem: "",
+    QualDeficiencia: "",
     agressividade: "",
     agressividadeQuem: "",
     alcoolismo: "",
@@ -77,7 +73,6 @@ const reavaliacao: FC = () => {
 
   const { values, handleChange, handleSubmit } = useFormik({
     initialValues,
-    // validationSchema: fieldValidationSchema,
     onSubmit: (values) => {
       const dia: number = +values.dataInternacao.split("/")[0];
       const mes: number = +values.dataInternacao.split("/")[1];
@@ -96,11 +91,12 @@ const reavaliacao: FC = () => {
         dataInternacao: format(data, "dd-MM-yyyy HH:mm:ss"),
       };
       const reavaliacao = Object.assign(values, adicional);
-      const JSONdata = JSON.stringify(reavaliacao);
       console.log(reavaliacao);
+      const JSONdata = JSON.stringify(reavaliacao);
       console.log(JSONdata);
     },
   });
+  useTitle("Reavaliação" + " " + values.nome);
 
   return (
     <Card sx={{ padding: "1.5rem", pb: "4rem" }}>
@@ -128,15 +124,6 @@ const reavaliacao: FC = () => {
               name="cpf"
               label="cpf ou cnpj"
             />
-            {/* <LightTextField
-            fullWidth
-            name="cpf"
-            label="cpf ou cnpj"
-            value={values.cpf}
-            onChange={handleChange}
-            // helperText={touched.cpf && errors.cpf}
-            // error={Boolean(touched.cpf && errors.cpf)}
-          /> */}
           </Box>
           <Box
             display={"flex"}
@@ -151,19 +138,10 @@ const reavaliacao: FC = () => {
               label="Nome"
               value={values.nome}
               onChange={handleChange}
-              // helperText={touched.nome && errors.nome}
-              // error={Boolean(touched.nome && errors.nome)}
             />
           </Box>
           <Grid container spacing={4}>
             <Grid item xs={12} sm={6}>
-              {/* <LightTextField
-              fullWidth
-              name="dataInternacao"
-              label="Data de Internacao"
-              // value={values.dataInternacao}
-              // onChange={handleChange}
-            /> */}
               <MaskDt
                 value={values.dataInternacao}
                 onChange={handleChange}
@@ -178,12 +156,6 @@ const reavaliacao: FC = () => {
                 label="Responsável pela internação"
                 value={values.responsavelInternacao}
                 onChange={handleChange}
-                // helperText={
-                // touched.responsavelInternacao && errors.responsavelInternacao
-                // }
-                // error={Boolean(
-                // touched.responsavelInternacao && errors.responsavelInternacao,
-                // )}
               />
             </Grid>
           </Grid>
@@ -202,11 +174,7 @@ const reavaliacao: FC = () => {
             <Typography variant="h6">
               Durante os últimos 2 anos recebeu algum tratamento médico?
             </Typography>
-            <RadioGroup
-              row
-              name="tratamentoMedico"
-              //  onChange{handleChange}
-            >
+            <RadioGroup row name="tratamentoMedico" onChange={handleChange}>
               <FormControlLabel value="N" control={<Radio />} label="Não" />
               <FormControlLabel value="Y" control={<Radio />} label="Sim" />
             </RadioGroup>
@@ -220,8 +188,6 @@ const reavaliacao: FC = () => {
                   label="Em que especialidade?"
                   value={values.especialidade}
                   onChange={handleChange}
-                  // helperText={touched.especialidade && errors.especialidade}
-                  // error={Boolean(touched.especialidade && errors.especialidade)}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -231,8 +197,6 @@ const reavaliacao: FC = () => {
                   label="Por quê?"
                   value={values.porQue}
                   onChange={handleChange}
-                  // helperText={touched.porQue && errors.porQue}
-                  // error={Boolean(touched.porQue && errors.porQue)}
                 />
               </Grid>
             </Grid>
@@ -259,10 +223,6 @@ const reavaliacao: FC = () => {
                 label="Quais?"
                 value={values.medicamentosTipo}
                 onChange={handleChange}
-                // helperText={touched.medicamentosTipo && errors.medicamentosTipo}
-                // error={Boolean(
-                // touched.medicamentosTipo && errors.medicamentosTipo,
-                // )}
               />
             </Box>
           ) : null}
@@ -270,7 +230,7 @@ const reavaliacao: FC = () => {
             <Typography variant="h6">
               Costuma sentir tonturas ou ter desmaios?
             </Typography>
-            <RadioGroup row name="tontura" onChange={handleChange}>
+            <RadioGroup row name="temTontura" onChange={handleChange}>
               <FormControlLabel value="N" control={<Radio />} label="Não" />
               <FormControlLabel value="Y" control={<Radio />} label="Sim" />
             </RadioGroup>
@@ -280,35 +240,41 @@ const reavaliacao: FC = () => {
             <Typography variant="h6">
               Pensamentos ou tentativas de suicídio?
             </Typography>
-            <RadioGroup
-              row
-              name="tentativaSuicidio"
-              //
-              onChange={handleChange}
-            >
+            <RadioGroup row name="tentativaSuicidio" onChange={handleChange}>
               <FormControlLabel value="N" control={<Radio />} label="Não" />
               <FormControlLabel value="Y" control={<Radio />} label="Sim" />
             </RadioGroup>
           </Box>
           <Box display={"flex"} my="1rem">
             <Typography variant="h6">Qualidade do sono:</Typography>
-            <RadioGroup
-              row
-              name="QualidadeSono"
-              //
-              onChange={handleChange}
-            >
-              <FormControlLabel value="W" control={<Radio />} label="Bem" />
-              <FormControlLabel value="R" control={<Radio />} label="Regular" />
-              <FormControlLabel value="B" control={<Radio />} label="Péssima" />
+            <RadioGroup row name="QualidadeSono" onChange={handleChange}>
+              <FormControlLabel value="Bem" control={<Radio />} label="Bem" />
+              <FormControlLabel
+                value="Regular"
+                control={<Radio />}
+                label="Regular"
+              />
+              <FormControlLabel
+                value="Pessimo"
+                control={<Radio />}
+                label="Péssima"
+              />
             </RadioGroup>
           </Box>
           <Box display={"flex"} my="1rem">
             <Typography variant="h6">Se Alimenta:</Typography>
             <RadioGroup row name="comendo" onChange={handleChange}>
-              <FormControlLabel value="W" control={<Radio />} label="Bem" />
-              <FormControlLabel value="R" control={<Radio />} label="Regular" />
-              <FormControlLabel value="B" control={<Radio />} label="Péssima" />
+              <FormControlLabel value="Bem" control={<Radio />} label="Bem" />
+              <FormControlLabel
+                value="Regular"
+                control={<Radio />}
+                label="Regular"
+              />
+              <FormControlLabel
+                value="Pessimo"
+                control={<Radio />}
+                label="Péssima"
+              />
             </RadioGroup>
           </Box>
           <Box
@@ -320,12 +286,10 @@ const reavaliacao: FC = () => {
           >
             <LightTextField
               fullWidth
-              name="agua"
+              name="ingestaoAgua"
               label="Ingestão de água (copos/ dia)"
-              value={values.agua}
+              value={values.ingestaoAgua}
               onChange={handleChange}
-              // helperText={touched.agua && errors.agua}
-              // error={Boolean(touched.agua && errors.agua)}
             />
           </Box>
         </Card>
@@ -359,14 +323,10 @@ const reavaliacao: FC = () => {
               >
                 <LightTextField
                   fullWidth
-                  name="deficienciaQuem"
-                  label="Quem?"
-                  value={values.deficienciaQuem}
+                  name="QualDeficiencia"
+                  label="Qual?"
+                  value={values.QualDeficiencia}
                   onChange={handleChange}
-                  // helperText={touched.deficienciaQuem && errors.deficienciaQuem}
-                  // error={Boolean(
-                  // touched.deficienciaQuem && errors.deficienciaQuem,
-                  // )}
                 />
               </Box>
             ) : null}
@@ -393,12 +353,6 @@ const reavaliacao: FC = () => {
                   label="Quem?"
                   value={values.agressividadeQuem}
                   onChange={handleChange}
-                  // helperText={
-                  // touched.agressividadeQuem && errors.agressividadeQuem
-                  // }
-                  // error={Boolean(
-                  // touched.agressividadeQuem && errors.agressividadeQuem,
-                  // )}
                 />
               </Box>
             ) : null}
@@ -425,8 +379,6 @@ const reavaliacao: FC = () => {
                   label="Quem?"
                   value={values.alcoolismoQuem}
                   onChange={handleChange}
-                  // helperText={touched.alcoolismoQuem && errors.alcoolismoQuem}
-                  // error={Boolean(touched.alcoolismoQuem && errors.alcoolismoQuem)}
                 />
               </Box>
             ) : null}
@@ -453,11 +405,9 @@ const reavaliacao: FC = () => {
                   label="Quem?"
                   value={values.drogasQuem}
                   onChange={handleChange}
-                  // helperText={touched.drogasQuem && errors.drogasQuem}
-                  // error={Boolean(touched.drogasQuem && errors.drogasQuem)}
                 />
               </Box>
-            ) : null}{" "}
+            ) : null}
           </div>
           <div>
             <Box display={"flex"} my="1rem">
@@ -481,8 +431,6 @@ const reavaliacao: FC = () => {
                   label="Quem?"
                   value={values.suicidioQuem}
                   onChange={handleChange}
-                  // helperText={touched.suicidioQuem && errors.suicidioQuem}
-                  // error={Boolean(touched.suicidioQuem && errors.suicidioQuem)}
                 />
               </Box>
             ) : null}
@@ -513,8 +461,6 @@ const reavaliacao: FC = () => {
               label={"Quais substâncias psicoativas já fez uso?"}
               value={values.drogasUsos}
               onChange={handleChange}
-              // helperText={touched.drogasUsos && errors.drogasUsos}
-              // error={Boolean(touched.drogasUsos && errors.drogasUsos)}
             />
           </Box>
 
@@ -531,8 +477,6 @@ const reavaliacao: FC = () => {
               label={"Com que idade iniciou o uso?"}
               value={values.idadeinicioUso}
               onChange={handleChange}
-              // helperText={touched.idadeinicioUso && errors.idadeinicioUso}
-              // error={Boolean(touched.idadeinicioUso && errors.idadeinicioUso)}
             />
           </Box>
 
@@ -549,8 +493,6 @@ const reavaliacao: FC = () => {
               label={"Em que circunstancias?"}
               value={values.circunstancias}
               onChange={handleChange}
-              // helperText={touched.circunstancias && errors.circunstancias}
-              // error={Boolean(touched.circunstancias && errors.circunstancias)}
             />
           </Box>
 
@@ -567,8 +509,6 @@ const reavaliacao: FC = () => {
               label={"Em que quantidade?"}
               value={values.quantidade}
               onChange={handleChange}
-              // helperText={touched.quantidade && errors.quantidade}
-              // error={Boolean(touched.quantidade && errors.quantidade)}
             />
           </Box>
           <Box
@@ -584,12 +524,6 @@ const reavaliacao: FC = () => {
               label={"Em quantidade usava antes da internação?"}
               value={values.quantidadeAntesInternar}
               onChange={handleChange}
-              // helperText={
-              // touched.quantidadeAntesInternar && errors.quantidadeAntesInternar
-              // }
-              // error={Boolean(
-              // touched.quantidadeAntesInternar && errors.quantidadeAntesInternar,
-              // )}
             />
           </Box>
 
@@ -622,8 +556,6 @@ const reavaliacao: FC = () => {
                   label="Quais Prejuisos?"
                   value={values.quaisPrejuisos}
                   onChange={handleChange}
-                  // helperText={touched.quaisPrejuisos && errors.quaisPrejuisos}
-                  // error={Boolean(touched.quaisPrejuisos && errors.quaisPrejuisos)}
                 />
               </Box>
             ) : null}
@@ -641,10 +573,6 @@ const reavaliacao: FC = () => {
               label="Drogas de preferência"
               value={values.drogasPreferencia}
               onChange={handleChange}
-              // helperText={touched.drogasPreferencia && errors.drogasPreferencia}
-              // error={Boolean(
-              // touched.drogasPreferencia && errors.drogasPreferencia,
-              // )}
             />
           </Box>
           <Box
@@ -660,12 +588,6 @@ const reavaliacao: FC = () => {
               label="Substâncias associadas ao uso"
               value={values.substanciasAssociadaUso}
               onChange={handleChange}
-              // helperText={
-              // touched.substanciasAssociadaUso && errors.substanciasAssociadaUso
-              // }
-              // error={Boolean(
-              // touched.substanciasAssociadaUso && errors.substanciasAssociadaUso,
-              // )}
             />
           </Box>
           <Box
@@ -681,8 +603,6 @@ const reavaliacao: FC = () => {
               label="Efeito esperado"
               value={values.efeitoEsperado}
               onChange={handleChange}
-              // helperText={touched.efeitoEsperado && errors.efeitoEsperado}
-              // error={Boolean(touched.efeitoEsperado && errors.efeitoEsperado)}
             />
           </Box>
           <Box
@@ -698,8 +618,6 @@ const reavaliacao: FC = () => {
               label="Efeito indesejado"
               value={values.efeitoInesperado}
               onChange={handleChange}
-              // helperText={touched.efeitoInesperado && errors.efeitoInesperado}
-              // error={Boolean(touched.efeitoInesperado && errors.efeitoInesperado)}
             />
           </Box>
           <Box
@@ -715,10 +633,6 @@ const reavaliacao: FC = () => {
               label="Sintomas da abstinência"
               value={values.sintomasAbstinecia}
               onChange={handleChange}
-              // helperText={touched.sintomasAbstinecia && errors.sintomasAbstinecia}
-              // error={Boolean(
-              // touched.sintomasAbstinecia && errors.sintomasAbstinecia,
-              // )}
             />
           </Box>
           <Box display={"flex"} my="1rem">
@@ -757,10 +671,6 @@ const reavaliacao: FC = () => {
                 label="Por quantas internações passou"
                 value={values.numeroInternacoes}
                 onChange={handleChange}
-                // helperText={touched.numeroInternacoes && errors.numeroInternacoes}
-                // error={Boolean(
-                // touched.numeroInternacoes && errors.numeroInternacoes,
-                // )}
               />
             </Box>
           ) : null}
@@ -777,10 +687,6 @@ const reavaliacao: FC = () => {
               label="Quem a lembrança mais marcante em sua vida"
               value={values.lembrancaMarcante}
               onChange={handleChange}
-              // helperText={touched.lembrancaMarcante && errors.lembrancaMarcante}
-              // error={Boolean(
-              // touched.lembrancaMarcante && errors.lembrancaMarcante,
-              // )}
             />
           </Box>
           <Box
@@ -796,8 +702,6 @@ const reavaliacao: FC = () => {
               label="Tem algum arrependimento ou frustração"
               value={values.arrependimento}
               onChange={handleChange}
-              // helperText={touched.arrependimento && errors.arrependimento}
-              // error={Boolean(touched.arrependimento && errors.arrependimento)}
             />
           </Box>
           <Box display={"flex"} my="1rem">
@@ -821,8 +725,6 @@ const reavaliacao: FC = () => {
                 label="Motivado por:"
                 value={values.motivoCrime}
                 onChange={handleChange}
-                // helperText={touched.motivoCrime && errors.motivoCrime}
-                // error={Boolean(touched.motivoCrime && errors.motivoCrime)}
               />
             </Box>
           ) : null}
@@ -840,8 +742,6 @@ const reavaliacao: FC = () => {
             psicoativas?"
               value={values.motivoDrogas}
               onChange={handleChange}
-              // helperText={touched.motivoDrogas && errors.motivoDrogas}
-              // error={Boolean(touched.motivoDrogas && errors.motivoDrogas)}
             />
           </Box>
           <Box display={"flex"} my="1rem">
@@ -878,8 +778,6 @@ const reavaliacao: FC = () => {
               label="O que espera da internação?"
               value={values.esperaInternacao}
               onChange={handleChange}
-              // helperText={touched.esperaInternacao && errors.esperaInternacao}
-              // error={Boolean(touched.esperaInternacao && errors.esperaInternacao)}
             />
           </Box>
           <Box
@@ -895,10 +793,6 @@ const reavaliacao: FC = () => {
               label="Quem a expectativa da reinserção familiar e social?"
               value={values.expectativaSocial}
               onChange={handleChange}
-              // helperText={touched.expectativaSocial && errors.expectativaSocial}
-              // error={Boolean(
-              // touched.expectativaSocial && errors.expectativaSocial,
-              // )}
             />
           </Box>
           <Box
@@ -915,8 +809,6 @@ const reavaliacao: FC = () => {
             mais relevantes que foram observadas durante a entrevista."
               value={values.breveRelato}
               onChange={handleChange}
-              // helperText={touched.breveRelato && errors.breveRelato}
-              // error={Boolean(touched.breveRelato && errors.breveRelato)}
             />
           </Box>
         </Card>
