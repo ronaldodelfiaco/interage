@@ -2,7 +2,9 @@ import {
   Box,
   Button,
   Card,
+  FormControl,
   FormControlLabel,
+  FormLabel,
   Grid,
   Radio,
   RadioGroup,
@@ -171,13 +173,15 @@ const reavaliacao: FC<{}> = () => {
         </Box>
         <Card sx={{ padding: 3, pb: 4 }}>
           <Box display={"flex"} my="1rem">
-            <Typography variant="h6">
-              Durante os últimos 2 anos recebeu algum tratamento médico?
-            </Typography>
-            <RadioGroup row name="tratamentoMedico" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>
+                Durante os últimos 2 anos recebeu algum tratamento médico?
+              </FormLabel>
+              <RadioGroup row name="tratamentoMedico" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           {values.tratamentoMedico === "Y" ? (
             <Grid container spacing={4}>
@@ -203,11 +207,13 @@ const reavaliacao: FC<{}> = () => {
           ) : null}
 
           <Box display={"flex"} my="1rem">
-            <Typography variant="h6">Você toma algum Medicamento?</Typography>
-            <RadioGroup row name="medicamentos" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Você toma algum Medicamento?</FormLabel>
+              <RadioGroup row name="medicamentos" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           {values.medicamentos === "Y" ? (
             <Box
@@ -227,55 +233,59 @@ const reavaliacao: FC<{}> = () => {
             </Box>
           ) : null}
           <Box display={"flex"} my="1rem">
-            <Typography variant="h6">
-              Costuma sentir tonturas ou ter desmaios?
-            </Typography>
-            <RadioGroup row name="temTontura" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Costuma sentir tonturas ou ter desmaios?</FormLabel>
+              <RadioGroup row name="temTontura" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
 
           <Box display={"flex"} my="1rem">
-            <Typography variant="h6">
-              Pensamentos ou tentativas de suicídio?
-            </Typography>
-            <RadioGroup row name="tentativaSuicidio" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Pensamentos ou tentativas de suicídio?</FormLabel>
+              <RadioGroup row name="tentativaSuicidio" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           <Box display={"flex"} my="1rem">
-            <Typography variant="h6">Qualidade do sono:</Typography>
-            <RadioGroup row name="QualidadeSono" onChange={handleChange}>
-              <FormControlLabel value="Bem" control={<Radio />} label="Bem" />
-              <FormControlLabel
-                value="Regular"
-                control={<Radio />}
-                label="Regular"
-              />
-              <FormControlLabel
-                value="Pessimo"
-                control={<Radio />}
-                label="Péssima"
-              />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Qualidade do sono:</FormLabel>
+              <RadioGroup row name="QualidadeSono" onChange={handleChange}>
+                <FormControlLabel value="Bem" control={<Radio />} label="Bem" />
+                <FormControlLabel
+                  value="Regular"
+                  control={<Radio />}
+                  label="Regular"
+                />
+                <FormControlLabel
+                  value="Pessimo"
+                  control={<Radio />}
+                  label="Péssima"
+                />
+              </RadioGroup>
+            </FormControl>
           </Box>
           <Box display={"flex"} my="1rem">
-            <Typography variant="h6">Se Alimenta:</Typography>
-            <RadioGroup row name="comendo" onChange={handleChange}>
-              <FormControlLabel value="Bem" control={<Radio />} label="Bem" />
-              <FormControlLabel
-                value="Regular"
-                control={<Radio />}
-                label="Regular"
-              />
-              <FormControlLabel
-                value="Pessimo"
-                control={<Radio />}
-                label="Péssima"
-              />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Se Alimenta:</FormLabel>
+              <RadioGroup row name="comendo" onChange={handleChange}>
+                <FormControlLabel value="Bem" control={<Radio />} label="Bem" />
+                <FormControlLabel
+                  value="Regular"
+                  control={<Radio />}
+                  label="Regular"
+                />
+                <FormControlLabel
+                  value="Pessimo"
+                  control={<Radio />}
+                  label="Péssima"
+                />
+              </RadioGroup>
+            </FormControl>
           </Box>
           <Box
             display={"flex"}
@@ -307,11 +317,13 @@ const reavaliacao: FC<{}> = () => {
         <Card sx={{ padding: 3, pb: 4 }}>
           <div>
             <Box display={"flex"} my="1rem">
-              <Typography variant="h6">Deficiência Física/ mental:</Typography>
-              <RadioGroup row name="deficiencia" onChange={handleChange}>
-                <FormControlLabel value="N" control={<Radio />} label="Não" />
-                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-              </RadioGroup>
+              <FormControl>
+                <FormLabel>Deficiência Física/ mental:</FormLabel>
+                <RadioGroup row name="deficiencia" onChange={handleChange}>
+                  <FormControlLabel value="N" control={<Radio />} label="Não" />
+                  <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+                </RadioGroup>
+              </FormControl>
             </Box>
             {values.deficiencia === "Y" ? (
               <Box
@@ -333,11 +345,13 @@ const reavaliacao: FC<{}> = () => {
           </div>
           <div>
             <Box display={"flex"} my="1rem">
-              <Typography variant="h6">Agressividade?</Typography>
-              <RadioGroup row name="agressividade" onChange={handleChange}>
-                <FormControlLabel value="N" control={<Radio />} label="Não" />
-                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-              </RadioGroup>
+              <FormControl>
+                <FormLabel>Agressividade?</FormLabel>
+                <RadioGroup row name="agressividade" onChange={handleChange}>
+                  <FormControlLabel value="N" control={<Radio />} label="Não" />
+                  <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+                </RadioGroup>
+              </FormControl>
             </Box>
             {values.agressividade === "Y" ? (
               <Box
@@ -359,11 +373,13 @@ const reavaliacao: FC<{}> = () => {
           </div>
           <div>
             <Box display={"flex"} my="1rem">
-              <Typography variant="h6">Alcoolismo?</Typography>
-              <RadioGroup row name="alcoolismo" onChange={handleChange}>
-                <FormControlLabel value="N" control={<Radio />} label="Não" />
-                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-              </RadioGroup>
+              <FormControl>
+                <FormLabel>Alcoolismo?</FormLabel>
+                <RadioGroup row name="alcoolismo" onChange={handleChange}>
+                  <FormControlLabel value="N" control={<Radio />} label="Não" />
+                  <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+                </RadioGroup>
+              </FormControl>
             </Box>
             {values.alcoolismo === "Y" ? (
               <Box
@@ -385,11 +401,13 @@ const reavaliacao: FC<{}> = () => {
           </div>
           <div>
             <Box display={"flex"} my="1rem">
-              <Typography variant="h6">Drogas?</Typography>
-              <RadioGroup row name="drogas" onChange={handleChange}>
-                <FormControlLabel value="N" control={<Radio />} label="Não" />
-                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-              </RadioGroup>
+              <FormControl>
+                <FormLabel>Drogas?</FormLabel>
+                <RadioGroup row name="drogas" onChange={handleChange}>
+                  <FormControlLabel value="N" control={<Radio />} label="Não" />
+                  <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+                </RadioGroup>
+              </FormControl>
             </Box>
             {values.drogas == "Y" ? (
               <Box
@@ -411,11 +429,13 @@ const reavaliacao: FC<{}> = () => {
           </div>
           <div>
             <Box display={"flex"} my="1rem">
-              <Typography variant="h6">Suicídio?</Typography>
-              <RadioGroup row name="suicidio" onChange={handleChange}>
-                <FormControlLabel value="N" control={<Radio />} label="Não" />
-                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-              </RadioGroup>
+              <FormControl>
+                <FormLabel>Suicídio?</FormLabel>
+                <RadioGroup row name="suicidio" onChange={handleChange}>
+                  <FormControlLabel value="N" control={<Radio />} label="Não" />
+                  <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+                </RadioGroup>
+              </FormControl>
             </Box>
             {values.suicidio === "Y" ? (
               <Box
@@ -529,18 +549,20 @@ const reavaliacao: FC<{}> = () => {
 
           <div>
             <Box display={"flex"} my="1rem">
-              <Typography variant="h6">
-                Você acredita que o uso de drogas e/ou álcool trouxe prejuízos a
-                sua vida?
-              </Typography>
-              <RadioGroup
-                row
-                name="respostaPrejuisoDrogas"
-                onChange={handleChange}
-              >
-                <FormControlLabel value="N" control={<Radio />} label="Não" />
-                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-              </RadioGroup>
+              <FormControl>
+                <FormLabel>
+                  Você acredita que o uso de drogas e/ou álcool trouxe prejuízos
+                  a sua vida?
+                </FormLabel>
+                <RadioGroup
+                  row
+                  name="respostaPrejuisoDrogas"
+                  onChange={handleChange}
+                >
+                  <FormControlLabel value="N" control={<Radio />} label="Não" />
+                  <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+                </RadioGroup>
+              </FormControl>
             </Box>
             {values.respostaPrejuisoDrogas === "Y" ? (
               <Box
@@ -636,26 +658,30 @@ const reavaliacao: FC<{}> = () => {
             />
           </Box>
           <Box display={"flex"} my="1rem">
-            <Typography variant="h6">Atual internação:</Typography>
-            <RadioGroup row name="internacaoAtual" onChange={handleChange}>
-              <FormControlLabel
-                value="V"
-                control={<Radio />}
-                label="Voluntária"
-              />
-              <FormControlLabel
-                value="I"
-                control={<Radio />}
-                label="Involuntária"
-              />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Atual internação:</FormLabel>
+              <RadioGroup row name="internacaoAtual" onChange={handleChange}>
+                <FormControlLabel
+                  value="V"
+                  control={<Radio />}
+                  label="Voluntária"
+                />
+                <FormControlLabel
+                  value="I"
+                  control={<Radio />}
+                  label="Involuntária"
+                />
+              </RadioGroup>
+            </FormControl>
           </Box>
           <Box display={"flex"} my="1rem">
-            <Typography variant="h6">Internações anteriores:</Typography>
-            <RadioGroup row name="internacaoAnterior" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Internações anteriores:</FormLabel>
+              <RadioGroup row name="internacaoAnterior" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           {values.internacaoAnterior === "Y" ? (
             <Box
@@ -705,11 +731,13 @@ const reavaliacao: FC<{}> = () => {
             />
           </Box>
           <Box display={"flex"} my="1rem">
-            <Typography variant="h6">Já cometeu algum crime ?</Typography>
-            <RadioGroup row name="cometeuCrime" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Já cometeu algum crime ?</FormLabel>
+              <RadioGroup row name="cometeuCrime" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           {values.cometeuCrime === "Y" ? (
             <Box
@@ -745,25 +773,39 @@ const reavaliacao: FC<{}> = () => {
             />
           </Box>
           <Box display={"flex"} my="1rem">
-            <Typography variant="h6">
-              Disponibilidade Para Tratamento:
-            </Typography>
-            <RadioGroup
-              row
-              name="disponibilidadeTratamento"
-              onChange={handleChange}
-            >
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Disponibilidade Para Tratamento:</FormLabel>
+              <RadioGroup
+                row
+                name="disponibilidadeTratamento"
+                onChange={handleChange}
+              >
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           <Box display={"flex"} my="1rem">
-            <Typography variant="h6">Nível de abstinência:</Typography>
-            <RadioGroup row name="nivelAbstinencia" onChange={handleChange}>
-              <FormControlLabel value="L" control={<Radio />} label={"Baixo"} />
-              <FormControlLabel value="M" control={<Radio />} label={"Médio"} />
-              <FormControlLabel value="H" control={<Radio />} label={"Alto"} />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Nível de abstinência:</FormLabel>
+              <RadioGroup row name="nivelAbstinencia" onChange={handleChange}>
+                <FormControlLabel
+                  value="L"
+                  control={<Radio />}
+                  label={"Baixo"}
+                />
+                <FormControlLabel
+                  value="M"
+                  control={<Radio />}
+                  label={"Médio"}
+                />
+                <FormControlLabel
+                  value="H"
+                  control={<Radio />}
+                  label={"Alto"}
+                />
+              </RadioGroup>
+            </FormControl>
           </Box>
           <Box
             display={"flex"}

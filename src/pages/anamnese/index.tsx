@@ -3,12 +3,14 @@ import {
   Button,
   Card,
   Checkbox,
+  FormControl,
   FormControlLabel,
   FormGroup,
+  FormLabel,
   Grid,
   Radio,
   RadioGroup,
-  Typography
+  Typography,
 } from "@mui/material";
 import { format } from "date-fns";
 import { useFormik } from "formik";
@@ -42,7 +44,7 @@ type irmao = {
   idade: Number;
 };
 
-const anamnese: FC = () => {
+const anamnese: FC<{}> = () => {
   let title = "Anamnese";
 
   const [openModalFilho, setOpenModalFilho] = useState(false);
@@ -318,44 +320,46 @@ const anamnese: FC = () => {
             />
           </Box>
           <Box display="flex" my="1rem">
-            <Typography>{"Estado Civil"}</Typography>
-            <RadioGroup row name="estadoCivil" onChange={handleChange}>
-              <FormControlLabel
-                value="Solteiro"
-                control={<Radio />}
-                label={"Solteiro (a)"}
-              />
-              <FormControlLabel
-                value="Casado"
-                control={<Radio />}
-                label={"Casado (a)"}
-              />
-              <FormControlLabel
-                value="Amasiado"
-                control={<Radio />}
-                label={"Amasiado (a)"}
-              />
-              <FormControlLabel
-                value="Viuvo"
-                control={<Radio />}
-                label={"Viúvo (a)"}
-              />
-              <FormControlLabel
-                value="Separado"
-                control={<Radio />}
-                label={"Separado (a)"}
-              />
-              <FormControlLabel
-                value="Desquitado"
-                control={<Radio />}
-                label={"Desquitado (a)"}
-              />
-              <FormControlLabel
-                value="Divorciado"
-                control={<Radio />}
-                label={"Divorciado (a)"}
-              />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Estado Civil</FormLabel>
+              <RadioGroup row name="estadoCivil" onChange={handleChange}>
+                <FormControlLabel
+                  value="Solteiro"
+                  control={<Radio />}
+                  label={"Solteiro (a)"}
+                />
+                <FormControlLabel
+                  value="Casado"
+                  control={<Radio />}
+                  label={"Casado (a)"}
+                />
+                <FormControlLabel
+                  value="Amasiado"
+                  control={<Radio />}
+                  label={"Amasiado (a)"}
+                />
+                <FormControlLabel
+                  value="Viuvo"
+                  control={<Radio />}
+                  label={"Viúvo (a)"}
+                />
+                <FormControlLabel
+                  value="Separado"
+                  control={<Radio />}
+                  label={"Separado (a)"}
+                />
+                <FormControlLabel
+                  value="Desquitado"
+                  control={<Radio />}
+                  label={"Desquitado (a)"}
+                />
+                <FormControlLabel
+                  value="Divorciado"
+                  control={<Radio />}
+                  label={"Divorciado (a)"}
+                />
+              </RadioGroup>
+            </FormControl>
           </Box>
         </Card>
         <Box
@@ -419,27 +423,29 @@ const anamnese: FC = () => {
             />
           </Box>
           <Box display="flex" my="1rem">
-            <Typography>Usuária (o)</Typography>
-            <FormGroup onChange={handleChange} row>
-              <FormControlLabel
-                control={<Checkbox />}
-                label="álcool"
-                value="UsuariaAlcool"
-                name="esposaUsuaria"
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="drogas"
-                value="UsuariaDrogas"
-                name="esposaUsuaria"
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="tabaco"
-                value="UsuariaTabaco"
-                name="esposaUsuaria"
-              />
-            </FormGroup>
+            <FormControl>
+              <FormLabel>Usuária (o)</FormLabel>
+              <FormGroup row onChange={handleChange}>
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="álcool"
+                  value="UsuariaAlcool"
+                  name="esposaUsuaria"
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="drogas"
+                  value="UsuariaDrogas"
+                  name="esposaUsuaria"
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="tabaco"
+                  value="UsuariaTabaco"
+                  name="esposaUsuaria"
+                />
+              </FormGroup>
+            </FormControl>
           </Box>
         </Card>
         <Box
@@ -495,61 +501,65 @@ const anamnese: FC = () => {
         </Box>
         <Card sx={{ padding: 3, pb: 4 }}>
           <Box display="flex" my="1rem">
-            <Typography>{"Estado Civil"}</Typography>
-            <RadioGroup row name="estadoCivilPais" onChange={handleChange}>
-              <FormControlLabel
-                value="Solteiro"
-                control={<Radio />}
-                label={"Solteiro (a)"}
-              />
-              <FormControlLabel
-                value="Casado"
-                control={<Radio />}
-                label={"Casado (a)"}
-              />
-              <FormControlLabel
-                value="Amasiado"
-                control={<Radio />}
-                label={"Amasiado (a)"}
-              />
-              <FormControlLabel
-                value="Viuvo"
-                control={<Radio />}
-                label={"Viúvo (a)"}
-              />
-              <FormControlLabel
-                value="Separado"
-                control={<Radio />}
-                label={"Separado (a)"}
-              />
-              <FormControlLabel
-                value="Desquitado"
-                control={<Radio />}
-                label={"Desquitado (a)"}
-              />
-              <FormControlLabel
-                value="Divorciado"
-                control={<Radio />}
-                label={"Divorciado (a)"}
-              />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Estado Civil</FormLabel>
+              <RadioGroup row name="estadoCivilPais" onChange={handleChange}>
+                <FormControlLabel
+                  value="Solteiro"
+                  control={<Radio />}
+                  label={"Solteiro (a)"}
+                />
+                <FormControlLabel
+                  value="Casado"
+                  control={<Radio />}
+                  label={"Casado (a)"}
+                />
+                <FormControlLabel
+                  value="Amasiado"
+                  control={<Radio />}
+                  label={"Amasiado (a)"}
+                />
+                <FormControlLabel
+                  value="Viuvo"
+                  control={<Radio />}
+                  label={"Viúvo (a)"}
+                />
+                <FormControlLabel
+                  value="Separado"
+                  control={<Radio />}
+                  label={"Separado (a)"}
+                />
+                <FormControlLabel
+                  value="Desquitado"
+                  control={<Radio />}
+                  label={"Desquitado (a)"}
+                />
+                <FormControlLabel
+                  value="Divorciado"
+                  control={<Radio />}
+                  label={"Divorciado (a)"}
+                />
+              </RadioGroup>
+            </FormControl>
           </Box>
           <Box display="flex" my="1rem">
-            <Typography>Pais Vivos</Typography>
-            <FormGroup onChange={handleChange} row>
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Pai"
-                value="paiVivo"
-                name="paisVivos"
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Mãe"
-                value="maeVivo"
-                name="paisVivos"
-              />
-            </FormGroup>
+            <FormControl>
+              <FormLabel>Pais Vivos</FormLabel>
+              <FormGroup onChange={handleChange} row>
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Pai"
+                  value="paiVivo"
+                  name="paisVivos"
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Mãe"
+                  value="maeVivo"
+                  name="paisVivos"
+                />
+              </FormGroup>
+            </FormControl>
           </Box>
           <Card sx={{ padding: 3, pb: 4 }}>
             <Box
@@ -700,11 +710,13 @@ const anamnese: FC = () => {
         </Box>
         <Card sx={{ padding: 3, pb: 4 }}>
           <Box display="flex" my="1rem">
-            <Typography>{"Trabalha atualmente?"}</Typography>
-            <RadioGroup row name="profissao" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Trabalha atualmente?</FormLabel>
+              <RadioGroup row name="profissao" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           {values.profissao === "Y" ? (
             <Box
@@ -724,11 +736,13 @@ const anamnese: FC = () => {
             </Box>
           ) : null}
           <Box display="flex" my="1rem">
-            <Typography>Está afastado pela Previdência Social?</Typography>
-            <RadioGroup row name="afastado" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Está afastado pela Previdência Social?</FormLabel>
+              <RadioGroup row name="afastado" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           <Box
             display="flex"
@@ -812,184 +826,188 @@ const anamnese: FC = () => {
         </Box>
         <Card sx={{ padding: 3, pb: 4 }}>
           <Box display="flex" my="1rem">
-            <RadioGroup row name="drogasAlcool" onChange={handleChange}>
-              <FormControlLabel
-                value="Alcool"
-                control={<Radio />}
-                label={"Álcool"}
-              />
-              <FormControlLabel
-                value="Drogas"
-                control={<Radio />}
-                label={"Drogas"}
-              />
-              <FormControlLabel
-                value="Alcool e Drogas"
-                control={<Radio />}
-                label={"Álcool e Drogas"}
-              />
-            </RadioGroup>
+            <FormControl>
+              <RadioGroup row name="drogasAlcool" onChange={handleChange}>
+                <FormControlLabel
+                  value="Alcool"
+                  control={<Radio />}
+                  label={"Álcool"}
+                />
+                <FormControlLabel
+                  value="Drogas"
+                  control={<Radio />}
+                  label={"Drogas"}
+                />
+                <FormControlLabel
+                  value="Alcool e Drogas"
+                  control={<Radio />}
+                  label={"Álcool e Drogas"}
+                />
+              </RadioGroup>
+            </FormControl>
           </Box>
-          <Typography>Drogas e a idade que usou pela 1ª vez:</Typography>
           <Box display="flex" my="1rem">
-            <FormGroup onChange={handleChange}>
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Álcool"
-                value="usaAlcool"
-                name="usaQuaisDrogas"
-              />
-              <LightTextField
-                fullWidth
-                name="idadeAlcool"
-                label="Idade"
-                value={values.idadeAlcool}
-                onChange={handleChange}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Maconha"
-                value="usaMaconha"
-                name="usaQuaisDrogas"
-              />
-              <LightTextField
-                fullWidth
-                name="idadeMaconha"
-                label="Idade"
-                value={values.idadeMaconha}
-                onChange={handleChange}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Cocaína (I)"
-                value="usaCocainaI"
-                name="usaQuaisDrogas"
-              />
-              <LightTextField
-                fullWidth
-                name="idadeCocainaI"
-                label="Idade"
-                value={values.idadeCocainaI}
-                onChange={handleChange}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Cocaína (A)"
-                value="usaCocainaA"
-                name="usaQuaisDrogas"
-              />
-              <LightTextField
-                fullWidth
-                name="idadeCocainaA"
-                label="Idade"
-                value={values.idadeCocainaA}
-                onChange={handleChange}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Crack"
-                value="usaCrack"
-                name="usaQuaisDrogas"
-              />
-              <LightTextField
-                fullWidth
-                name="idadeCrack"
-                label="Idade"
-                value={values.idadeCrack}
-                onChange={handleChange}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Comprimido"
-                value="usaComprimido"
-                name="usaQuaisDrogas"
-              />
-              <LightTextField
-                fullWidth
-                name="idadeComprimido"
-                label="Idade"
-                value={values.idadeComprimido}
-                onChange={handleChange}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="LSD"
-                value="usaLSD"
-                name="usaQuaisDrogas"
-              />
-              <LightTextField
-                fullWidth
-                name="idadeLSD"
-                label="Idade"
-                value={values.idadeLSD}
-                onChange={handleChange}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Inalantes"
-                value="usaInalantes"
-                name="usaQuaisDrogas"
-              />
-              <LightTextField
-                fullWidth
-                name="idadeInalantes"
-                label="Idade"
-                value={values.idadeInalantes}
-                onChange={handleChange}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Mesclado"
-                value="usaMesclado"
-                name="usaQuaisDrogas"
-              />
-              <LightTextField
-                fullWidth
-                name="idadeMesclado"
-                label="Idade"
-                value={values.idadeMesclado}
-                onChange={handleChange}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Tabaco"
-                value="usaTabaco"
-                name="usaQuaisDrogas"
-              />
-              <LightTextField
-                fullWidth
-                name="idadeTabaco"
-                label="Idade"
-                value={values.idadeTabaco}
-                onChange={handleChange}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Outras"
-                value="usaOutras"
-                name="usaQuaisDrogas"
-              />
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={6}>
-                  <LightTextField
-                    fullWidth
-                    name="idadeOutras"
-                    label="Idade"
-                    value={values.idadeOutras}
-                    onChange={handleChange}
-                  />
+            <FormControl>
+              <FormLabel>Drogas e a idade que usou pela 1ª vez:</FormLabel>
+              <FormGroup onChange={handleChange}>
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Álcool"
+                  value="usaAlcool"
+                  name="usaQuaisDrogas"
+                />
+                <LightTextField
+                  fullWidth
+                  name="idadeAlcool"
+                  label="Idade"
+                  value={values.idadeAlcool}
+                  onChange={handleChange}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Maconha"
+                  value="usaMaconha"
+                  name="usaQuaisDrogas"
+                />
+                <LightTextField
+                  fullWidth
+                  name="idadeMaconha"
+                  label="Idade"
+                  value={values.idadeMaconha}
+                  onChange={handleChange}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Cocaína (I)"
+                  value="usaCocainaI"
+                  name="usaQuaisDrogas"
+                />
+                <LightTextField
+                  fullWidth
+                  name="idadeCocainaI"
+                  label="Idade"
+                  value={values.idadeCocainaI}
+                  onChange={handleChange}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Cocaína (A)"
+                  value="usaCocainaA"
+                  name="usaQuaisDrogas"
+                />
+                <LightTextField
+                  fullWidth
+                  name="idadeCocainaA"
+                  label="Idade"
+                  value={values.idadeCocainaA}
+                  onChange={handleChange}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Crack"
+                  value="usaCrack"
+                  name="usaQuaisDrogas"
+                />
+                <LightTextField
+                  fullWidth
+                  name="idadeCrack"
+                  label="Idade"
+                  value={values.idadeCrack}
+                  onChange={handleChange}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Comprimido"
+                  value="usaComprimido"
+                  name="usaQuaisDrogas"
+                />
+                <LightTextField
+                  fullWidth
+                  name="idadeComprimido"
+                  label="Idade"
+                  value={values.idadeComprimido}
+                  onChange={handleChange}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="LSD"
+                  value="usaLSD"
+                  name="usaQuaisDrogas"
+                />
+                <LightTextField
+                  fullWidth
+                  name="idadeLSD"
+                  label="Idade"
+                  value={values.idadeLSD}
+                  onChange={handleChange}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Inalantes"
+                  value="usaInalantes"
+                  name="usaQuaisDrogas"
+                />
+                <LightTextField
+                  fullWidth
+                  name="idadeInalantes"
+                  label="Idade"
+                  value={values.idadeInalantes}
+                  onChange={handleChange}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Mesclado"
+                  value="usaMesclado"
+                  name="usaQuaisDrogas"
+                />
+                <LightTextField
+                  fullWidth
+                  name="idadeMesclado"
+                  label="Idade"
+                  value={values.idadeMesclado}
+                  onChange={handleChange}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Tabaco"
+                  value="usaTabaco"
+                  name="usaQuaisDrogas"
+                />
+                <LightTextField
+                  fullWidth
+                  name="idadeTabaco"
+                  label="Idade"
+                  value={values.idadeTabaco}
+                  onChange={handleChange}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Outras"
+                  value="usaOutras"
+                  name="usaQuaisDrogas"
+                />
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={6}>
+                    <LightTextField
+                      fullWidth
+                      name="idadeOutras"
+                      label="Idade"
+                      value={values.idadeOutras}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <LightTextField
+                      fullWidth
+                      name="quaisOutras"
+                      label="Quais?"
+                      value={values.quaisOutras}
+                      onChange={handleChange}
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <LightTextField
-                    fullWidth
-                    name="quaisOutras"
-                    label="Quais?"
-                    value={values.quaisOutras}
-                    onChange={handleChange}
-                  />
-                </Grid>
-              </Grid>
-            </FormGroup>
+              </FormGroup>
+            </FormControl>
           </Box>
           <Box
             display="flex"
@@ -1052,33 +1070,35 @@ const anamnese: FC = () => {
             />
           </Box>
           <Box display="flex" my="1rem">
-            <Typography>Situações em que faz uso</Typography>
-            <FormGroup onChange={handleChange} row>
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Sozinho"
-                name="situacoesUso"
-                value={"Sozinho"}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Acompanhado"
-                name="situacoesUso"
-                value={"Acompanhado"}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Fora de casa"
-                name="situacoesUso"
-                value={"foraCasa"}
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Dentro de casa"
-                name="situacoesUso"
-                value={"dentroCasa"}
-              />
-            </FormGroup>
+            <FormControl>
+              <FormLabel>Situações em que faz uso</FormLabel>
+              <FormGroup onChange={handleChange} row>
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Sozinho"
+                  name="situacoesUso"
+                  value={"Sozinho"}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Acompanhado"
+                  name="situacoesUso"
+                  value={"Acompanhado"}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Fora de casa"
+                  name="situacoesUso"
+                  value={"foraCasa"}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Dentro de casa"
+                  name="situacoesUso"
+                  value={"dentroCasa"}
+                />
+              </FormGroup>
+            </FormControl>
           </Box>
           <Box
             display="flex"
@@ -1098,19 +1118,25 @@ const anamnese: FC = () => {
           <Grid container spacing={4}>
             <Grid item xs={12} sm={6}>
               <Box display="flex" my="1rem">
-                <Typography>Caso de álcool e/ ou drogas na família?</Typography>
-                <RadioGroup row name="familiaUsaDrogas" onChange={handleChange}>
-                  <FormControlLabel
-                    value="N"
-                    control={<Radio />}
-                    label={"Não"}
-                  />
-                  <FormControlLabel
-                    value="Y"
-                    control={<Radio />}
-                    label={"Sim"}
-                  />
-                </RadioGroup>
+                <FormControl>
+                  <FormLabel>Caso de álcool e/ ou drogas na família?</FormLabel>
+                  <RadioGroup
+                    row
+                    name="familiaUsaDrogas"
+                    onChange={handleChange}
+                  >
+                    <FormControlLabel
+                      value="N"
+                      control={<Radio />}
+                      label={"Não"}
+                    />
+                    <FormControlLabel
+                      value="Y"
+                      control={<Radio />}
+                      label={"Sim"}
+                    />
+                  </RadioGroup>
+                </FormControl>
               </Box>
             </Grid>
             {values.familiaUsaDrogas === "Y" ? (
@@ -1136,19 +1162,21 @@ const anamnese: FC = () => {
           <Grid container spacing={4}>
             <Grid item xs={12} sm={6}>
               <Box display="flex" my="1rem">
-                <Typography>Namorada</Typography>
-                <RadioGroup row name="TemNamorada" onChange={handleChange}>
-                  <FormControlLabel
-                    value="N"
-                    control={<Radio />}
-                    label={"Não"}
-                  />
-                  <FormControlLabel
-                    value="Y"
-                    control={<Radio />}
-                    label={"Sim"}
-                  />
-                </RadioGroup>
+                <FormControl>
+                  <FormLabel>Namorada</FormLabel>
+                  <RadioGroup row name="TemNamorada" onChange={handleChange}>
+                    <FormControlLabel
+                      value="N"
+                      control={<Radio />}
+                      label={"Não"}
+                    />
+                    <FormControlLabel
+                      value="Y"
+                      control={<Radio />}
+                      label={"Sim"}
+                    />
+                  </RadioGroup>
+                </FormControl>
               </Box>
             </Grid>
             {values.temNamorada === "Y" ? (
@@ -1537,11 +1565,13 @@ const anamnese: FC = () => {
             />
           </Box>
           <Box display="flex" my="1rem">
-            <Typography>Possui Pesadelos</Typography>
-            <RadioGroup row name="temPesadelos" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label={"Não"} />
-              <FormControlLabel value="Y" control={<Radio />} label={"Sim"} />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Possui Pesadelos</FormLabel>
+              <RadioGroup row name="temPesadelos" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label={"Não"} />
+                <FormControlLabel value="Y" control={<Radio />} label={"Sim"} />
+              </RadioGroup>
+            </FormControl>
           </Box>
           <Box
             display="flex"
@@ -1577,11 +1607,13 @@ const anamnese: FC = () => {
             />
           </Box>
           <Box display="flex" my="1rem">
-            <Typography>Alucinação – Com drogas</Typography>
-            <RadioGroup row name="temAlucinacao" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label={"Não"} />
-              <FormControlLabel value="Y" control={<Radio />} label={"Sim"} />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Alucinação – Com drogas</FormLabel>
+              <RadioGroup row name="temAlucinacao" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label={"Não"} />
+                <FormControlLabel value="Y" control={<Radio />} label={"Sim"} />
+              </RadioGroup>
+            </FormControl>
           </Box>
           {values.temAlucinacao === "Y" ? (
             <Box
@@ -1601,11 +1633,17 @@ const anamnese: FC = () => {
             </Box>
           ) : null}
           <Box display="flex" my="1rem">
-            <Typography>Sem drogas</Typography>
-            <RadioGroup row name="alucinacaoSemDrogas" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label={"Não"} />
-              <FormControlLabel value="Y" control={<Radio />} label={"Sim"} />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Sem drogas</FormLabel>
+              <RadioGroup
+                row
+                name="alucinacaoSemDrogas"
+                onChange={handleChange}
+              >
+                <FormControlLabel value="N" control={<Radio />} label={"Não"} />
+                <FormControlLabel value="Y" control={<Radio />} label={"Sim"} />
+              </RadioGroup>
+            </FormControl>
           </Box>
           {values.alucinacaoSemDrogas === "Y" ? (
             <div>
@@ -1625,19 +1663,21 @@ const anamnese: FC = () => {
                 />
               </Box>
               <Box display="flex" my="1rem">
-                <Typography>Tipo Alucinação</Typography>
-                <RadioGroup row name="tipoAlucinacao" onChange={handleChange}>
-                  <FormControlLabel
-                    value="V"
-                    control={<Radio />}
-                    label={"Visual"}
-                  />
-                  <FormControlLabel
-                    value="A"
-                    control={<Radio />}
-                    label={"Auditiva"}
-                  />
-                </RadioGroup>
+                <FormControl>
+                  <FormLabel>Tipo Alucinação</FormLabel>
+                  <RadioGroup row name="tipoAlucinacao" onChange={handleChange}>
+                    <FormControlLabel
+                      value="V"
+                      control={<Radio />}
+                      label={"Visual"}
+                    />
+                    <FormControlLabel
+                      value="A"
+                      control={<Radio />}
+                      label={"Auditiva"}
+                    />
+                  </RadioGroup>
+                </FormControl>
               </Box>
               <Box
                 display="flex"
@@ -1658,11 +1698,13 @@ const anamnese: FC = () => {
           ) : null}
           <Typography>Desmaio / Convulsão</Typography>
           <Box display="flex" my="1rem">
-            <Typography>Com drogas</Typography>
-            <RadioGroup row name="desmaioComDrogas" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Com drogas</FormLabel>
+              <RadioGroup row name="desmaioComDrogas" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           {values.desmaioComDrogas === "Y" ? (
             <Box
@@ -1682,11 +1724,13 @@ const anamnese: FC = () => {
             </Box>
           ) : null}
           <Box display="flex" my="1rem">
-            <Typography>Sem drogas</Typography>
-            <RadioGroup row name="desmaioSemDrogas" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Sem drogas</FormLabel>
+              <RadioGroup row name="desmaioSemDrogas" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           {values.desmaioSemDrogas === "Y" ? (
             <div>
@@ -1723,11 +1767,13 @@ const anamnese: FC = () => {
             </div>
           ) : null}
           <Box display="flex" my="1rem">
-            <Typography>Princípio de Overdose</Typography>
-            <RadioGroup row name="temOverdose" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Princípio de Overdose</FormLabel>
+              <RadioGroup row name="temOverdose" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           {values.temOverdose === "Y" ? (
             <Box
@@ -1747,11 +1793,13 @@ const anamnese: FC = () => {
             </Box>
           ) : null}
           <Box display="flex" my="1rem">
-            <Typography>Toma medicação</Typography>
-            <RadioGroup row name="tomaRemedio" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Toma medicação</FormLabel>
+              <RadioGroup row name="tomaRemedio" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           {values.tomaRemedio === "Y" ? (
             <Box
@@ -1771,42 +1819,44 @@ const anamnese: FC = () => {
             </Box>
           ) : null}
           <Box display="flex" my="1rem">
-            <Typography>
-              Sintomas anteriores (doenças infantis, doenças mais sérias ou
-              crônicas
-            </Typography>
-            <FormGroup onChange={handleChange} row>
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Caxumba"
-                value="sintomasAnterioresCaxumba"
-                name="sintomasAnteriores"
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Catapora"
-                value="sintomasAnterioresCatapora"
-                name="sintomasAnteriores"
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Meningite"
-                value="sintomasAnterioresMeningite"
-                name="sintomasAnteriores"
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Sarampo"
-                value="sintomasAnterioresSarampo"
-                name="sintomasAnteriores"
-              />
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Outros"
-                value="sintomasAnterioresOutros"
-                name="sintomasAnteriores"
-              />
-            </FormGroup>
+            <FormControl>
+              <FormLabel>
+                Sintomas anteriores (doenças infantis, doenças mais sérias ou
+                crônicas
+              </FormLabel>
+              <FormGroup onChange={handleChange} row>
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Caxumba"
+                  value="sintomasAnterioresCaxumba"
+                  name="sintomasAnteriores"
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Catapora"
+                  value="sintomasAnterioresCatapora"
+                  name="sintomasAnteriores"
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Meningite"
+                  value="sintomasAnterioresMeningite"
+                  name="sintomasAnteriores"
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Sarampo"
+                  value="sintomasAnterioresSarampo"
+                  name="sintomasAnteriores"
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Outros"
+                  value="sintomasAnterioresOutros"
+                  name="sintomasAnteriores"
+                />
+              </FormGroup>
+            </FormControl>
           </Box>
           <Box
             display="flex"
@@ -1869,16 +1919,22 @@ const anamnese: FC = () => {
             />
           </Box>
           <Box display="flex" my="1rem">
-            <Typography>Considera-se um (a) dependente?</Typography>
-            <RadioGroup row name="consideraDependente" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-              <FormControlLabel
-                value="NS"
-                control={<Radio />}
-                label={"Não sei"}
-              />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Considera-se um (a) dependente?</FormLabel>
+              <RadioGroup
+                row
+                name="consideraDependente"
+                onChange={handleChange}
+              >
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+                <FormControlLabel
+                  value="NS"
+                  control={<Radio />}
+                  label={"Não sei"}
+                />
+              </RadioGroup>
+            </FormControl>
           </Box>
           <Box
             display="flex"
@@ -1937,18 +1993,22 @@ const anamnese: FC = () => {
         </Box>
         <Card sx={{ padding: 3, pb: 4 }}>
           <Box display="flex" my="1rem">
-            <Typography>Problemas com a justiça?</Typography>
-            <RadioGroup row name="problemaJustica" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Problemas com a justiça?</FormLabel>
+              <RadioGroup row name="problemaJustica" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           <Box display="flex">
-            <Typography>Tem processo?</Typography>
-            <RadioGroup row name="temProcesso" onChange={handleChange}>
-              <FormControlLabel value="N" control={<Radio />} label="Não" />
-              <FormControlLabel value="Y" control={<Radio />} label="Sim" />
-            </RadioGroup>
+            <FormControl>
+              <FormLabel>Tem processo?</FormLabel>
+              <RadioGroup row name="temProcesso" onChange={handleChange}>
+                <FormControlLabel value="N" control={<Radio />} label="Não" />
+                <FormControlLabel value="Y" control={<Radio />} label="Sim" />
+              </RadioGroup>
+            </FormControl>
           </Box>
           {values.temProcesso === "Y" ? (
             <Box
