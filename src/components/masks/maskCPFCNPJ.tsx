@@ -2,7 +2,7 @@ import React from "react";
 import InputMask from "react-input-mask";
 import LightTextField from "../LightTextField";
 
-const maskCPFCNPJ = (props: any) => {
+const MaskCPFCNPJ = (props: any) => {
   return (
     <InputMask
       mask="999.999.999-99"
@@ -21,4 +21,4 @@ const maskCPFCNPJ = (props: any) => {
   );
 };
 
-export default maskCPFCNPJ;
+export default MaskCPFCNPJ;
