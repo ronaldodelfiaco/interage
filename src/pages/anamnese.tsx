@@ -24,28 +24,32 @@ import ListCard from "../components/itens/ListCard";
 import ModalFilho from "../components/itens/ModalFilho";
 import ModalIrmao from "../components/itens/ModalIrmao";
 import LightTextField from "../components/LightTextField";
-import MaskCPFCNPJ from "../components/masks/maskCPFCNPJ";
-import MaskDt from "../components/masks/maskDt";
 import MoreOptions from "../components/MoreOptions";
 import { Tiny } from "../components/Typography";
 import useTitle from "../hooks/useTitle";
+import MaskDt from "../components/masks/maskDt";
+import MaskCPFCNPJ from "../components/masks/maskCPFCNPJ";
 
 type filho = {
   idPessoa: Number;
   idRelacionamento: Number;
-  nome: string;
+  nome: String;
   idade: Number;
 };
 
 type irmao = {
   idPessoa: Number;
   idRelacionamento: Number;
-  nome: string;
+  nome: String;
   idade: Number;
 };
 
-const anamnese: FC<{}> = () => {
-  let title = "Anamnese";
+interface Props {
+  children?: React.ReactNode;
+}
+
+const anamnese: FC<Props> = () => {
+  var title = "Anamnese";
   useTitle(title);
 
   const [openModalFilho, setOpenModalFilho] = useState(false);
@@ -97,7 +101,6 @@ const anamnese: FC<{}> = () => {
 
   const [skillEl, setSkillEl] = useState<null | HTMLElement>(null);
   const handleSkillMoreOpen = (event: MouseEvent<HTMLButtonElement>) => {
-    console.log("Clique!!", skillEl);
     setSkillEl(event.currentTarget);
   };
   const handleSkillMoreClose = () => setSkillEl(null);
@@ -292,17 +295,17 @@ const anamnese: FC<{}> = () => {
                     alignItems="center"
                     justifyContent="space-between"
                   >
-                    <MaskCPFCNPJ
-                      value={formikMeta.values.cpf}
-                      onChange={formikMeta.handleChange}
+                    <LightTextField
+                      fullWidth
                       name="cpf"
                       label="cpf ou cnpj"
-                      helperText={
-                        formikMeta.touched.cpf && formikMeta.errors.cpf
-                      }
-                      error={Boolean(
-                        formikMeta.touched.cpf && formikMeta.errors.cpf
-                      )}
+                      value={formikMeta.values.cpf}
+                      onChange={formikMeta.handleChange}
+                      // helperText={touched.cpf && errors.cpf}
+                      // error={Boolean(touched.cpf && errors.cpf)}
+                      InputProps={{
+                        inputComponent: MaskCPFCNPJ as any,
+                      }}
                     />
                   </Box>
                 )}
@@ -341,11 +344,15 @@ const anamnese: FC<{}> = () => {
                     alignItems="center"
                     justifyContent="space-between"
                   >
-                    <MaskDt
+                    <LightTextField
+                      fullWidth
+                      name="dataNascimento"
+                      label="Data de Nascimento"
                       value={formikMeta.values.dataNascimento}
                       onChange={formikMeta.handleChange}
-                      label="Data de Nascimento"
-                      name="dataNascimento"
+                      InputProps={{
+                        inputComponent: MaskDt as any,
+                      }}
                     />
                   </Box>
                 )}
@@ -535,39 +542,37 @@ const anamnese: FC<{}> = () => {
             >
               <Typography variant="h5">Filho</Typography>
             </Box>
-            <div>
-              <Card sx={{ padding: 3, pb: 4 }}>
-                <Grid container spacing={3} pt={3}>
-                  {filhos.map((value, index) => (
-                    <Grid item xs={12} sm={6} key={index}>
-                      <ListCard item={value} handleMore={handleSkillMoreOpen} />
-                    </Grid>
-                  ))}
-
-                  <MoreOptions
-                    anchorEl={skillEl}
-                    handleMoreClose={handleSkillMoreClose}
-                    pessoa={filhos}
-                  />
-
-                  <Grid item xs={12} sm={6}>
-                    <Box display={"flex"} alignItems="center">
-                      <AddIconButton onClick={() => setOpenModalFilho(true)} />
-                      <Box ml="1rem">
-                        <Typography variant="h6">Adicionar</Typography>
-                        <Tiny color="secondary.400">novo Filho(a)</Tiny>
-                      </Box>
-                      <ModalFilho
-                        open={openModalFilho}
-                        setOpen={setOpenModalFilho}
-                        setDadosAtributos={setNewFilhoDados}
-                        itemDados={newFilhoDados}
-                      />
-                    </Box>
+            <Card sx={{ padding: 3, pb: 4 }}>
+              <Grid container spacing={3} pt={3}>
+                {filhos.map((value, index) => (
+                  <Grid item xs={12} sm={6} key={index}>
+                    <ListCard item={value} handleMore={handleSkillMoreOpen} />
                   </Grid>
+                ))}
+
+                <MoreOptions
+                  pessoa={filhos}
+                  anchorEl={skillEl}
+                  handleMoreClose={handleSkillMoreClose}
+                />
+
+                <Grid item xs={12} sm={6}>
+                  <Box display={"flex"} alignItems="center">
+                    <AddIconButton onClick={() => setOpenModalFilho(true)} />
+                    <Box ml="1rem">
+                      <Typography variant="h6">Adicionar</Typography>
+                      <Tiny color="secondary.400">novo Filho(a)</Tiny>
+                    </Box>
+                    <ModalFilho
+                      open={openModalFilho}
+                      setOpen={setOpenModalFilho}
+                      setDadosAtributos={setNewFilhoDados}
+                      itemDados={newFilhoDados}
+                    />
+                  </Box>
                 </Grid>
-              </Card>
-            </div>
+              </Grid>
+            </Card>
             <Box
               display="flex"
               my="1.5rem"

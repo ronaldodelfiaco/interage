@@ -162,11 +162,17 @@ const reavaliacao: FC<{}> = () => {
                     alignItems="center"
                     justifyContent="space-between"
                   >
-                    <MaskCPFCNPJ
-                      value={formikMeta.values.cpf}
-                      onChange={formikMeta.handleChange}
+                    <LightTextField
+                      fullWidth
                       name="cpf"
                       label="cpf ou cnpj"
+                      value={formikMeta.values.cpf}
+                      onChange={formikMeta.handleChange}
+                      // helperText={touched.cpf && errors.cpf}
+                      // error={Boolean(touched.cpf && errors.cpf)}
+                      InputProps={{
+                        inputComponent: MaskCPFCNPJ as any,
+                      }}
                     />
                   </Box>
                 )}
@@ -194,12 +200,16 @@ const reavaliacao: FC<{}> = () => {
                 <FastField name="dataInternacao">
                   {() => (
                     <Grid item xs={12} sm={6}>
-                      <MaskDt
-                        value={formikMeta.values.dataInternacao}
-                        onChange={formikMeta.handleChange}
-                        label={"Data de Internacao"}
-                        name="dataInternacao"
-                      />
+                      <LightTextField
+                      fullWidth
+                      name="dataInternacao"
+                      label="Data de Internação"
+                      value={formikMeta.values.dataInternacao}
+                      onChange={formikMeta.handleChange}
+                      InputProps={{
+                        inputComponent: MaskDt as any,
+                      }}
+                    />
                     </Grid>
                   )}
                 </FastField>
@@ -339,7 +349,11 @@ const reavaliacao: FC<{}> = () => {
                       <FormLabel>
                         Costuma sentir tonturas ou ter desmaios?
                       </FormLabel>
-                      <RadioGroup row name="temTontura" onChange={formikMeta.handleChange}>
+                      <RadioGroup
+                        row
+                        name="temTontura"
+                        onChange={formikMeta.handleChange}
+                      >
                         <FormControlLabel
                           value="N"
                           control={<Radio />}
@@ -417,7 +431,11 @@ const reavaliacao: FC<{}> = () => {
                   <Box display={"flex"} my="1rem">
                     <FormControl>
                       <FormLabel>Se Alimenta:</FormLabel>
-                      <RadioGroup row name="comendo" onChange={formikMeta.handleChange}>
+                      <RadioGroup
+                        row
+                        name="comendo"
+                        onChange={formikMeta.handleChange}
+                      >
                         <FormControlLabel
                           value="Bem"
                           control={<Radio />}
@@ -565,7 +583,11 @@ const reavaliacao: FC<{}> = () => {
                   <Box display={"flex"} my="1rem">
                     <FormControl>
                       <FormLabel>Alcoolismo?</FormLabel>
-                      <RadioGroup row name="alcoolismo" onChange={formikMeta.handleChange}>
+                      <RadioGroup
+                        row
+                        name="alcoolismo"
+                        onChange={formikMeta.handleChange}
+                      >
                         <FormControlLabel
                           value="N"
                           control={<Radio />}
@@ -607,7 +629,11 @@ const reavaliacao: FC<{}> = () => {
                   <Box display={"flex"} my="1rem">
                     <FormControl>
                       <FormLabel>Drogas?</FormLabel>
-                      <RadioGroup row name="drogas" onChange={formikMeta.handleChange}>
+                      <RadioGroup
+                        row
+                        name="drogas"
+                        onChange={formikMeta.handleChange}
+                      >
                         <FormControlLabel
                           value="N"
                           control={<Radio />}
@@ -649,7 +675,11 @@ const reavaliacao: FC<{}> = () => {
                   <Box display={"flex"} my="1rem">
                     <FormControl>
                       <FormLabel>Suicídio?</FormLabel>
-                      <RadioGroup row name="suicidio" onChange={formikMeta.handleChange}>
+                      <RadioGroup
+                        row
+                        name="suicidio"
+                        onChange={formikMeta.handleChange}
+                      >
                         <FormControlLabel
                           value="N"
                           control={<Radio />}
