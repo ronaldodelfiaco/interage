@@ -10,9 +10,14 @@ interface MoreOptionsProps {
   open?: boolean;
   anchorEl: HTMLElement | null;
   handleMoreClose: () => void;
+  pessoa: Array<any>;
 }
 
-const MoreOptions: FC<MoreOptionsProps> = ({ anchorEl, handleMoreClose }) => {
+const MoreOptions: FC<MoreOptionsProps> = ({
+  anchorEl,
+  handleMoreClose,
+  pessoa,
+}) => {
   return (
     <Menu
       anchorEl={anchorEl}
@@ -20,18 +25,24 @@ const MoreOptions: FC<MoreOptionsProps> = ({ anchorEl, handleMoreClose }) => {
       onClose={handleMoreClose}
     >
       <MenuItem
-        onClick={handleMoreClose}
+        onClick={() => {
+          console.log("Editar", pessoa);
+          // pessoa[0] = [nome="Pedro", idade=15]
+        }}
         sx={{ "&:hover": { color: "primary.main" } }}
       >
         <PencilIcon sx={{ fontSize: 14, marginRight: 1 }} />
-        <Small fontWeight={500}>Edit</Small>
+        <Small fontWeight={500}>Editar</Small>
       </MenuItem>
       <MenuItem
-        onClick={handleMoreClose}
+        onClick={() => {
+          console.log("Remover", anchorEl);
+          pessoa.splice(0, 1);
+        }}
         sx={{ "&:hover": { color: "primary.main" } }}
       >
         <DeleteIcon sx={{ fontSize: 14, marginRight: 1 }} />
-        <Small fontWeight={500}>Remove</Small>
+        <Small fontWeight={500}>Remover</Small>
       </MenuItem>
     </Menu>
   );
