@@ -10,7 +10,7 @@ interface ModalIrmaoProps {
   // openDados: Array<any>;
   // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
   setDadosAtributos: Dispatch<React.SetStateAction<any>>;
-  itemDados: any;
+  // itemDados: any;
 }
 
 const ModalIrmao: FC<ModalIrmaoProps> = ({
@@ -63,7 +63,7 @@ const ModalIrmao: FC<ModalIrmaoProps> = ({
                 justifyContent="space-between"
               >
                 <LightTextField
-                  label="Nome do Filho(a)"
+                  label="Nome do Irmao(a)"
                   value={formikMeta.values.nome}
                   fullWidth
                   onChange={formikMeta.handleChange}
@@ -77,7 +77,7 @@ const ModalIrmao: FC<ModalIrmaoProps> = ({
                 justifyContent="space-between"
               >
                 <LightTextField
-                  label="Idade do Filho(a)"
+                  label="Idade do Irmao(a)"
                   value={formikMeta.values.idade}
                   fullWidth
                   onChange={formikMeta.handleChange}

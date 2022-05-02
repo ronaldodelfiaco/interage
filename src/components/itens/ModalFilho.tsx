@@ -1,16 +1,17 @@
 import { Box, Button, Card, Modal } from "@mui/material";
 import { Form, Formik } from "formik";
-import { Dispatch, FC } from "react";
+import * as React from "react";
+import { Dispatch, FC, Ref } from "react";
 import FlexBox from "../FlexBox";
 import LightTextField from "../LightTextField";
 
 interface ModalFilhoProps {
   open: boolean;
   setOpen: Dispatch<React.SetStateAction<boolean>>;
+  setDadosAtributos: Dispatch<React.SetStateAction<any>>;
   // openDados: Array<any>;
   // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
-  setDadosAtributos: Dispatch<React.SetStateAction<any>>;
-  itemDados: any;
+  // itemDados: any;
 }
 
 const ModalFilho: FC<ModalFilhoProps> = ({
@@ -23,14 +24,6 @@ const ModalFilho: FC<ModalFilhoProps> = ({
     nome: "",
     idade: "",
   };
-
-  // const { values, errors, touched, handleChange, handleSubmit } = useFormik({
-  //   initialValues,
-  //   onSubmit: (values) => {
-  //     console.log("values ", values);
-  //     setDadosAtributos(values), setOpen(false);
-  //   },
-  // });
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>

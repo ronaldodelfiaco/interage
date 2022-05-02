@@ -1,7 +1,7 @@
 import { MoreHoriz } from "@mui/icons-material";
 import { Box, IconButton } from "@mui/material";
 import FlexBox from "../FlexBox";
-import { H6, Tiny } from "../Typography";
+import { H6 } from "../Typography";
 import React, { FC, MouseEvent } from "react";
 
 // component interface
