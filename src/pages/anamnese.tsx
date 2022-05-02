@@ -10,7 +10,7 @@ import {
   Grid,
   Radio,
   RadioGroup,
-  Typography,
+  Typography
 } from "@mui/material";
 import { format } from "date-fns";
 import { FastField, Form, Formik } from "formik";
@@ -24,11 +24,11 @@ import ListCard from "../components/itens/ListCard";
 import ModalFilho from "../components/itens/ModalFilho";
 import ModalIrmao from "../components/itens/ModalIrmao";
 import LightTextField from "../components/LightTextField";
+import MaskCPFCNPJ from "../components/masks/maskCPFCNPJ";
+import MaskDt from "../components/masks/maskDt";
 import MoreOptions from "../components/MoreOptions";
 import { Tiny } from "../components/Typography";
 import useTitle from "../hooks/useTitle";
-import MaskDt from "../components/masks/maskDt";
-import MaskCPFCNPJ from "../components/masks/maskCPFCNPJ";
 
 type filho = {
   idPessoa: Number;
@@ -44,11 +44,7 @@ type irmao = {
   idade: Number;
 };
 
-interface Props {
-  children?: React.ReactNode;
-}
-
-const anamnese: FC<Props> = () => {
+const anamnese: FC = () => {
   var title = "Anamnese";
   useTitle(title);
 
@@ -71,33 +67,62 @@ const anamnese: FC<Props> = () => {
     setIrmaos(irmao1);
   }, []);
 
-  useEffect(() => {
-    if (newFilhoDados !== undefined) {
-      filho1 = filhos;
-      filho1.push({
-        idPessoa: 0,
-        idRelacionamento: 3,
-        nome: newFilhoDados.nome,
-        idade: newFilhoDados.idade,
-      });
-      setFilhos(filho1);
-      //filhos.push(filho1[0])
-    }
-  }, [newFilhoDados]);
+  // useEffect(() => {
+  //   if (newFilhoDados !== undefined) {
+  //     filho1 = filhos;
+  //     filho1.push({
+  //       idPessoa: 0,
+  //       idRelacionamento: 3,
+  //       nome: newFilhoDados.nome,
+  //       idade: newFilhoDados.idade,
+  //     });
+  //     setFilhos(filho1);
+  //     //filhos.push(filho1[0])
+  //     console.log("NewFilhoDados:", newFilhoDados);
+  //   }
+  // }, [newFilhoDados]);
 
   useEffect(() => {
+    if (newFilhoDados !== undefined) {
+      setFilhos((prevFilhos) => [
+        ...prevFilhos,
+        {
+          idPessoa: 0,
+          idRelacionamento: 3,
+          nome: newFilhoDados.nome,
+          idade: newFilhoDados.idade,
+        },
+      ]);
+    }
+  }, [newFilhoDados]);
+  
+  useEffect(() => {
     if (newIrmaoDados !== undefined) {
-      irmao1 = irmaos;
-      irmao1.push({
-        idPessoa: 0,
-        idRelacionamento: 3,
-        nome: newIrmaoDados.nome,
-        idade: newIrmaoDados.idade,
-      });
-      setIrmaos(irmao1);
-      //filhos.push(irmao1[0])
+      setIrmaos((prevIrmaos) => [
+        ...prevIrmaos,
+        {
+          idPessoa: 0,
+          idRelacionamento: 3,
+          nome: newIrmaoDados.nome,
+          idade: newIrmaoDados.idade,
+        },
+      ]);
     }
   }, [newIrmaoDados]);
+
+  // useEffect(() => {
+  //   if (newIrmaoDados !== undefined) {
+  //     irmao1 = irmaos;
+  //     irmao1.push({
+  //       idPessoa: 0,
+  //       idRelacionamento: 3,
+  //       nome: newIrmaoDados.nome,
+  //       idade: newIrmaoDados.idade,
+  //     });
+  //     setIrmaos(irmao1);
+  //     //filhos.push(irmao1[0])
+  //   }
+  // }, [newIrmaoDados]);
 
   const [skillEl, setSkillEl] = useState<null | HTMLElement>(null);
   const handleSkillMoreOpen = (event: MouseEvent<HTMLButtonElement>) => {
@@ -567,7 +592,7 @@ const anamnese: FC<Props> = () => {
                       open={openModalFilho}
                       setOpen={setOpenModalFilho}
                       setDadosAtributos={setNewFilhoDados}
-                      itemDados={newFilhoDados}
+                      // itemDados={newFilhoDados}
                     />
                   </Box>
                 </Grid>
@@ -990,7 +1015,7 @@ const anamnese: FC<Props> = () => {
                         open={openModalIrmao}
                         setOpen={setOpenModalIrmao}
                         setDadosAtributos={setNewIrmaoDados}
-                        itemDados={newIrmaoDados}
+                        // itemDados={newIrmaoDados}
                       />
                     </Box>
                   </Grid>
