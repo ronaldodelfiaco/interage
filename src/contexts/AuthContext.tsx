@@ -10,7 +10,7 @@ const agora = new Date();
 const AuthContext = createContext({
   login: (email: string, password: string) => Promise.resolve(),
   logout: (user: any) => Promise.resolve(),
-  isAuthenticated: true,
+  isAuthenticated: false,
 });
 
 // props type
@@ -52,8 +52,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Router.push('./');
   };
 
-  const isAuthenticated = Authenticated;
-
   const setSession = (session: any) => {
     if (session) {
       cookie.set('interage', session, {
@@ -74,6 +72,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (!cookie.get('interage')) setAuthenticated(false);
     if (cookie.get('interage')) setAuthenticated(true);
   }, []);
+
+  const isAuthenticated = Authenticated;
 
   return (
     <AuthContext.Provider
