@@ -13,9 +13,9 @@ const MaskCPFCNPJ = React.forwardRef<HTMLElement, CustomProps>(
     return (
       <IMaskInput
         {...other}
-        mask={("000.000.000-00")||("00.000.000/0000-00")}
+        // mask={(["000.000.000-00"], ["00.000.000/0000-00"])}
+        mask={[{ mask: "000.000.000-00" }, { mask: "00.000.000/0000-00" }]}
         // {mask:"00.000.000/0000-00"}
-
         definitions={{
           "#": /[1-9]/,
         }}
