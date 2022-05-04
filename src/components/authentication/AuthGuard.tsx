@@ -2,6 +2,7 @@ import useAuth from "../../hooks/useAuth";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { Fragment, ReactNode, useState } from "react";
+import Login from "../../pages/authentication/Login";
 
 // component props interface
 interface AuthGuardProps {
@@ -10,7 +11,7 @@ interface AuthGuardProps {
 
 const AuthGuard = ({ children }: AuthGuardProps) => {
   const { isAuthenticated } = useAuth();
-  const { pathname, push } = useRouter();
+  const { pathname } = useRouter();
   const [requestedLocation, setRequestedLocation] = useState<string>("");
 
   if (!isAuthenticated) {
@@ -18,8 +19,8 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       setRequestedLocation(pathname);
     }
 
-    // return <Login />;
-    push("/login");
+    return <Login />;
+    // push("/login");
   }
 
   if (requestedLocation && pathname !== requestedLocation) {

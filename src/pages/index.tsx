@@ -10,11 +10,11 @@ const Home: NextPage = () => {
   const user = localStorage.getItem('user');
 
 
-  useEffect(() => {
-    if (user !== null) {
-      router.push('/authentication/Login')
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (user !== null) {
+  //     router.push('/authentication/Login')
+  //   }
+  // }, [])
 
   return (
     <>
