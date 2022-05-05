@@ -51,7 +51,7 @@ const Pessoas: FC = () => {
     // navigate.push("/pessoaInformation",{state:{id:0,nome:'Cadastrar Pessoa'}});
     navigate.push({
       pathname: '/PessoaInformation',
-      query: { id: 0, nome: 'Cadastrar Pessoa' },
+      // query: { id: 0, nome: 'Cadastrar Pessoa' },
     });
   };
 
