@@ -19,10 +19,8 @@ import '../styles/globals.css';
 import styles from '../styles/Home.module.css';
 import { ukoTheme } from '../theme';
 
-
 function InterageApp({ Component, pageProps }: AppProps) {
   const { settings } = useSettings();
-
   // Configuração do tema
   const appTheme = ukoTheme({
     theme: settings.theme,
@@ -55,7 +53,7 @@ function InterageApp({ Component, pageProps }: AppProps) {
         <AuthProvider>
           <SettingsProvider>
             <TitleContextProvider>
-              <StyledEngineProvider injectFirst>
+              <StyledEngineProvider>
                 <ThemeProvider theme={appTheme}>
                   <RTL direction={appTheme.direction}>
                     <AuthGuard>
