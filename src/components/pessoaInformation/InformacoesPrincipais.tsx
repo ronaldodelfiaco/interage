@@ -182,15 +182,14 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
   const pronomeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPronome(event.target.value);
   };
-  
+
   if (idPessoa) useTitle('Editando: ' + formik.values.nome);
-  else useTitle('Adicionando Pessoa')
-   const router = useRouter();
+  else useTitle('Adicionando Pessoa');
+  const router = useRouter();
 
   useEffect(() => {
     if (idPessoa) {
       LerPessoa(idPessoa).then((row: any) => {
-        console.log(row);
         formik.setValues({
           tipo: row.pessoa.tipo,
           idPronomeTratamento: row.pessoa.id_pronome_tratamento,
