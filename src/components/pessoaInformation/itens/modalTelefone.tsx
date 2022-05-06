@@ -1,4 +1,13 @@
-import { Box, Modal, Card, Button } from '@mui/material';
+import {
+  Box,
+  Modal,
+  Card,
+  Button,
+  FormControl,
+  FormGroup,
+  Checkbox,
+  FormControlLabel,
+} from '@mui/material';
 import { Formik, Form } from 'formik';
 import * as React from 'react';
 import { Dispatch, FC } from 'react';
@@ -42,7 +51,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     principal: false,
     id_tipo_telefone: 0,
     contato: '',
-    ddi: '+ ',
+    ddi: '',
     dtalteracao: '',
     dtinclusao: '',
   };
@@ -129,6 +138,30 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                   name={'ramal'}
                 />
               </FlexBox>
+              <FlexBox
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <LightTextField
+                  label="contato"
+                  value={formikMeta.values.contato}
+                  fullWidth
+                  onChange={formikMeta.handleChange}
+                  name={'contato'}
+                />
+              </FlexBox>
+              <FormControl>
+                <FormGroup onChange={formikMeta.handleChange} row>
+                  <FormControlLabel
+                    control={<Checkbox />}
+                    label="principal"
+                    value="principal"
+                    name="sintomasAnteriores"
+                  />
+                </FormGroup>
+              </FormControl>
 
               <FlexBox justifyContent="space-between" alignItems="center">
                 <Button fullWidth type="submit" variant="contained">
