@@ -5,7 +5,6 @@ const LerPessoa = (idPessoa: string) => {
   return new Promise(async function (resolve, reject) {
     let user = localStorage.getItem('user');
     user = user === null ? '...' : user;
-    console.log(user);
     const _user = JSON.parse(user);
 
      const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas&filter=id=${idPessoa}`;
