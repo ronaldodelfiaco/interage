@@ -13,7 +13,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (user !== null) {
-      router.push('/pessoas')
+      router.push('Pessoas')
     }
   }, [])
 

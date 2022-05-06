@@ -68,7 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     // if (!cookie.get('interage')) Router.push('/authentication/Login');
-    // if (cookie.get('interage')) Router.push('/pessoas');
+    // if (cookie.get('interage')) Router.push('/Pessoas');
     if (!cookie.get('interage')) setAuthenticated(false);
     if (cookie.get('interage')) setAuthenticated(true);
   }, []);

@@ -26,7 +26,7 @@ const index = [
   {
     title: "Pessoas",
     Icon: Icons.PeopleIcon,
-    path: "/pessoas",
+    path: "/Pessoas",
   },
   {
     title: "Eventos",

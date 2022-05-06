@@ -47,7 +47,7 @@ const Login: FC = () => {
           .then(() => {
             setLoading(false);
             toast.success('Login efetuado com sucesso');
-            // navigate.push('/pessoas');
+            // navigate.push('/Pessoas');
             navigate.reload();
           })
           .catch((error) => {
