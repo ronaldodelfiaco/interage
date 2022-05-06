@@ -6,7 +6,7 @@ import {
   AccordionSummaryProps,
   styled,
 } from "@mui/material";
-import { H6 } from "components/Typography";
+import { H6 } from "../components/Typography";
 import { FC } from "react";
 
 // root component interface

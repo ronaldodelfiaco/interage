@@ -110,7 +110,7 @@ const ForgetPassword: FC = () => {
 
           <Small margin="auto" mt={3} color="text.disabled">
             Don't have an account?{" "}
-            <Link to="/register">
+            <Link href="/register">
               <Small color="primary.main">Create an account</Small>
             </Link>
           </Small>
