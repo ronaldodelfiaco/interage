@@ -20,7 +20,7 @@ type telefone = {
   id_pessoa: number;
   ddd: number;
   telefone: number;
-  ramal: number;
+  ramal: string;
   principal: boolean;
   id_tipo_telefone: number;
   contato: string;

@@ -1,14 +1,7 @@
 import {
-  Box,
-  Modal,
-  Card,
-  Button,
-  FormControl,
-  FormGroup,
-  Checkbox,
-  FormControlLabel,
+  Box, Button, Card, Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Modal, Select
 } from '@mui/material';
-import { Formik, Form } from 'formik';
+import { Form, Formik } from 'formik';
 import * as React from 'react';
 import { Dispatch, FC } from 'react';
 import FlexBox from '../../FlexBox';
@@ -30,7 +23,7 @@ interface IFormData {
   telefone: number;
   ramal: number;
   principal: boolean;
-  id_tipo_telefone: number;
+  id_tipo_telefone: string;
   contato: string;
   ddi: string;
   dtalteracao: string;
@@ -42,6 +35,8 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   setOpen,
   setDadosAtributos,
 }) => {
+  const [idTipoTelefone, setIdTipo] = React.useState<number>();
+
   const initialValues: IFormData = {
     id: 0,
     id_pessoa: 0,
@@ -49,12 +44,59 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     telefone: 0,
     ramal: 0,
     principal: false,
-    id_tipo_telefone: 0,
+    id_tipo_telefone: '',
     contato: '',
     ddi: '',
     dtalteracao: '',
     dtinclusao: '',
   };
+
+  const tipoTelefone = [
+    {
+      nome: 'Celular',
+      id: 1,
+    },
+    {
+      nome: 'Comercial',
+      id: 2,
+    },
+    {
+      nome: 'Trabalho',
+      id: 3,
+    },
+    {
+      nome: 'Residencial',
+      id: 4,
+    },
+    {
+      nome: 'Recado',
+      id: 5,
+    },
+    {
+      nome: 'Fixo - 1',
+      id: 6,
+    },
+    {
+      nome: 'Fixo - 1',
+      id: 7,
+    },
+    {
+      nome: 'telefone_fixo',
+      id: 8,
+    },
+    {
+      nome: 'telefone_celular',
+      id: 9,
+    },
+    {
+      nome: 'telefone_celular_aux',
+      id: 10,
+    },
+    {
+      nome: 'telefone_comercial',
+      id: 11,
+    },
+  ];
 
   // falta colocar o id, e o id_pessoa
   return (
@@ -63,6 +105,14 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         initialValues={initialValues}
         onSubmit={(values, actions) => {
           setTimeout(() => {
+            // const data = ;
+            // if(values.dtinclusao !== ""){
+            //   values.dtalteracao = data;
+            // }
+            // else{
+            //   values.dtalteracao = data;
+            // }
+            console.log(idTipoTelefone);
             console.log(values);
             setDadosAtributos(values), setOpen(false);
             actions.setSubmitting(false);
@@ -152,17 +202,54 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                   name={'contato'}
                 />
               </FlexBox>
+              <FlexBox
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                {/* <TextField
+                  fullWidth
+                  select
+                  label="tipo de telefone"
+                  onChange={formikMeta.handleChange}
+                  value={formikMeta.values.id_tipo_telefone}
+                >
+                  <MenuItem key={''} value={''}>
+                    Selecionar
+                  </MenuItem>
+                  {tipoTelefone.map((option) => (
+                    <MenuItem key={option.id} value={option.id}>
+                      {option.nome}
+                    </MenuItem>
+                  ))}
+                </TextField> */}
+                <FormControl fullWidth>
+                  <InputLabel id="tipoTelefone">tipo de telefone</InputLabel>
+                  <Select
+                    fullWidth
+                    id="id_tipo_telefone"
+                    value={formikMeta.values.id_tipo_telefone}
+                    onChange={formikMeta.handleChange}
+                    name="id_tipo_telefone"
+                  >
+                    {tipoTelefone.map((option) => (
+                      <MenuItem value={option.id} key={option.id}>
+                        {option.nome}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </FlexBox>
               <FormControl>
                 <FormGroup onChange={formikMeta.handleChange} row>
                   <FormControlLabel
                     control={<Checkbox />}
                     label="principal"
-                    value="principal"
-                    name="sintomasAnteriores"
+                    name="principal"
                   />
                 </FormGroup>
               </FormControl>
-
               <FlexBox justifyContent="space-between" alignItems="center">
                 <Button fullWidth type="submit" variant="contained">
                   Enviar
