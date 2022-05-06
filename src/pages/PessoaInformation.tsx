@@ -33,12 +33,7 @@ var idPessoa: string;
 
 const PessoaInformation: FC = () => {
   const router = useRouter();
-  const { id, nome } = router.query;
-
-  // change navbar title
-  var pessoa: string;
-  // pessoa = nome !== "" ? nome : "...";
-  useTitle(nome);
+  const { id } = router.query;
 
   const theme = useTheme();
   const { t } = useTranslation();
