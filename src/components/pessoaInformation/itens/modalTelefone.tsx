@@ -1,6 +1,17 @@
 import {
-  Box, Button, Card, Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Modal, Select
+  Box,
+  Button,
+  Card,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  InputLabel,
+  MenuItem,
+  Modal,
+  Select
 } from '@mui/material';
+import { format } from "date-fns";
 import { Form, Formik } from 'formik';
 import * as React from 'react';
 import { Dispatch, FC } from 'react';
@@ -16,20 +27,6 @@ interface ModalFilhoProps {
   // itemDados: any;
 }
 
-interface IFormData {
-  id: number;
-  id_pessoa: number;
-  ddd: number;
-  telefone: number;
-  ramal: number;
-  principal: boolean;
-  id_tipo_telefone: string;
-  contato: string;
-  ddi: string;
-  dtalteracao: string;
-  dtinclusao: string;
-}
-
 const modalTelefone: FC<ModalFilhoProps> = ({
   open,
   setOpen,
@@ -37,7 +34,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
 }) => {
   const [idTipoTelefone, setIdTipo] = React.useState<number>();
 
-  const initialValues: IFormData = {
+  const initialValues = {
     id: 0,
     id_pessoa: 0,
     ddd: 0,
@@ -105,13 +102,11 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         initialValues={initialValues}
         onSubmit={(values, actions) => {
           setTimeout(() => {
-            // const data = ;
-            // if(values.dtinclusao !== ""){
-            //   values.dtalteracao = data;
-            // }
-            // else{
-            //   values.dtalteracao = data;
-            // }
+            if (values.dtinclusao !== '') {
+              values.dtalteracao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
+            } else {
+              values.dtinclusao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
+            }
             console.log(idTipoTelefone);
             console.log(values);
             setDadosAtributos(values), setOpen(false);
