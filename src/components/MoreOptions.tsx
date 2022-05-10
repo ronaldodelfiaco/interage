@@ -1,18 +1,27 @@
-import { Menu, MenuItem } from "@mui/material";
-import DeleteIcon from "../icons/DeleteIcon";
-import PencilIcon from "../icons/PencilIcon";
-import React, { FC } from "react";
-import { Small } from "./Typography";
+import { Menu, MenuItem } from '@mui/material';
+import DeleteIcon from '../icons/DeleteIcon';
+import PencilIcon from '../icons/PencilIcon';
+import React, { FC } from 'react';
+import { Small } from './Typography';
 
 // component props interface
 
 interface MoreOptionsProps {
   open?: boolean;
   anchorEl: HTMLElement | null;
+  id?: number;
   handleMoreClose: () => void;
+  apagar: (id: any) => void;
+  editar: (id: any) => void;
 }
 
-const MoreOptions: FC<MoreOptionsProps> = ({ anchorEl, handleMoreClose }) => {
+const MoreOptions: FC<MoreOptionsProps> = ({
+  anchorEl,
+  handleMoreClose,
+  id,
+  apagar,
+  editar,
+}) => {
   return (
     <Menu
       anchorEl={anchorEl}
@@ -20,18 +29,22 @@ const MoreOptions: FC<MoreOptionsProps> = ({ anchorEl, handleMoreClose }) => {
       onClose={handleMoreClose}
     >
       <MenuItem
-        onClick={handleMoreClose}
-        sx={{ "&:hover": { color: "primary.main" } }}
+        onClick={() => {
+          editar(id);
+        }}
+        sx={{ '&:hover': { color: 'primary.main' } }}
       >
         <PencilIcon sx={{ fontSize: 14, marginRight: 1 }} />
-        <Small fontWeight={500}>Edit</Small>
+        <Small fontWeight={500}>Editar: {id}</Small>
       </MenuItem>
       <MenuItem
-        onClick={handleMoreClose}
-        sx={{ "&:hover": { color: "primary.main" } }}
+        onClick={() => {
+          apagar(id);
+        }}
+        sx={{ '&:hover': { color: 'primary.main' } }}
       >
         <DeleteIcon sx={{ fontSize: 14, marginRight: 1 }} />
-        <Small fontWeight={500}>Remove</Small>
+        <Small fontWeight={500}>Remover</Small>
       </MenuItem>
     </Menu>
   );
