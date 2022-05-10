@@ -7,12 +7,12 @@ import React, { FC, MouseEvent } from 'react';
 // component interface
 interface ListCardProps {
   item: {
-    ddd: number;
-    telefone: number;
+    ddd: string;
+    telefone: string;
     ramal: string;
     ddi: string;
     principal: boolean;
-    id_tipo_telefone: number;
+    id_tipo_telefone: string;
   };
   handleMore: (event: MouseEvent<HTMLButtonElement>) => void;
 }
