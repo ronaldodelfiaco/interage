@@ -1,24 +1,21 @@
 import { Box, Button, Card, Grid, styled, useTheme } from '@mui/material';
-
+import { useRouter } from 'next/router';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { useRouter } from 'next/router';
-import Grupos from '../components/pessoaInformation/Grupos';
-import InformacoesPrincipais from '../components/pessoaInformation/InformacoesPrincipais';
-import Telefones from '../components/pessoaInformation/Telefones';
+import FlexBox from '../components/FlexBox';
+import Anexos from '../components/pessoaInformation/Anexos';
 import Enderecos from '../components/pessoaInformation/Enderecos';
 import Eventos from '../components/pessoaInformation/Eventos';
+import Grupos from '../components/pessoaInformation/Grupos';
+import InformacoesPrincipais from '../components/pessoaInformation/InformacoesPrincipais';
 import Networking from '../components/pessoaInformation/Networking';
-import Anexos from '../components/pessoaInformation/Anexos';
 import Questionarios from '../components/pessoaInformation/Questionarios';
-import useTitle from '../hooks/useTitle';
-import convertToSlug from '../utils/convertSlug';
-import FlexBox from '../components/FlexBox';
-import ProfileIcon from '../icons/ProfileIcon';
+import Telefones from '../components/pessoaInformation/Telefones';
 import ContactPhoneIcon from '../icons/ContactPhoneIcon';
 import DiamondIcon from '../icons/DiamondIcon';
+import ProfileIcon from '../icons/ProfileIcon';
 import SettingIcon from '../icons/SettingIcon';
+import convertToSlug from '../utils/convertSlug';
 
 // styled component
 const StyledButton = styled(Button)(() => ({
