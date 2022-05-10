@@ -22,6 +22,7 @@ interface ModalFilhoProps {
   open: boolean;
   setOpen: Dispatch<React.SetStateAction<boolean>>;
   setDadosAtributos: Dispatch<React.SetStateAction<any>>;
+  setItemDados: Dispatch<React.SetStateAction<any>>;
   // openDados: Array<any>;
   // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
   itemDados: any;
@@ -31,6 +32,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   open,
   setOpen,
   setDadosAtributos,
+  setItemDados,
   itemDados,
 }) => {
   const [idTipoTelefone, setIdTipo] = React.useState<number>();
@@ -205,22 +207,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                 alignItems="center"
                 justifyContent="space-between"
               >
-                {/* <TextField
-                  fullWidth
-                  select
-                  label="tipo de telefone"
-                  onChange={formikMeta.handleChange}
-                  value={formikMeta.values.id_tipo_telefone}
-                >
-                  <MenuItem key={''} value={''}>
-                    Selecionar
-                  </MenuItem>
-                  {tipoTelefone.map((option) => (
-                    <MenuItem key={option.id} value={option.id}>
-                      {option.nome}
-                    </MenuItem>
-                  ))}
-                </TextField> */}
                 <FormControl fullWidth>
                   <InputLabel id="tipoTelefone">tipo de telefone</InputLabel>
                   <Select
@@ -255,7 +241,22 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                 <Button
                   variant="contained"
                   fullWidth
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    setOpen(false);
+                    setItemDados({
+                      id: -1,
+                      id_pessoa: '',
+                      ddd: '',
+                      telefone: '',
+                      ramal: '',
+                      principal: false,
+                      id_tipo_telefone: '',
+                      contato: '',
+                      ddi: '',
+                      dtalteracao: '',
+                      dtinclusao: '',
+                    });
+                  }}
                 >
                   Cancelar
                 </Button>

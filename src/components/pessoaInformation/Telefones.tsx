@@ -1,15 +1,15 @@
 import { Card, Grid, Typography } from '@mui/material';
-import MoreOptions from '../MoreOptions';
-import { H3, Tiny } from '../Typography';
+import axios from 'axios';
 import { FC, MouseEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import ListTelefone from './itens/ListTelefone';
-import NewItemCard from './itens/NewItemCard';
+import { IdType } from 'react-table';
 import { herokuConfig } from '../../config';
-import axios from 'axios';
-import FlexBox from '../FlexBox';
 import AddIconButton from '../AddIconButton';
+import FlexBox from '../FlexBox';
+import MoreOptions from '../MoreOptions';
 import ModalTelefone from '../pessoaInformation/itens/modalTelefone';
+import { H3, Tiny } from '../Typography';
+import ListTelefone from './itens/ListTelefone';
 
 interface TelefonesProps {
   idPessoa: string | string[] | undefined;
@@ -17,12 +17,12 @@ interface TelefonesProps {
 
 type telefone = {
   id: number;
-  id_pessoa: number;
-  ddd: number;
-  telefone: number;
+  id_pessoa: string;
+  ddd: string;
+  telefone: string;
   ramal: string;
   principal: boolean;
-  id_tipo_telefone: number;
+  id_tipo_telefone: string;
   contato: string;
   ddi: string;
   dtalteracao: string;
@@ -41,11 +41,34 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   const [newTelefonePessoa, setNewTelefonePessoa] = useState<telefone>();
   const [openModalTelefone, setOpenModalTelefone] = useState(false);
 
+  const [itemDados, setItemDados] = useState<telefone>();
+
+  const apagarItemDados = () => {
+    setItemDados({
+      id: -1,
+      id_pessoa: '',
+      ddd: '',
+      telefone: '',
+      ramal: '',
+      principal: false,
+      id_tipo_telefone: '',
+      contato: '',
+      ddi: '',
+      dtalteracao: '',
+      dtinclusao: '',
+    });
+  };
+
+  //Para ter certeza que item dados não seja nulo.
+  useEffect(() => {
+    apagarItemDados();
+  });
+
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
 
-  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=view_telefones&filter=id_pessoa=${idPessoa}`;
+  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_telefones&filter=id_pessoa=${idPessoa}`;
 
   useEffect(() => {
     axios
@@ -67,8 +90,8 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
       setTelefonesPessoa((prevTelefone) => [
         ...prevTelefone,
         {
-          id: 0,
-          id_pessoa: 0,
+          id: TelefonesPessoa.length,
+          id_pessoa: newTelefonePessoa.id_pessoa,
           ddd: newTelefonePessoa.ddd,
           telefone: newTelefonePessoa.telefone,
           ramal: newTelefonePessoa.ramal,
@@ -83,7 +106,20 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
     }
   }, [newTelefonePessoa]);
 
-  console.log(TelefonesPessoa);
+  const editarNumero = (id: number) => {
+    // setItemDados(TelefonesPessoa[id]);
+    // setOpenModalTelefone(true);
+    // if (itemDados?.id !== -1) {
+    //   setTelefonesPessoa(TelefonesPessoa.splice(id, 0));
+    //   apagarItemDados();
+    // }
+    handleMoreClose();
+  };
+
+  const apagarNumero = (id: number) => {
+    setTelefonesPessoa(TelefonesPessoa.splice(id, 0));
+    handleMoreClose();
+  };
 
   return (
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
@@ -92,10 +128,15 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
         {TelefonesPessoa.map((item) => (
           <Grid item xs={12} sm={6} key={item?.id}>
             <ListTelefone item={item} handleMore={handleMoreOpen} />
+            <MoreOptions
+              id={item.id}
+              anchorEl={moreEl}
+              handleMoreClose={handleMoreClose}
+              editar={editarNumero}
+              apagar={apagarNumero}
+            />
           </Grid>
         ))}
-
-        <MoreOptions anchorEl={moreEl} handleMoreClose={handleMoreClose} />
 
         <Grid item xs={12} sm={6}>
           <FlexBox alignItems={'center'}>
@@ -108,6 +149,8 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
               open={openModalTelefone}
               setOpen={setOpenModalTelefone}
               setDadosAtributos={setNewTelefonePessoa}
+              itemDados={itemDados}
+              setItemDados={setItemDados}
             />
           </FlexBox>
         </Grid>
