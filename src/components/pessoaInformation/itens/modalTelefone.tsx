@@ -9,9 +9,9 @@ import {
   InputLabel,
   MenuItem,
   Modal,
-  Select
+  Select,
 } from '@mui/material';
-import { format } from "date-fns";
+import { format } from 'date-fns';
 import { Form, Formik } from 'formik';
 import * as React from 'react';
 import { Dispatch, FC } from 'react';
@@ -24,28 +24,29 @@ interface ModalFilhoProps {
   setDadosAtributos: Dispatch<React.SetStateAction<any>>;
   // openDados: Array<any>;
   // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
-  // itemDados: any;
+  itemDados: any;
 }
 
 const modalTelefone: FC<ModalFilhoProps> = ({
   open,
   setOpen,
   setDadosAtributos,
+  itemDados,
 }) => {
   const [idTipoTelefone, setIdTipo] = React.useState<number>();
 
   const initialValues = {
-    id: 0,
-    id_pessoa: 0,
-    ddd: 0,
-    telefone: 0,
-    ramal: 0,
-    principal: false,
-    id_tipo_telefone: '',
-    contato: '',
-    ddi: '',
-    dtalteracao: '',
-    dtinclusao: '',
+    id: 0 || itemDados?.id,
+    id_pessoa: '' || itemDados?.id_pessoa,
+    ddd: '' || itemDados?.ddd,
+    telefone: '' || itemDados?.telefone,
+    ramal: '' || itemDados?.ramal,
+    principal: false || itemDados?.principal,
+    id_tipo_telefone: '' || itemDados?.id_tipo_telefone,
+    contato: '' || itemDados?.contato,
+    ddi: '+55' || itemDados?.ddi,
+    dtalteracao: '' || itemDados?.dtalteracao,
+    dtinclusao: '' || itemDados?.dtinclusao,
   };
 
   const tipoTelefone = [
@@ -107,8 +108,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             } else {
               values.dtinclusao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
             }
-            console.log(idTipoTelefone);
-            console.log(values);
             setDadosAtributos(values), setOpen(false);
             actions.setSubmitting(false);
           }, 1000);
@@ -153,6 +152,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                   fullWidth
                   onChange={formikMeta.handleChange}
                   name={'ddd'}
+                  type="number"
                 />
               </FlexBox>
               <FlexBox
@@ -167,6 +167,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                   fullWidth
                   onChange={formikMeta.handleChange}
                   name={'telefone'}
+                  type="number"
                 />
               </FlexBox>
               <FlexBox
@@ -181,6 +182,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                   fullWidth
                   onChange={formikMeta.handleChange}
                   name={'ramal'}
+                  type="number"
                 />
               </FlexBox>
               <FlexBox
