@@ -27,14 +27,36 @@ interface CustomProps {
   name: string;
 }
 
-const maskCPFCNPJ = React.forwardRef<HTMLElement, CustomProps>(
+const maskCPF = React.forwardRef<HTMLElement, CustomProps>(function maskCPFCNPJ(
+  props,
+  ref,
+) {
+  const { onChange, ...other } = props;
+
+  return (
+    <IMaskInput
+      {...other}
+      mask="000.000.000-00"
+      definitions={{
+        '#': /[1-9]/,
+      }}
+      //InputRef = {ref}
+      onAccept={(value: any) =>
+        onChange({ target: { name: props.name, value } })
+      }
+      overwrite
+    />
+  );
+});
+
+const maskCNPJ = React.forwardRef<HTMLElement, CustomProps>(
   function maskCPFCNPJ(props, ref) {
     const { onChange, ...other } = props;
 
     return (
       <IMaskInput
         {...other}
-        mask="000.000.000-00"
+        mask="00.000.000/0000-00"
         definitions={{
           '#': /[1-9]/,
         }}
@@ -293,9 +315,15 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
               value={formik.values.cpfCpj}
               // helperText={formik.touched.cpfCpj && formik.errors.cpfCpj}
               // error={Boolean(formik.touched.cpfCpj && formik.errors.cpfCpj)}
-              InputProps={{
-                inputComponent: maskCPFCNPJ as any,
-              }}
+              InputProps={
+                formik.values.tipo === 'F'
+                  ? {
+                      inputComponent: maskCPF as any,
+                    }
+                  : {
+                      inputComponent: maskCNPJ as any,
+                    }
+              }
             />
           </Grid>
 
