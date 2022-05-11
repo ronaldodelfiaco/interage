@@ -35,8 +35,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   setItemDados,
   itemDados,
 }) => {
-  const [idTipoTelefone, setIdTipo] = React.useState<number>();
-
   const initialValues = {
     id: 0 || itemDados?.id,
     id_pessoa: '' || itemDados?.id_pessoa,
@@ -52,6 +50,10 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   };
 
   const tipoTelefone = [
+    {
+      nome: 'Selecione',
+      id: 0,
+    },
     {
       nome: 'Celular',
       id: 1,
@@ -208,13 +210,14 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                 justifyContent="space-between"
               >
                 <FormControl fullWidth>
-                  <InputLabel id="tipoTelefone">tipo de telefone</InputLabel>
+                  <InputLabel defaultValue={0} id="tipoTelefone">tipo de telefone</InputLabel>
                   <Select
+                  value={formikMeta.values.id_tipo_telefone}
                     fullWidth
                     id="id_tipo_telefone"
-                    value={formikMeta.values.id_tipo_telefone}
                     onChange={formikMeta.handleChange}
                     name="id_tipo_telefone"
+                    label="tipo de telefone"
                   >
                     {tipoTelefone.map((option) => (
                       <MenuItem value={option.id} key={option.id}>
@@ -227,6 +230,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               <FormControl>
                 <FormGroup onChange={formikMeta.handleChange} row>
                   <FormControlLabel
+                    value={formikMeta.values.principal}
                     control={<Checkbox />}
                     label="principal"
                     name="principal"
@@ -250,7 +254,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                       telefone: '',
                       ramal: '',
                       principal: false,
-                      id_tipo_telefone: '',
+                      id_tipo_telefone: 0,
                       contato: '',
                       ddi: '',
                       dtalteracao: '',

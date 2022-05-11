@@ -35,7 +35,7 @@ const MoreOptions: FC<MoreOptionsProps> = ({
         sx={{ '&:hover': { color: 'primary.main' } }}
       >
         <PencilIcon sx={{ fontSize: 14, marginRight: 1 }} />
-        <Small fontWeight={500}>Editar: {id}</Small>
+        <Small fontWeight={500}>Editar</Small>
       </MenuItem>
       <MenuItem
         onClick={() => {

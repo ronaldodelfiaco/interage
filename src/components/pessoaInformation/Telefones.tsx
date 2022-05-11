@@ -2,7 +2,6 @@ import { Card, Grid, Typography } from '@mui/material';
 import axios from 'axios';
 import { FC, MouseEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IdType } from 'react-table';
 import { herokuConfig } from '../../config';
 import AddIconButton from '../AddIconButton';
 import FlexBox from '../FlexBox';
@@ -43,32 +42,13 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
 
   const [itemDados, setItemDados] = useState<telefone>();
 
-  const apagarItemDados = () => {
-    setItemDados({
-      id: -1,
-      id_pessoa: '',
-      ddd: '',
-      telefone: '',
-      ramal: '',
-      principal: false,
-      id_tipo_telefone: '',
-      contato: '',
-      ddi: '',
-      dtalteracao: '',
-      dtinclusao: '',
-    });
-  };
-
-  //Para ter certeza que item dados não seja nulo.
-  useEffect(() => {
-    apagarItemDados();
-  });
-
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
 
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_telefones&filter=id_pessoa=${idPessoa}`;
+
+  const [editar, setEditar] = useState(false);
 
   useEffect(() => {
     axios
@@ -87,32 +67,51 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   //Adiciona novos dados, no vetor de telefone
   useEffect(() => {
     if (newTelefonePessoa !== undefined) {
-      setTelefonesPessoa((prevTelefone) => [
-        ...prevTelefone,
-        {
-          id: TelefonesPessoa.length,
-          id_pessoa: newTelefonePessoa.id_pessoa,
-          ddd: newTelefonePessoa.ddd,
-          telefone: newTelefonePessoa.telefone,
-          ramal: newTelefonePessoa.ramal,
-          principal: newTelefonePessoa.principal,
-          id_tipo_telefone: newTelefonePessoa.id_tipo_telefone,
-          contato: newTelefonePessoa.contato,
-          ddi: newTelefonePessoa.ddi,
-          dtalteracao: newTelefonePessoa.dtalteracao,
-          dtinclusao: newTelefonePessoa.dtinclusao,
-        },
-      ]);
+      if (!editar) {
+        setTelefonesPessoa((prevTelefone) => [
+          ...prevTelefone,
+          {
+            id: TelefonesPessoa.length,
+            id_pessoa: newTelefonePessoa.id_pessoa,
+            ddd: newTelefonePessoa.ddd,
+            telefone: newTelefonePessoa.telefone,
+            ramal: newTelefonePessoa.ramal,
+            principal: newTelefonePessoa.principal,
+            id_tipo_telefone: newTelefonePessoa.id_tipo_telefone,
+            contato: newTelefonePessoa.contato,
+            ddi: newTelefonePessoa.ddi,
+            dtalteracao: newTelefonePessoa.dtalteracao,
+            dtinclusao: newTelefonePessoa.dtinclusao,
+          },
+        ]);
+      } else {
+        TelefonesPessoa.splice(
+          newTelefonePessoa.id,
+          1,
+          newTelefonePessoa,
+        );
+        setEditar(false);
+        setItemDados({
+          id: -1,
+          id_pessoa: '',
+          ddd: '',
+          telefone: '',
+          ramal: '',
+          principal: false,
+          id_tipo_telefone: '',
+          contato: '',
+          ddi: '',
+          dtalteracao: '',
+          dtinclusao: '',
+        });
+      }
     }
   }, [newTelefonePessoa]);
 
   const editarNumero = (id: number) => {
-    // setItemDados(TelefonesPessoa[id]);
-    // setOpenModalTelefone(true);
-    // if (itemDados?.id !== -1) {
-    //   setTelefonesPessoa(TelefonesPessoa.splice(id, 0));
-    //   apagarItemDados();
-    // }
+    setItemDados(TelefonesPessoa[id]);
+    setOpenModalTelefone(true);
+    setEditar(true);
     handleMoreClose();
   };
 
@@ -123,7 +122,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
 
   return (
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
-      <H3>{t('Groups')}</H3>
+      <H3>Telefones</H3>
       <Grid container spacing={4} pt="1.5rem">
         {TelefonesPessoa.map((item) => (
           <Grid item xs={12} sm={6} key={item?.id}>
