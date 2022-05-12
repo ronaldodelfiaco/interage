@@ -2,10 +2,12 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Grid,
   MenuItem,
+  Stack,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
@@ -209,6 +211,8 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
   else useTitle('Adicionando Pessoa');
   const router = useRouter();
 
+  const [isLoading, setLoading] = useState(true);
+
   useEffect(() => {
     if (idPessoa) {
       LerPessoa(idPessoa).then((row: any) => {
@@ -239,142 +243,161 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
           idCidadeNatural: row.pessoa.id_cidade_natural,
         });
       });
+      setLoading(false);
+    } else {
+      setLoading(false);
     }
   }, [idPessoa]);
 
   return (
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
-      <form onSubmit={formik.handleSubmit}>
-        <FlexBox
-          my="1.5rem"
-          flexWrap="wrap"
-          alignItems="center"
-          justifyContent="space-between"
+      {isLoading ? (
+        <Stack
+          justifyContent="center"
+          sx={{ color: 'grey.500' }}
+          spacing={2}
+          direction="row"
+          alignContent="center"
         >
-          <Box my="1rem">
-            <Typography variant="h6">Tipo de Pessoa</Typography>
-            <RadioGroup
-              row
-              name="tipo"
-              onChange={formik.handleChange}
-              value={formik.values.tipo}
-            >
-              <FormControlLabel value="F" control={<Radio />} label="Física" />
-              <FormControlLabel
-                value="J"
-                control={<Radio />}
-                label="Jurídica"
+          <CircularProgress />
+        </Stack>
+      ) : (
+        <form onSubmit={formik.handleSubmit}>
+          <FlexBox
+            my="1.5rem"
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Box my="1rem">
+              <Typography variant="h6">Tipo de Pessoa</Typography>
+              <RadioGroup
+                row
+                name="tipo"
+                onChange={formik.handleChange}
+                value={formik.values.tipo}
+              >
+                <FormControlLabel
+                  value="F"
+                  control={<Radio />}
+                  label="Física"
+                />
+                <FormControlLabel
+                  value="J"
+                  control={<Radio />}
+                  label="Jurídica"
+                />
+              </RadioGroup>
+            </Box>
+            <div>
+              <TextField
+                id="pronome"
+                select
+                label="Pronome"
+                value={idPronome}
+                onChange={pronomeChange}
+                sx={{ width: 100 }}
+              >
+                {pronomes.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.nome}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </FlexBox>
+
+          <Grid container spacing={4}>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="nome"
+                label="Nome"
+                value={formik.values.nome}
+                onChange={formik.handleChange}
+                helperText={formik.touched.nome && formik.errors.nome}
+                error={Boolean(formik.touched.nome && formik.errors.nome)}
               />
-            </RadioGroup>
-          </Box>
-          <div>
-            <TextField
-              id="pronome"
-              select
-              label="Pronome"
-              value={idPronome}
-              onChange={pronomeChange}
-              sx={{ width: 100 }}
-            >
-              {pronomes.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                  {option.nome}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </FlexBox>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="apelidoFantasia"
+                label="Apelido"
+                onChange={formik.handleChange}
+                value={formik.values.apelidoFantasia}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="cpfCpj"
+                label="CPF ou CNPJ"
+                value={formik.values.cpfCpj}
+                onChange={formik.handleChange}
+                helperText={formik.touched.cpfCpj && formik.errors.cpfCpj}
+                error={Boolean(formik.touched.cpfCpj && formik.errors.cpfCpj)}
+                InputProps={
+                  formik.values.tipo === 'F'
+                    ? {
+                        inputComponent: maskCPF as any,
+                      }
+                    : {
+                        inputComponent: maskCNPJ as any,
+                      }
+                }
+              />
+            </Grid>
 
-        <Grid container spacing={4}>
-          <Grid item xs={12} sm={6}>
-            <LightTextField
-              fullWidth
-              name="nome"
-              label="Nome"
-              value={formik.values.nome}
-              onChange={formik.handleChange}
-              helperText={formik.touched.nome && formik.errors.nome}
-              error={Boolean(formik.touched.nome && formik.errors.nome)}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <LightTextField
-              fullWidth
-              name="apelidoFantasia"
-              label="Apelido"
-              onChange={formik.handleChange}
-              value={formik.values.apelidoFantasia}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <LightTextField
-              fullWidth
-              name="cpfCpj"
-              label="CPF"
-              onChange={formik.handleChange}
-              value={formik.values.cpfCpj}
-              // helperText={formik.touched.cpfCpj && formik.errors.cpfCpj}
-              // error={Boolean(formik.touched.cpfCpj && formik.errors.cpfCpj)}
-              InputProps={
-                formik.values.tipo === 'F'
-                  ? {
-                      inputComponent: maskCPF as any,
-                    }
-                  : {
-                      inputComponent: maskCNPJ as any,
-                    }
-              }
-            />
-          </Grid>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="dataNascimento"
+                label="Data de Nascimento"
+                onChange={formik.handleChange}
+                value={formik.values.dataNascimento}
+                InputProps={{
+                  inputComponent: maskDtNascimento as any,
+                }}
+              />
+            </Grid>
 
-          <Grid item xs={12} sm={6}>
-            <LightTextField
-              fullWidth
-              name="dataNascimento"
-              label="Data de Nascimento"
-              onChange={formik.handleChange}
-              value={formik.values.dataNascimento}
-              InputProps={{
-                inputComponent: maskDtNascimento as any,
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="email"
+                label="Email"
+                onChange={formik.handleChange}
+                value={formik.values.email}
+              />
+            </Grid>
+          </Grid>
+          <br />
+          <br />
+          <FlexBox justifyContent="space-between" alignItems="center">
+            <Button
+              variant="outlined"
+              sx={{
+                width: 124,
+                color: 'text.disabled',
+                borderColor: 'text.disabled',
               }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <LightTextField
               fullWidth
-              name="email"
-              label="Email"
-              onChange={formik.handleChange}
-              value={formik.values.email}
-            />
-          </Grid>
-        </Grid>
-        <br />
-        <br />
-        <FlexBox justifyContent="space-between" alignItems="center">
-          <Button
-            variant="outlined"
-            sx={{
-              width: 124,
-              color: 'text.disabled',
-              borderColor: 'text.disabled',
-            }}
-            fullWidth
-            onClick={() => router.back()}
-          >
-            {t('Cancel')}
-          </Button>
-          <Button
-            fullWidth
-            type="submit"
-            variant="contained"
-            sx={{ width: 124 }}
-          >
-            {t('Save')}
-          </Button>
-        </FlexBox>
-      </form>
+              onClick={() => router.back()}
+            >
+              {t('Cancel')}
+            </Button>
+            <Button
+              fullWidth
+              type="submit"
+              variant="contained"
+              sx={{ width: 124 }}
+            >
+              {t('Save')}
+            </Button>
+          </FlexBox>
+        </form>
+      )}
     </Card>
   );
 };
