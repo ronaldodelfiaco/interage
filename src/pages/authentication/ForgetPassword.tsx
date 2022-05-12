@@ -1,29 +1,29 @@
-import { LoadingButton } from "@mui/lab";
-import { Box, Button, Card, FormHelperText } from "@mui/material";
-import FlexBox from "../../components/FlexBox";
-import LightTextField from "../../components/LightTextField";
-import { H1, Small } from "../../components/Typography";
-import { useFormik } from "formik";
-import { FC, useState } from "react";
-import toast from "react-hot-toast";
-import Link from "next/link";
-import * as Yup from "yup";
+import { LoadingButton } from '@mui/lab';
+import { Box, Button, Card, FormHelperText } from '@mui/material';
+import { useFormik } from 'formik';
 import Image from 'next/image';
+import Link from 'next/link';
+import { FC, useState } from 'react';
+import toast from 'react-hot-toast';
+import * as Yup from 'yup';
+import FlexBox from '../../components/FlexBox';
+import LightTextField from '../../components/LightTextField';
+import { H1, Small } from '../../components/Typography';
 
 const ForgetPassword: FC = () => {
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const initialValues = {
-    email: "demo@example.com",
+    email: 'demo@example.com',
     submit: null,
   };
   // form field value validation schema
   const validationSchema = Yup.object().shape({
     email: Yup.string()
-      .email("Must be a valid email")
+      .email('Must be a valid email')
       .max(255)
-      .required("Email is required"),
+      .required('Email is required'),
   });
 
   const { errors, values, touched, handleBlur, handleChange, handleSubmit } =
@@ -35,11 +35,11 @@ const ForgetPassword: FC = () => {
 
         setTimeout(() => {
           setLoading(false);
-          toast.success("Reset link has been sent!");
+          toast.success('Reset link has been sent!');
         }, 1000);
 
         if (error) {
-          setError("Error!");
+          setError('Error!');
           setLoading(false);
         }
       },
@@ -60,15 +60,15 @@ const ForgetPassword: FC = () => {
           mb={5}
         >
           <Box width={38} mb={1}>
-            <img src="/static/logo/logo.svg" width="100%" alt="Uko Logo" />
+            <Image src="/favicon.png" width="100%" height="100%" alt="Logo" />{' '}
           </Box>
           <H1 fontSize={24} fontWeight={700}>
-            Reset your password
+            Esqueceu a senha?
           </H1>
         </FlexBox>
 
         <FlexBox justifyContent="space-between" flexWrap="wrap" my={2}>
-          <form noValidate onSubmit={handleSubmit} style={{ width: "100%" }}>
+          <form noValidate onSubmit={handleSubmit} style={{ width: '100%' }}>
             <LightTextField
               fullWidth
               name="email"
@@ -76,7 +76,7 @@ const ForgetPassword: FC = () => {
               label="Email"
               onBlur={handleBlur}
               onChange={handleChange}
-              value={values.email || ""}
+              value={values.email || ''}
               error={Boolean(touched.email && errors.email)}
               helperText={touched.email && errors.email}
             />
@@ -88,7 +88,7 @@ const ForgetPassword: FC = () => {
                   mt: 2,
                   fontSize: 13,
                   fontWeight: 500,
-                  textAlign: "center",
+                  textAlign: 'center',
                 }}
               >
                 {error}
@@ -98,22 +98,22 @@ const ForgetPassword: FC = () => {
             <Box sx={{ mt: 4 }}>
               {loading ? (
                 <LoadingButton loading fullWidth variant="contained">
-                  Reset
+                  Trocar
                 </LoadingButton>
               ) : (
                 <Button fullWidth type="submit" variant="contained">
-                  Reset
+                  Trocar
                 </Button>
               )}
             </Box>
           </form>
 
-          <Small margin="auto" mt={3} color="text.disabled">
-            Don't have an account?{" "}
+          {/* <Small margin="auto" mt={3} color="text.disabled">
+            Não possui uma conta?{' '}
             <Link href="/register">
               <Small color="primary.main">Create an account</Small>
             </Link>
-          </Small>
+          </Small> */}
         </FlexBox>
       </Card>
     </FlexBox>

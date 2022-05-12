@@ -1,18 +1,17 @@
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Card, FormHelperText } from '@mui/material';
+import { useFormik } from 'formik';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { FC, useState } from 'react';
+import toast from 'react-hot-toast';
+import * as Yup from 'yup';
 import { TextFieldWrapper } from '../../components/authentication/StyledComponents';
 import FlexBox from '../../components/FlexBox';
 import LightTextField from '../../components/LightTextField';
 import { H1, Paragraph, Small } from '../../components/Typography';
-import { useFormik } from 'formik';
 import useAuth from '../../hooks/useAuth';
-
-import Image from 'next/image';
-import Link from 'next/link';
-import { FC, useState } from 'react';
-import toast from 'react-hot-toast';
-import { useRouter } from 'next/router';
-import * as Yup from 'yup';
 
 const Login: FC = () => {
   const navigate = useRouter();
@@ -116,13 +115,13 @@ const Login: FC = () => {
               </TextFieldWrapper>
             </FlexBox>
 
-            {/* <FlexBox mt={2} alignItems="center" justifyContent="space-between">
+            <FlexBox mt={2} alignItems="center" justifyContent="space-between">
               <Link href="/authentication/ForgetPassword" passHref>
                 <Small color="secondary.red">
-                   <a>Esqueceu a senha? </a>
-                   </Small>
+                  <a>Esqueceu a senha? </a>
+                </Small>
               </Link>
-            </FlexBox> */}
+            </FlexBox>
 
             {error && (
               <FormHelperText
