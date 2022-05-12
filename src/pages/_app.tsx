@@ -1,10 +1,7 @@
 import { LocalizationProvider } from '@mui/lab';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import {
-  CssBaseline,
-  StyledEngineProvider,
-  ThemeProvider
-} from '@mui/material';
+import { Card, CssBaseline, ThemeProvider } from '@mui/material';
+import { StyledEngineProvider } from '@mui/material/styles';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { Toaster } from 'react-hot-toast';
@@ -40,11 +37,10 @@ function InterageApp({ Component, pageProps }: AppProps) {
   // {
   // router.push('/Eventos')
   // }
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [])
 
   return (
-    <>
+    <Card>
       <Head>
         <title>Interage</title>
         <link rel="shortcut icon" href="/rcisistemas.png" type="image/x-icon" />
@@ -83,7 +79,7 @@ function InterageApp({ Component, pageProps }: AppProps) {
           </span>
         </a>
       </footer>
-    </>
+    </Card>
   );
 }
 
