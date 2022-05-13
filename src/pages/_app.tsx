@@ -15,6 +15,8 @@ import useSettings from '../hooks/useSettings';
 import '../styles/globals.css';
 import styles from '../styles/Home.module.css';
 import { ukoTheme } from '../theme';
+import '../utils/i18n';
+import 'nprogress/nprogress.css';
 
 function InterageApp({ Component, pageProps }: AppProps) {
   const { settings } = useSettings();
