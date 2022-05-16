@@ -11,7 +11,7 @@ import { H3, Tiny } from '../Typography';
 import ListTelefone from './itens/ListTelefone';
 
 interface TelefonesProps {
-  idPessoa: string | string[] | undefined;
+  idPessoa: string;
 }
 
 type telefone = {
@@ -21,7 +21,7 @@ type telefone = {
   telefone: string;
   ramal: string;
   principal: boolean;
-  id_tipo_telefone: string;
+  id_tipo_telefone: number;
   contato: string;
   ddi: string;
   dtalteracao: string;
@@ -72,7 +72,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
           ...prevTelefone,
           {
             id: TelefonesPessoa.length,
-            id_pessoa: newTelefonePessoa.id_pessoa,
+            id_pessoa: idPessoa,
             ddd: newTelefonePessoa.ddd,
             telefone: newTelefonePessoa.telefone,
             ramal: newTelefonePessoa.ramal,
@@ -98,7 +98,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
           telefone: '',
           ramal: '',
           principal: false,
-          id_tipo_telefone: '',
+          id_tipo_telefone: 0,
           contato: '',
           ddi: '',
           dtalteracao: '',

@@ -12,7 +12,7 @@ interface ListCardProps {
     ramal: string;
     ddi: string;
     principal: boolean;
-    id_tipo_telefone: string;
+    id_tipo_telefone: number;
   };
   handleMore: (event: MouseEvent<HTMLButtonElement>) => void;
 }
