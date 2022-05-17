@@ -32,6 +32,11 @@ type ufTable = {
   id: string;
 };
 
+type cidadeTable = {
+  label: string;
+  id: number;
+};
+
 type cidade = {
   id: number;
   nome: string;
@@ -104,7 +109,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   const [estado, setEstado] = React.useState<uf[]>([]);
   const [estadoTable, setEstadoTable] = React.useState<ufTable[]>([]);
   const [cidade, setCidade] = React.useState<cidade[]>([]);
-  const [cidadeTable, setCidadeTable] = React.useState<ufTable[]>([]);
+  const [cidadeTable, setCidadeTable] = React.useState<cidadeTable[]>([]);
 
   React.useEffect(() => {
     axios
@@ -137,7 +142,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   }, [estado]);
 
   React.useEffect(() => {
-    setCidadeTable(cidade.map((uf) => ({ label: uf.nome, id: uf.uf_cidade })));
+    setCidadeTable(cidade.map((uf) => ({ label: uf.nome, id: uf.id })));
   }, [cidade]);
 
   return (
@@ -169,23 +174,23 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               ))}
             </Select>
           </FormControl>
-          <FlexBox
-            my="1.5rem"
-            flexWrap="wrap"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Autocomplete
+          <br />
+          <br />
+          <FormControl fullWidth>
+            <InputLabel id="cidadeLabel">Cidade</InputLabel>
+            <Select
+              labelId="cidadeLabel"
+              label="Cidade"
               value={Formik.values.id_cidade}
-              fullWidth
+              name="id_cidade"
               id="id_cidade"
-              options={cidadeTable}
               onChange={Formik.handleChange}
-              renderInput={(params) => (
-                <LightTextField {...params} label="Cidade" />
-              )}
-            />
-          </FlexBox>
+            >
+              {cidadeTable.map((item) => (
+                <MenuItem value={item.id}>{item.label}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <FlexBox
             my="1.5rem"
             flexWrap="wrap"
