@@ -7,11 +7,14 @@ import {
   FormControl,
   FormControlLabel,
   FormGroup,
-  Modal
+  InputLabel,
+  MenuItem,
+  Modal,
+  Select,
 } from '@mui/material';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { Form, Formik } from 'formik';
+import { Form, Formik, useFormik } from 'formik';
 import * as React from 'react';
 import { Dispatch, FC } from 'react';
 import { herokuConfig } from '../../../config';
@@ -26,7 +29,7 @@ type uf = {
 
 type ufTable = {
   label: string;
-  uf: string;
+  id: string;
 };
 
 type cidade = {
@@ -68,64 +71,35 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     bairro: false || itemDados?.bairro,
     complemento: '' || itemDados?.complemento,
     recebe_correspondencia: '' || itemDados?.recebe_correspondencia,
-    status: '+55' || itemDados?.status,
+    status: '' || itemDados?.status,
     dtalteracao: '' || itemDados?.dtalteracao,
     dtinclusao: '' || itemDados?.dtinclusao,
   };
 
-  const tipoTelefone = [
-    {
-      label: 'Selecione',
-      id: 0,
+  const Formik = useFormik({
+    initialValues: initialValues,
+    onSubmit: (values) => {
+      setTimeout(() => {
+        if (values.dtinclusao !== '') {
+          values.dtalteracao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
+        } else {
+          values.dtinclusao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
+        }
+        setDadosAtributos(values), setOpen(false);
+      }, 1000);
     },
-    {
-      label: 'Celular',
-      id: 1,
-    },
-    {
-      label: 'Comercial',
-      id: 2,
-    },
-    {
-      label: 'Trabalho',
-      id: 3,
-    },
-    {
-      label: 'Residencial',
-      id: 4,
-    },
-    {
-      label: 'Recado',
-      id: 5,
-    },
-    {
-      label: 'Fixo - 1',
-      id: 6,
-    },
-    {
-      label: 'Fixo - 1',
-      id: 7,
-    },
-    {
-      label: 'telefone_fixo',
-      id: 8,
-    },
-    {
-      label: 'telefone_celular',
-      id: 9,
-    },
-    {
-      label: 'telefone_celular_aux',
-      id: 10,
-    },
-    {
-      label: 'telefone_comercial',
-      id: 11,
-    },
-  ];
+  });
 
-  const herokuCidade = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=cidades`;
+  const [herokuCidade, setHerokuCidade] = React.useState('');
+
   const herokuUF = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=uf`;
+  React.useEffect(() => {
+    setHerokuCidade(
+      `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=cidades&filter=uf_cidade=\'${Formik.values.uf}\'`,
+    );
+  },[Formik.values.uf]);
+  console.log(Formik.values.uf);
+  console.log(herokuCidade);
 
   const [estado, setEstado] = React.useState<uf[]>([]);
   const [estadoTable, setEstadoTable] = React.useState<ufTable[]>([]);
@@ -159,197 +133,189 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   }, [herokuCidade]);
 
   React.useEffect(() => {
-    return setEstadoTable(estado.map((uf) => ({ label: uf.nome, uf: uf.uf })));
+    setEstadoTable(estado.map((uf) => ({ label: uf.nome, id: uf.uf })));
   }, [estado]);
 
   React.useEffect(() => {
-    return setCidadeTable(
-      cidade.map((uf) => ({ label: uf.nome, uf: uf.uf_cidade })),
-    );
+    setCidadeTable(cidade.map((uf) => ({ label: uf.nome, id: uf.uf_cidade })));
   }, [cidade]);
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
-      <Formik
-        initialValues={initialValues}
-        onSubmit={(values, actions) => {
-          setTimeout(() => {
-            if (values.dtinclusao !== '') {
-              values.dtalteracao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
-            } else {
-              values.dtinclusao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
-            }
-            setDadosAtributos(values), setOpen(false);
-            actions.setSubmitting(false);
-          }, 1000);
-        }}
-      >
-        {(formikMeta) => (
-          <Form>
-            <Card
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: 400,
-                boxShadow: 1,
-                p: 4,
+      <form onSubmit={Formik.handleSubmit}>
+        <Card
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            boxShadow: 1,
+            p: 4,
+          }}
+        >
+          {/* <FlexBox
+            my="1.5rem"
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Autocomplete
+              fullWidth
+              id="ufTable-uf"
+              options={estadoTable}
+              onChange={Formik.handleChange}
+              renderInput={(params) => (
+                <LightTextField
+                  {...params}
+                  label="Estado"
+                  value={Formik.values.uf}
+                />
+              )}
+            />
+          </FlexBox> */}
+          <FormControl fullWidth>
+            <InputLabel id="estadoLabel">Estado</InputLabel>
+            <Select
+              labelId="estadoLabel"
+              label="Estado"
+              value={Formik.values.uf}
+              name="uf"
+              id="uf"
+              onChange={Formik.handleChange}
+            >
+              {estadoTable.map((item) => (
+                <MenuItem value={item.id}>{item.label}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FlexBox
+            my="1.5rem"
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Autocomplete
+              value={Formik.values.id_cidade}
+              fullWidth
+              id="id_cidade"
+              options={cidadeTable}
+              onChange={Formik.handleChange}
+              renderInput={(params) => (
+                <LightTextField {...params} label="Cidade" />
+              )}
+            />
+          </FlexBox>
+          <FlexBox
+            my="1.5rem"
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <LightTextField
+              label="cep"
+              value={Formik.values.cep}
+              fullWidth
+              onChange={Formik.handleChange}
+              name={'cep'}
+              type="number"
+            />
+          </FlexBox>
+          <FlexBox
+            my="1.5rem"
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <LightTextField
+              label="logradouro"
+              value={Formik.values.logradouro}
+              fullWidth
+              onChange={Formik.handleChange}
+              name={'logradouro'}
+              type="number"
+            />
+          </FlexBox>
+          <FlexBox
+            my="1.5rem"
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <LightTextField
+              label="bairro"
+              value={Formik.values.bairro}
+              fullWidth
+              onChange={Formik.handleChange}
+              name={'bairro'}
+              type="number"
+            />
+          </FlexBox>
+          <FlexBox
+            my="1.5rem"
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <LightTextField
+              label="complemento"
+              value={Formik.values.complemento}
+              fullWidth
+              onChange={Formik.handleChange}
+              name={'complemento'}
+            />
+          </FlexBox>
+
+          <FormControl>
+            <FormGroup onChange={Formik.handleChange} row>
+              <FormControlLabel
+                value={Formik.values.recebe_correspondencia}
+                control={<Checkbox />}
+                label="Recebe Correspondencia"
+                name="recebe_correspondencia"
+              />
+            </FormGroup>
+          </FormControl>
+          <FormControl>
+            <FormGroup onChange={Formik.handleChange} row>
+              <FormControlLabel
+                value={Formik.values.status}
+                control={<Checkbox />}
+                label="status"
+                name="status"
+              />
+            </FormGroup>
+          </FormControl>
+          <FlexBox justifyContent="space-between" alignItems="center">
+            <Button fullWidth type="submit" variant="contained">
+              Enviar
+            </Button>
+            <Box width={40} />
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={() => {
+                setOpen(false);
+                setItemDados({
+                  id: -1,
+                  id_pessoa: '',
+                  ddd: '',
+                  telefone: '',
+                  ramal: '',
+                  principal: false,
+                  id_tipo_telefone: 0,
+                  contato: '',
+                  ddi: '',
+                  dtalteracao: '',
+                  dtinclusao: '',
+                });
               }}
             >
-              <FlexBox
-                my="1.5rem"
-                flexWrap="wrap"
-                alignItems="center"
-                justifyContent="space-between"
-              >
-                <Autocomplete
-                  fullWidth
-                  id="uf"
-                  options={estadoTable}
-                  onChange={formikMeta.handleChange}
-                  renderInput={(params) => (
-                    <LightTextField
-                      {...params}
-                      label="Estado"
-                      value={formikMeta.values.uf}
-                    />
-                  )}
-                />
-              </FlexBox>
-              <FlexBox
-                my="1.5rem"
-                flexWrap="wrap"
-                alignItems="center"
-                justifyContent="space-between"
-              >
-                <Autocomplete
-                  value={formikMeta.values.id_cidade}
-                  fullWidth
-                  id="id_cidade"
-                  options={cidadeTable}
-                  filterOptions={(options) => options.filter(option => {
-                    let candidate = (option);
-                    return candidate.uf === formikMeta.values.uf
-                  })}
-                  onChange={formikMeta.handleChange}
-                  renderInput={(params) => (
-                    <LightTextField {...params} label="Cidade" />
-                  )}
-                />
-              </FlexBox>
-              <FlexBox
-                my="1.5rem"
-                flexWrap="wrap"
-                alignItems="center"
-                justifyContent="space-between"
-              >
-                <LightTextField
-                  label="cep"
-                  value={formikMeta.values.cep}
-                  fullWidth
-                  onChange={formikMeta.handleChange}
-                  name={'cep'}
-                  type="number"
-                />
-              </FlexBox>
-              <FlexBox
-                my="1.5rem"
-                flexWrap="wrap"
-                alignItems="center"
-                justifyContent="space-between"
-              >
-                <LightTextField
-                  label="logradouro"
-                  value={formikMeta.values.logradouro}
-                  fullWidth
-                  onChange={formikMeta.handleChange}
-                  name={'logradouro'}
-                  type="number"
-                />
-              </FlexBox>
-              <FlexBox
-                my="1.5rem"
-                flexWrap="wrap"
-                alignItems="center"
-                justifyContent="space-between"
-              >
-                <LightTextField
-                  label="bairro"
-                  value={formikMeta.values.bairro}
-                  fullWidth
-                  onChange={formikMeta.handleChange}
-                  name={'bairro'}
-                  type="number"
-                />
-              </FlexBox>
-              <FlexBox
-                my="1.5rem"
-                flexWrap="wrap"
-                alignItems="center"
-                justifyContent="space-between"
-              >
-                <LightTextField
-                  label="complemento"
-                  value={formikMeta.values.complemento}
-                  fullWidth
-                  onChange={formikMeta.handleChange}
-                  name={'complemento'}
-                />
-              </FlexBox>
-
-              <FormControl>
-                <FormGroup onChange={formikMeta.handleChange} row>
-                  <FormControlLabel
-                    value={formikMeta.values.recebe_correspondencia}
-                    control={<Checkbox />}
-                    label="Recebe Correspondencia"
-                    name="recebe_correspondencia"
-                  />
-                </FormGroup>
-              </FormControl>
-              <FormControl>
-                <FormGroup onChange={formikMeta.handleChange} row>
-                  <FormControlLabel
-                    value={formikMeta.values.status}
-                    control={<Checkbox />}
-                    label="status"
-                    name="status"
-                  />
-                </FormGroup>
-              </FormControl>
-              <FlexBox justifyContent="space-between" alignItems="center">
-                <Button fullWidth type="submit" variant="contained">
-                  Enviar
-                </Button>
-                <Box width={40} />
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={() => {
-                    setOpen(false);
-                    setItemDados({
-                      id: -1,
-                      id_pessoa: '',
-                      ddd: '',
-                      telefone: '',
-                      ramal: '',
-                      principal: false,
-                      id_tipo_telefone: 0,
-                      contato: '',
-                      ddi: '',
-                      dtalteracao: '',
-                      dtinclusao: '',
-                    });
-                  }}
-                >
-                  Cancelar
-                </Button>
-              </FlexBox>
-            </Card>
-          </Form>
-        )}
-      </Formik>
+              Cancelar
+            </Button>
+          </FlexBox>
+        </Card>
+      </form>
     </Modal>
   );
 };
