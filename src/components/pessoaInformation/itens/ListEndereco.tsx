@@ -3,6 +3,16 @@ import { Box, IconButton } from '@mui/material';
 import FlexBox from '../../FlexBox';
 import { H6, Tiny } from '../../Typography';
 import React, { FC, MouseEvent } from 'react';
+import { herokuConfig } from '../../../config';
+import axios from 'axios';
+
+type cidade = {
+  id: number;
+  nome: string;
+  uf_cidade: string;
+  ddd_cidade: string;
+  status: boolean;
+};
 
 // component interface
 interface ListCardProps {
@@ -11,6 +21,7 @@ interface ListCardProps {
     id_cidade: number;
     cep: string;
     logradouro: string;
+    uf: string;
     bairro: string;
     complemento: string;
     recebe_correspondencia: boolean;
@@ -20,63 +31,42 @@ interface ListCardProps {
 }
 
 const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
-  const tipoTelefone = [
-    {
-      nome: 'Celular',
-      id: 1,
-    },
-    {
-      nome: 'Comercial',
-      id: 2,
-    },
-    {
-      nome: 'Trabalho',
-      id: 3,
-    },
-    {
-      nome: 'Residencial',
-      id: 4,
-    },
-    {
-      nome: 'Recado',
-      id: 5,
-    },
-    {
-      nome: 'Fixo - 1',
-      id: 6,
-    },
-    {
-      nome: 'Fixo - 1',
-      id: 7,
-    },
-    {
-      nome: 'telefone_fixo',
-      id: 8,
-    },
-    {
-      nome: 'telefone_celular',
-      id: 9,
-    },
-    {
-      nome: 'telefone_celular_aux',
-      id: 10,
-    },
-    {
-      nome: 'telefone_comercial',
-      id: 11,
-    },
-  ];
+  let user = localStorage.getItem('user');
+  user = user === null ? '...' : user;
+  const _user = JSON.parse(user);
+
+  const [cidade, setCidade] = React.useState<cidade[]>([]);
+
+  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=cidades&filter=uf_cidade=\'${item.uf}\'`;
+
+  React.useEffect(() => {
+    axios
+      .get(heroku)
+      .then(({ data }: any) => {
+        console.log(heroku);
+        setCidade(data.body.rows);
+      })
+      .catch((error) => {
+        console.log(2, error);
+        setCidade([]);
+      });
+  }, [heroku]);
 
   return (
     <FlexBox justifyContent="space-between" alignItems="center">
       <FlexBox alignItems="center">
         <Box ml="1rem">
           <H6>
-            {'Número: ' + item.bairro + ' (' + item.cep + ') ' + item.complemento}
+            {cidade.map((object) =>
+              item.id_cidade === object.id ? object.nome : null,
+            )}
           </H6>
+          <Tiny>
+            {'Bairro: ' + item.bairro + 'Cep: (' + item.cep + ') Complemento: ' + item.complemento}
+          </Tiny>
           {item.logradouro === '' ? null : (
             <>
-              <Tiny>{'Ramal: ' + item.logradouro}</Tiny>
+              <Tiny>{'Logradouro: ' + item.logradouro}</Tiny>
               <br />
             </>
           )}
@@ -86,11 +76,6 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
               <br />
             </>
           ) : null}
-          <Tiny>
-            {tipoTelefone.map((object) =>
-              item.id_cidade === object.id ? object.nome : null,
-            )}
-          </Tiny>
         </Box>
       </FlexBox>
       <IconButton onClick={handleMore}>

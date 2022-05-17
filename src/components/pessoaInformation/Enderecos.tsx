@@ -20,6 +20,7 @@ type telefone = {
   id_cidade: number;
   cep: string;
   logradouro: string;
+  uf: string;
   bairro: string;
   complemento: string;
   recebe_correspondencia: boolean;
@@ -77,6 +78,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
             cep: newEnderecoPessoa.cep,
             logradouro: newEnderecoPessoa.logradouro,
             bairro: newEnderecoPessoa.bairro,
+            uf: newEnderecoPessoa.uf,
             complemento: newEnderecoPessoa.complemento,
             recebe_correspondencia: newEnderecoPessoa.recebe_correspondencia,
             status: newEnderecoPessoa.status,
@@ -92,6 +94,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
           id_pessoa: '',
           id_cidade: -1,
           cep: '',
+          uf: '',
           logradouro: '',
           bairro: '',
           complemento: '',
