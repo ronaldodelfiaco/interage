@@ -66,12 +66,12 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     id_pessoa: '' || itemDados?.id_pessoa,
     id_cidade: '' || itemDados?.id_cidade,
     cep: '' || itemDados?.cep,
-    uf: '',
+    uf: '' || itemDados?.uf,
     logradouro: '' || itemDados?.logradouro,
-    bairro: false || itemDados?.bairro,
+    bairro: '' || itemDados?.bairro,
     complemento: '' || itemDados?.complemento,
-    recebe_correspondencia: '' || itemDados?.recebe_correspondencia,
-    status: '' || itemDados?.status,
+    recebe_correspondencia: false || itemDados?.recebe_correspondencia,
+    status: false || itemDados?.status,
     dtalteracao: '' || itemDados?.dtalteracao,
     dtinclusao: '' || itemDados?.dtinclusao,
   };
@@ -97,7 +97,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     setHerokuCidade(
       `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=cidades&filter=uf_cidade=\'${Formik.values.uf}\'`,
     );
-  },[Formik.values.uf]);
+  }, [Formik.values.uf]);
   console.log(Formik.values.uf);
   console.log(herokuCidade);
 
@@ -154,26 +154,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             p: 4,
           }}
         >
-          {/* <FlexBox
-            my="1.5rem"
-            flexWrap="wrap"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Autocomplete
-              fullWidth
-              id="ufTable-uf"
-              options={estadoTable}
-              onChange={Formik.handleChange}
-              renderInput={(params) => (
-                <LightTextField
-                  {...params}
-                  label="Estado"
-                  value={Formik.values.uf}
-                />
-              )}
-            />
-          </FlexBox> */}
           <FormControl fullWidth>
             <InputLabel id="estadoLabel">Estado</InputLabel>
             <Select
@@ -233,7 +213,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               fullWidth
               onChange={Formik.handleChange}
               name={'logradouro'}
-              type="number"
             />
           </FlexBox>
           <FlexBox
@@ -248,7 +227,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               fullWidth
               onChange={Formik.handleChange}
               name={'bairro'}
-              type="number"
             />
           </FlexBox>
           <FlexBox
@@ -299,13 +277,14 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                 setItemDados({
                   id: -1,
                   id_pessoa: '',
-                  ddd: '',
-                  telefone: '',
-                  ramal: '',
-                  principal: false,
-                  id_tipo_telefone: 0,
-                  contato: '',
-                  ddi: '',
+                  id_cidade: '',
+                  cep: '',
+                  uf: '',
+                  logradouro: '',
+                  bairro: '',
+                  complemento: '',
+                  recebe_correspondencia: false,
+                  status: false,
                   dtalteracao: '',
                   dtinclusao: '',
                 });
