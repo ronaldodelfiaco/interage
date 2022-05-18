@@ -1,7 +1,6 @@
 import {
   alpha,
   Box,
-  Checkbox,
   CircularProgress,
   Stack,
   Table,
@@ -11,7 +10,8 @@ import {
   TableRow,
   useTheme,
 } from '@mui/material';
-import { FC, forwardRef, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
+import { FC, useEffect, useMemo, useState } from 'react';
 import {
   useAsyncDebounce,
   useGlobalFilter,
@@ -20,8 +20,6 @@ import {
   useSortBy,
   useTable,
 } from 'react-table';
-import BlankCheckBoxIcon from '../../icons/BlankCheckBoxIcon';
-import CheckBoxIcon from '../../icons/CheckBoxIcon';
 import FlexBox from '../FlexBox';
 import columnShape from './columnShape';
 import {
@@ -30,29 +28,29 @@ import {
   StyledSearchInput,
 } from './styledComponents';
 
-const SelectCheckBox = forwardRef(function SelectCheckBox(
-  { indeterminate, ...rest }: any,
-  ref: any,
-) {
-  const defaultRef = useRef();
-  const resolvedRef = ref || defaultRef;
+// const SelectCheckBox = forwardRef(function SelectCheckBox(
+//   { indeterminate, ...rest }: any,
+//   ref: any,
+// ) {
+//   const defaultRef = useRef();
+//   const resolvedRef = ref || defaultRef;
 
-  useEffect(() => {
-    if (resolvedRef) {
-      resolvedRef.current.indeterminate = indeterminate;
-    }
-  }, [resolvedRef, indeterminate]);
+//   useEffect(() => {
+//     if (resolvedRef) {
+//       resolvedRef.current.indeterminate = indeterminate;
+//     }
+//   }, [resolvedRef, indeterminate]);
 
-  return (
-    <Checkbox
-      {...rest}
-      disableRipple
-      ref={resolvedRef}
-      checkedIcon={<CheckBoxIcon fontSize="small" color="primary" />}
-      icon={<BlankCheckBoxIcon fontSize="small" color="primary" />}
-    />
-  );
-});
+//   return (
+//     <Checkbox
+//       {...rest}
+//       disableRipple
+//       ref={resolvedRef}
+//       checkedIcon={<CheckBoxIcon fontSize="small" color="primary" />}
+//       icon={<BlankCheckBoxIcon fontSize="small" color="primary" />}
+//     />
+//   );
+// });
 
 function SearchFilter({ globalFilter, setGlobalFilter }: any) {
   const [value, setValue] = useState(globalFilter);
@@ -182,25 +180,27 @@ const DataPessoas: FC<DataTableProps> = ({ data = [] }) => {
             {page.map((row: any) => {
               prepareRow(row);
               return (
-                <TableRow key={row.id} {...row.getRowProps()}>
-                  {row.cells.map((cell: any) => (
-                    <TableCell
-                      key={row.cells.id}
-                      {...cell.getCellProps()}
-                      sx={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        borderBottom: '1px solid',
-                        borderColor:
-                          theme.palette.mode === 'light'
-                            ? 'secondary.light'
-                            : 'divider',
-                      }}
-                    >
-                      {cell.render('Cell')}
-                    </TableCell>
-                  ))}
-                </TableRow>
+                <Link href={'/pessoa/${row.values.id}'} passHref>
+                  <TableRow hover key={row.id} {...row.getRowProps()}>
+                    {row.cells.map((cell: any) => (
+                      <TableCell
+                        key={row.cells.id}
+                        {...cell.getCellProps()}
+                        sx={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          borderBottom: '1px solid',
+                          borderColor:
+                            theme.palette.mode === 'light'
+                              ? 'secondary.light'
+                              : 'divider',
+                        }}
+                      >
+                        {cell.render('Cell')}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </Link>
               );
             })}
           </TableBody>
