@@ -376,18 +376,6 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
           <br />
           <FlexBox justifyContent="space-between" alignItems="center">
             <Button
-              variant="outlined"
-              sx={{
-                width: 124,
-                color: 'text.disabled',
-                borderColor: 'text.disabled',
-              }}
-              fullWidth
-              onClick={() => router.back()}
-            >
-              {t('Cancel')}
-            </Button>
-            <Button
               fullWidth
               type="submit"
               variant="contained"
