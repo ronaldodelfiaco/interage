@@ -13,6 +13,7 @@ import Questionarios from '../components/pessoaInformation/Questionarios';
 import Telefones from '../components/pessoaInformation/Telefones';
 import ContactPhoneIcon from '../icons/ContactPhoneIcon';
 import DiamondIcon from '../icons/DiamondIcon';
+import PeopleIcon from '../icons/PeopleIcon';
 import ProfileIcon from '../icons/ProfileIcon';
 import SettingIcon from '../icons/SettingIcon';
 import convertToSlug from '../utils/convertSlug';
@@ -84,6 +85,20 @@ const PessoaInformation: FC = () => {
               ))}
             </FlexBox>
           </Card>
+          <br />
+          <br />
+          <Button
+            variant="outlined"
+            sx={{
+              width: 124,
+              color: 'text.disabled',
+              borderColor: 'text.disabled',
+            }}
+            fullWidth
+            onClick={() => router.back()}
+          >
+            Voltar
+          </Button>
         </Grid>
         <Grid item md={9} xs={12}>
           {active === convertToSlug(tabList[0].name) && (
@@ -125,12 +140,12 @@ const tabList = [
   {
     id: 2,
     name: 'Grupos de Interação',
-    Icon: ContactPhoneIcon,
+    Icon: PeopleIcon,
   },
   {
     id: 3,
     name: 'Telefones',
-    Icon: DiamondIcon,
+    Icon: ContactPhoneIcon,
   },
   {
     id: 4,
