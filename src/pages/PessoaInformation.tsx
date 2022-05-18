@@ -113,19 +113,11 @@ const PessoaInformation: FC = () => {
           {active === convertToSlug(tabList[3].name) && (
             <Enderecos idPessoa={id} />
           )}
-          {active === convertToSlug(tabList[4].name) && (
-            <Eventos idPessoa={id} />
-          )}
-          {active === convertToSlug(tabList[5].name) && (
-            <Networking idPessoa={id} />
-          )}
-          {active === convertToSlug(tabList[6].name) && (
-            <Questionarios idPessoa={id} />
-          )}
-          {active === convertToSlug(tabList[7].name) && (
-            <Anexos idPessoa={id} />
-          )}
-        </Grid>
+            {active === convertToSlug(tabList[4].name) && <Eventos />}
+            {active === convertToSlug(tabList[5].name) && <Networking />}
+            {active === convertToSlug(tabList[6].name) && <Questionarios />}
+            {active === convertToSlug(tabList[7].name) && <Anexos />}
+          </Grid>)}}
       </Grid>
     </Box>
   );

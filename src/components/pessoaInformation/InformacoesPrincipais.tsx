@@ -94,7 +94,7 @@ const maskDtNascimento = React.forwardRef<HTMLElement, CustomProps>(
 );
 
 interface InformacoesPrincipaisProps {
-  idPessoa: string | undefined;
+  idPessoa: string;
 }
 
 interface IFormData {
@@ -217,10 +217,10 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
     if (idPessoa) {
       LerPessoa(idPessoa).then((row: any) => {
         formik.setValues({
+          nome: row.pessoa.nome,
           tipo: row.pessoa.tipo,
           idPronomeTratamento: row.pessoa.id_pronome_tratamento,
           id_atividade: row.pessoa.id_atividade,
-          nome: row.pessoa.nome,
           apelidoFantasia: row.pessoa.apelido_fantasia,
           email: row.pessoa.email,
           website: row.pessoa.website,

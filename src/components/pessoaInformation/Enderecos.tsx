@@ -11,12 +11,12 @@ import { H3, Tiny } from '../Typography';
 import ListEndereco from './itens/ListEndereco';
 
 interface TelefonesProps {
-  idPessoa: string | string[] | undefined;
+  idPessoa: string;
 }
 
 type telefone = {
   id: number;
-  id_pessoa: string | string[] | undefined;
+  id_pessoa: string;
   id_cidade: number;
   cep: string;
   logradouro: string;

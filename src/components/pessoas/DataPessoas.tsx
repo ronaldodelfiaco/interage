@@ -180,7 +180,7 @@ const DataPessoas: FC<DataTableProps> = ({ data = [] }) => {
             {page.map((row: any) => {
               prepareRow(row);
               return (
-                <Link href={'/pessoa/${row.values.id}'} passHref>
+                <Link href={`/pessoa/${row.values.id}`} passHref>
                   <TableRow hover key={row.id} {...row.getRowProps()}>
                     {row.cells.map((cell: any) => (
                       <TableCell
