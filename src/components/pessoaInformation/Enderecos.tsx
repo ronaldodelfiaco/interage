@@ -14,7 +14,7 @@ interface TelefonesProps {
   idPessoa: string;
 }
 
-type telefone = {
+type Endereco = {
   id: number;
   id_pessoa: string;
   id_cidade: number;
@@ -36,12 +36,12 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
     setMoreEl(event.currentTarget);
   };
   const handleMoreClose = () => setMoreEl(null);
-  const [EnderecoPessoa, setEnderecoPessoa] = useState<telefone[]>([]);
+  const [EnderecoPessoa, setEnderecoPessoa] = useState<Endereco[]>([]);
 
-  const [newEnderecoPessoa, setNewEnderecoPessoa] = useState<telefone>();
+  const [newEnderecoPessoa, setNewEnderecoPessoa] = useState<Endereco>();
   const [openModalTelefone, setOpenModalEndereco] = useState(false);
 
-  const [itemDados, setItemDados] = useState<telefone>();
+  const [itemDados, setItemDados] = useState<Endereco>();
 
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
@@ -65,7 +65,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
       });
   }, [heroku]);
 
-  //Adiciona novos dados, no vetor de telefone
+  //Adiciona novos dados, no vetor de Endereco
   useEffect(() => {
     if (newEnderecoPessoa !== undefined) {
       if (!editar) {
