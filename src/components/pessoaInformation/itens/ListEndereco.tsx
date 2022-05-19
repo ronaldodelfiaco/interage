@@ -62,11 +62,12 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
             )}
           </H6>
           <Tiny>
-            {'Bairro: ' + item.bairro + ' Cep: (' + item.cep + ') Complemento: ' + item.complemento}
+            {'Bairro: ' + item.bairro + ' Cep:' + item.cep}
+            {item.complemento ? 'Complemento: ' + item.complemento : null}
           </Tiny>
           {item.logradouro === '' ? null : (
             <>
-              <Tiny>{'Logradouro: ' + item.logradouro}</Tiny>
+              <Tiny>{' Logradouro: ' + item.logradouro}</Tiny>
               <br />
             </>
           )}

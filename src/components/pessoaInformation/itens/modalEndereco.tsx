@@ -1,5 +1,4 @@
 import {
-  Autocomplete,
   Box,
   Button,
   Card,
@@ -14,7 +13,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { Form, Formik, useFormik } from 'formik';
+import { useFormik } from 'formik';
 import * as React from 'react';
 import { Dispatch, FC } from 'react';
 import { herokuConfig } from '../../../config';
@@ -66,10 +65,18 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
 
+  const [herokuCidade, setHerokuCidade] = React.useState('');
+  const [estado, setEstado] = React.useState<uf[]>([]);
+  const [estadoTable, setEstadoTable] = React.useState<ufTable[]>([]);
+  const [cidade, setCidade] = React.useState<cidade[]>([]);
+  const [cidadeTable, setCidadeTable] = React.useState<cidadeTable[]>([]);
+  const [cepInfo, setCepInfo] = React.useState();
+  const [cidadeAtual, setCidadeAtual] = React.useState(0);
+
   const initialValues = {
     id: 0 || itemDados?.id,
     id_pessoa: '' || itemDados?.id_pessoa,
-    id_cidade: '' || itemDados?.id_cidade,
+    id_cidade: 0 || cidadeAtual || itemDados?.id_cidade,
     cep: '' || itemDados?.cep,
     uf: '' || itemDados?.uf,
     logradouro: '' || itemDados?.logradouro,
@@ -95,7 +102,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     },
   });
 
-  const [herokuCidade, setHerokuCidade] = React.useState('');
+  // Busca cidades e estado disponivel do banco de dados
 
   const herokuUF = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=uf`;
   React.useEffect(() => {
@@ -103,13 +110,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
       `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=cidades&filter=uf_cidade=\'${Formik.values.uf}\'`,
     );
   }, [Formik.values.uf]);
-  console.log(Formik.values.uf);
-  console.log(herokuCidade);
-
-  const [estado, setEstado] = React.useState<uf[]>([]);
-  const [estadoTable, setEstadoTable] = React.useState<ufTable[]>([]);
-  const [cidade, setCidade] = React.useState<cidade[]>([]);
-  const [cidadeTable, setCidadeTable] = React.useState<cidadeTable[]>([]);
 
   React.useEffect(() => {
     axios
@@ -145,6 +145,42 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     setCidadeTable(cidade.map((uf) => ({ label: uf.nome, id: uf.id })));
   }, [cidade]);
 
+  // Preenchimento automatico com o CEP
+
+  React.useEffect(() => {
+    if (Formik.values.cep) {
+      axios
+        .get(`https://viacep.com.br/ws/${Formik.values.cep}/json`)
+        .then((response: any) => {
+          setCepInfo(response.data);
+        })
+        .catch(function (error) {
+          console.warn(error);
+        });
+    }
+  }, [Formik.values.cep]);
+
+  React.useEffect(() => {
+    cidadeTable.map((object) => {
+      if (cepInfo) {
+        if (object.label === cepInfo?.localidade) {
+          console.log(object.label, object.id);
+          setCidadeAtual(object.id);
+        }
+      }
+    });
+    if (cepInfo) {
+      Formik.setValues({
+        cep: `${cepInfo?.cep}`,
+        id_cidade: cidadeAtual,
+        uf: `${cepInfo?.uf}`,
+        logradouro: `${cepInfo?.logradouro}`,
+        complemento: `${cepInfo?.complemento}`,
+        bairro: `${cepInfo?.bairro}`,
+      });
+    }
+  }, [cepInfo]);
+
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
       <form onSubmit={Formik.handleSubmit}>
@@ -159,6 +195,21 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             p: 4,
           }}
         >
+          <FlexBox
+            my="1.5rem"
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            {/* https://viacep.com.br/ */}
+            <LightTextField
+              label="cep"
+              value={Formik.values.cep}
+              fullWidth
+              onChange={Formik.handleChange}
+              name={'cep'}
+            />
+          </FlexBox>
           <FormControl fullWidth>
             <InputLabel id="estadoLabel">Estado</InputLabel>
             <Select
@@ -191,22 +242,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               ))}
             </Select>
           </FormControl>
-          <FlexBox
-            my="1.5rem"
-            flexWrap="wrap"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            {/* https://viacep.com.br/ */}
-            <LightTextField
-              label="cep"
-              value={Formik.values.cep}
-              fullWidth
-              onChange={Formik.handleChange}
-              name={'cep'}
-              type="number"
-            />
-          </FlexBox>
           <FlexBox
             my="1.5rem"
             flexWrap="wrap"
@@ -280,10 +315,10 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               fullWidth
               onClick={() => {
                 setOpen(false);
-                setItemDados({
+                Formik.setValues({
                   id: -1,
                   id_pessoa: '',
-                  id_cidade: '',
+                  id_cidade: 0,
                   cep: '',
                   uf: '',
                   logradouro: '',
