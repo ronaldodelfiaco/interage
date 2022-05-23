@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Card,
@@ -6,19 +7,56 @@ import {
   FormControl,
   FormControlLabel,
   FormGroup,
-  InputLabel,
   MenuItem,
   Modal,
-  Select,
 } from '@mui/material';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { useFormik } from 'formik';
 import * as React from 'react';
 import { Dispatch, FC } from 'react';
+import { IMaskInput } from 'react-imask';
+import * as Yup from 'yup';
 import { herokuConfig } from '../../../config';
 import FlexBox from '../../FlexBox';
 import LightTextField from '../../LightTextField';
+
+interface CustomProps {
+  onChange: (event: { target: { name: string; value: string } }) => void;
+  name: string;
+}
+
+interface ModalFilhoProps {
+  open: boolean;
+  setOpen: Dispatch<React.SetStateAction<boolean>>;
+  setDadosAtributos: Dispatch<React.SetStateAction<any>>;
+  setItemDados: Dispatch<React.SetStateAction<any>>;
+  // openDados: Array<any>;
+  // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
+  itemDados: any;
+}
+
+const maskCEP = React.forwardRef<HTMLElement, CustomProps>(function maskCPFCNPJ(
+  props,
+  ref,
+) {
+  const { onChange, ...other } = props;
+
+  return (
+    <IMaskInput
+      {...other}
+      mask="00000-000"
+      definitions={{
+        '#': /[1-9]/,
+      }}
+      //InputRef = {ref}
+      onAccept={(value: any) =>
+        onChange({ target: { name: props.name, value } })
+      }
+      overwrite
+    />
+  );
+});
 
 type uf = {
   uf: string;
@@ -34,6 +72,7 @@ type ufTable = {
 type cidadeTable = {
   label: string;
   id: number;
+  uf: string;
 };
 
 type cidade = {
@@ -44,15 +83,14 @@ type cidade = {
   status: boolean;
 };
 
-interface ModalFilhoProps {
-  open: boolean;
-  setOpen: Dispatch<React.SetStateAction<boolean>>;
-  setDadosAtributos: Dispatch<React.SetStateAction<any>>;
-  setItemDados: Dispatch<React.SetStateAction<any>>;
-  // openDados: Array<any>;
-  // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
-  itemDados: any;
-}
+type CEPInfo = {
+  cep: string;
+  uf: string;
+  localidade: string;
+  logradouro: string;
+  complemento: string;
+  bairro: string;
+};
 
 const modalTelefone: FC<ModalFilhoProps> = ({
   open,
@@ -65,13 +103,15 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
 
-  const [herokuCidade, setHerokuCidade] = React.useState('');
+  // const [herokuCidade, setHerokuCidade] = React.useState('');
   const [estado, setEstado] = React.useState<uf[]>([]);
   const [estadoTable, setEstadoTable] = React.useState<ufTable[]>([]);
   const [cidade, setCidade] = React.useState<cidade[]>([]);
   const [cidadeTable, setCidadeTable] = React.useState<cidadeTable[]>([]);
-  const [cepInfo, setCepInfo] = React.useState();
+
+  const [cepInfo, setCepInfo] = React.useState<CEPInfo>();
   const [cidadeAtual, setCidadeAtual] = React.useState(0);
+  const [estadoAtual, setEstadoAtual] = React.useState('');
 
   const initialValues = {
     id: 0 || itemDados?.id,
@@ -88,28 +128,76 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     dtinclusao: '' || itemDados?.dtinclusao,
   };
 
+  const fieldValidationSchema = Yup.object().shape({
+    cep: Yup.string()
+      .min(9, 'cep incompleto')
+      .required('Campo obrigatório!')
+      .max(9, 'cep incorreto'),
+  });
+
   const Formik = useFormik({
     initialValues: initialValues,
-    onSubmit: (values) => {
+    validationSchema: fieldValidationSchema,
+    onSubmit: async (values) => {
       setTimeout(() => {
         if (values.dtinclusao !== '') {
           values.dtalteracao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
         } else {
           values.dtinclusao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
         }
-        setDadosAtributos(values), setOpen(false);
+        setOpen(false);
+        setDadosAtributos(values);
       }, 1000);
     },
   });
 
+  // Abre somente na primeira vez, apaga tudo que tiver dentro do modal
+
+  React.useEffect(() => {
+    if (itemDados)
+      Formik.setValues({
+        id: '' || itemDados.id,
+        id_pessoa: '' || itemDados.id_pessoa,
+        id_cidade: '' || itemDados.id_cidade,
+        cep: '' || itemDados.cep,
+        logradouro: '' || itemDados.logradouro,
+        uf: '' || itemDados.uf,
+        bairro: '' || itemDados.bairro,
+        complemento: '' || itemDados.complemento,
+        recebe_correspondencia: '' || itemDados.recebe_correspondencia,
+        status: '' || itemDados.status,
+        dtalteracao: '' || itemDados.dtalteracao,
+        dtinclusao: '' || itemDados.dtinclusao,
+      });
+    else {
+      setItemDados({
+        id: '',
+        id_pessoa: '',
+        id_cidade: '',
+        cep: '',
+        logradouro: '',
+        uf: '',
+        bairro: '',
+        complemento: '',
+        recebe_correspondencia: '',
+        status: '',
+        dtalteracao: '',
+        dtinclusao: '',
+      });
+    }
+  }, []);
+
   // Busca cidades e estado disponivel do banco de dados
 
   const herokuUF = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=uf`;
-  React.useEffect(() => {
-    setHerokuCidade(
-      `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=cidades&filter=uf_cidade=\'${Formik.values.uf}\'`,
-    );
-  }, [Formik.values.uf]);
+  const herokuCidade = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=cidades`;
+
+  // Cidade dinamica diretamente do react
+  // React.useEffect(() => {
+  //   setHerokuCidade(
+  //     `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=cidades&filter=uf_cidade=\'${Formik.values.uf}\'`,
+  //   );
+  // }, [Formik.values.uf]);
 
   React.useEffect(() => {
     axios
@@ -142,7 +230,9 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   }, [estado]);
 
   React.useEffect(() => {
-    setCidadeTable(cidade.map((uf) => ({ label: uf.nome, id: uf.id })));
+    setCidadeTable(
+      cidade.map((uf) => ({ label: uf.nome, id: uf.id, uf: uf.uf_cidade })),
+    );
   }, [cidade]);
 
   // Preenchimento automatico com o CEP
@@ -158,28 +248,23 @@ const modalTelefone: FC<ModalFilhoProps> = ({
           console.warn(error);
         });
     }
-  }, [Formik.values.cep]);
-
-  React.useEffect(() => {
-    cidadeTable.map((object) => {
-      if (cepInfo) {
-        if (object.label === cepInfo?.localidade) {
-          console.log(object.label, object.id);
-          setCidadeAtual(object.id);
+    setTimeout(() => {
+      cidadeTable.map((object) => {
+        if (cepInfo) {
+          if (object.label === cepInfo.localidade) {
+            setCidadeAtual(object.id);
+          }
         }
-      }
-    });
-    if (cepInfo) {
-      Formik.setValues({
-        cep: `${cepInfo?.cep}`,
-        id_cidade: cidadeAtual,
-        uf: `${cepInfo?.uf}`,
-        logradouro: `${cepInfo?.logradouro}`,
-        complemento: `${cepInfo?.complemento}`,
-        bairro: `${cepInfo?.bairro}`,
       });
-    }
-  }, [cepInfo]);
+      if (cepInfo) {
+        Formik.values.id_cidade = cidadeAtual;
+        Formik.values.uf = `${cepInfo.uf}`;
+        Formik.values.logradouro = `${cepInfo.logradouro}`;
+        Formik.values.complemento = `${cepInfo.complemento}`;
+        Formik.values.bairro = `${cepInfo.bairro}`;
+      }
+    }, 1000);
+  }, [Formik.values.cep]);
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
@@ -201,6 +286,76 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             alignItems="center"
             justifyContent="space-between"
           >
+            <FormControl fullWidth>
+              <LightTextField
+                select
+                label="Estado"
+                value={Formik.values.uf}
+                name="uf"
+                id="uf"
+                onChange={Formik.handleChange}
+              >
+                {estadoTable.map((item) => (
+                  <MenuItem value={item.id}>{item.label}</MenuItem>
+                ))}
+              </LightTextField>
+            </FormControl>
+            {/* <Autocomplete
+              disablePortal
+              id="estado"
+              options={estadoTable}
+              fullWidth
+              onChange={Formik.handleChange}
+              value={Formik.values.uf}
+              renderInput={(params) => (
+                <LightTextField {...params} label="Estado" />
+              )}
+            /> */}
+          </FlexBox>
+          <FlexBox
+            my="1.5rem"
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            {/* <Autocomplete
+              disablePortal
+              id="cidade"
+              options={cidadeTable}
+              fullWidth
+              onChange={Formik.handleChange}
+              value={Formik.values.id_cidade}
+              renderInput={(params) => (
+                <LightTextField {...params} label="Cidade" />
+              )}
+            /> */}
+            <FormControl fullWidth>
+              <LightTextField
+                select
+                label="Cidade"
+                value={Formik.values.id_cidade}
+                name="id_cidade"
+                id="id_cidade"
+                onChange={Formik.handleChange}
+              >
+                {cidadeTable.map((item) =>
+                  Formik.values.uf !== '' ? (
+                    item.uf === Formik.values.uf ? (
+                      <MenuItem value={item.id}>{item.label}</MenuItem>
+                    ) : null
+                  ) : (
+                    <MenuItem value={item.id}>{item.label}</MenuItem>
+                  ),
+                )}
+              </LightTextField>
+            </FormControl>
+          </FlexBox>
+          <FlexBox
+            my="1.5rem"
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="space-between"
+          >
             {/* https://viacep.com.br/ */}
             <LightTextField
               label="cep"
@@ -208,40 +363,13 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               fullWidth
               onChange={Formik.handleChange}
               name={'cep'}
+              helperText={Formik.touched.cep && Formik.errors.cep}
+              error={Boolean(Formik.touched.cep && Formik.errors.cep)}
+              InputProps={{
+                inputComponent: maskCEP as any,
+              }}
             />
           </FlexBox>
-          <FormControl fullWidth>
-            <InputLabel id="estadoLabel">Estado</InputLabel>
-            <Select
-              labelId="estadoLabel"
-              label="Estado"
-              value={Formik.values.uf}
-              name="uf"
-              id="uf"
-              onChange={Formik.handleChange}
-            >
-              {estadoTable.map((item) => (
-                <MenuItem value={item.id}>{item.label}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <br />
-          <br />
-          <FormControl fullWidth>
-            <InputLabel id="cidadeLabel">Cidade</InputLabel>
-            <Select
-              labelId="cidadeLabel"
-              label="Cidade"
-              value={Formik.values.id_cidade}
-              name="id_cidade"
-              id="id_cidade"
-              onChange={Formik.handleChange}
-            >
-              {cidadeTable.map((item) => (
-                <MenuItem value={item.id}>{item.label}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
           <FlexBox
             my="1.5rem"
             flexWrap="wrap"
@@ -315,7 +443,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               fullWidth
               onClick={() => {
                 setOpen(false);
-                Formik.setValues({
+                setItemDados({
                   id: -1,
                   id_pessoa: '',
                   id_cidade: 0,

@@ -9,6 +9,7 @@ import * as Yup from 'yup';
 import FlexBox from '../../components/FlexBox';
 import LightTextField from '../../components/LightTextField';
 import { H1, Small } from '../../components/Typography';
+import delete
 
 const ForgetPassword: FC = () => {
   const [error, setError] = useState('');
