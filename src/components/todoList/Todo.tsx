@@ -18,7 +18,7 @@ import {
   Draggable,
   Droppable,
   DropResult,
-} from "react-beautiful-dnd";
+} from "@react-forked/dnd";
 import { useTranslation } from "react-i18next";
 import AddTodoForm from "./AddTodoForm";
 import { DroppableWrapper } from "./StyledComponent";
