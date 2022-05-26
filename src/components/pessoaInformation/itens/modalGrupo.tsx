@@ -98,7 +98,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             >
               <FormControl fullWidth>
                 <InputLabel defaultValue={0} id="id_grupo_pertence">
-                  tipo de telefone
+                  grupo
                 </InputLabel>
                 <Select
                   value={formikMeta.values.id_grupo_pertence}
@@ -106,7 +106,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                   id="id_grupo_pertence"
                   onChange={formikMeta.handleChange}
                   name="id_grupo_pertence"
-                  label="tipo de telefone"
+                  label="grupo"
                 >
                   {grupoPertence.map((option) => (
                     <MenuItem value={option.id} key={option.id}>
