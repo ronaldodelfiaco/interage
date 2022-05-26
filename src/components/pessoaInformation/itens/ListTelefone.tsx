@@ -72,7 +72,7 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
           <H6>
             {'Número: ' + item.ddi + ' (' + item.ddd + ') ' + item.telefone}
           </H6>
-          {item.ramal === '' ? null : (
+          {item.ramal === '' || item.ramal === null ? null : (
             <>
               <Tiny>{'Ramal: ' + item.ramal}</Tiny>
               <br />
