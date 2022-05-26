@@ -1,24 +1,50 @@
-import {
-  Box,
-  Button,
-  Card, FormControl, InputLabel,
-  MenuItem,
-  Modal,
-  Select
-} from '@mui/material';
+import { Box, Button, Card, FormControl, MenuItem, Modal } from '@mui/material';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { Form, Formik } from 'formik';
 import * as React from 'react';
 import { Dispatch, FC } from 'react';
+import { IMaskInput } from 'react-imask';
 import { herokuConfig } from '../../../config';
 import FlexBox from '../../FlexBox';
+import LightTextField from '../../LightTextField';
+
+// Remover quando acontecer o merge
+
+interface CustomProps {
+  onChange: (event: { target: { name: string; value: string } }) => void;
+  name: string;
+}
+
+const MaskDt = React.forwardRef<HTMLElement, CustomProps>(function maskDt(
+  props,
+  ref,
+) {
+  const { onChange, ...other } = props;
+
+  return (
+    <IMaskInput
+      {...other}
+      mask="[00]{/}[00]{/}[0000]"
+      definitions={{
+        '#': /[0-9]/,
+      }}
+      //InputRef = {ref}
+      onAccept={(value: any) =>
+        onChange({ target: { name: props.name, value } })
+      }
+      overwrite
+    />
+  );
+});
+
+// Remova até aqui
 
 type Grupos = {
   id: number;
   nome: string;
   state: boolean;
-}
+};
 
 interface ModalFilhoProps {
   open: boolean;
@@ -44,9 +70,9 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   const initialValues = {
     id: 0 || itemDados?.id,
     id_pessoa: '' || itemDados?.id_pessoa,
-    id_grupo_pertence: '' || itemDados?.id_grupo_pertence,
-    dtalteracao: '' || itemDados?.dtalteracao,
-    dtinclusao: '' || itemDados?.dtinclusao,
+    id_grupo: '' || itemDados?.id_grupo,
+    dt_final: '' || itemDados?.dt_final,
+    dt_inicial: '' || itemDados?.dt_inicial,
   };
 
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=grupos`;
@@ -73,11 +99,28 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         initialValues={initialValues}
         onSubmit={(values, actions) => {
           setTimeout(() => {
-            if (values.dtinclusao !== '') {
-              values.dtalteracao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
+            const diaInicial: number = +values.dt_inicial.split('/')[0];
+            const mesInicial: number = +values.dt_inicial.split('/')[1];
+            const anoInicial: number = +values.dt_inicial.split('/')[2];
+            let dataInicial = new Date();
+            dataInicial.setDate(diaInicial);
+            dataInicial.setMonth(mesInicial);
+            dataInicial.setFullYear(anoInicial);
+            values.dt_inicial = format(dataInicial, 'yyyy-MM-dd');
+
+            if (values.dt_final !== '') {
+              const diaFinal: number = +values.dt_final.split('/')[0];
+              const mesFinal: number = +values.dt_final.split('/')[1];
+              const anoFinal: number = +values.dt_final.split('/')[2];
+              let dataFinal = new Date();
+              dataFinal.setDate(diaFinal);
+              dataFinal.setMonth(mesFinal);
+              dataFinal.setFullYear(anoFinal);
+              values.dt_final = format(dataFinal, 'yyyy-MM-dd');
             } else {
-              values.dtinclusao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
+              values.dt_final = null;
             }
+
             setDadosAtributos(values), setOpen(false);
             actions.setSubmitting(false);
           }, 1000);
@@ -96,27 +139,64 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                 p: 4,
               }}
             >
-              <FormControl fullWidth>
-                <InputLabel defaultValue={0} id="id_grupo_pertence">
-                  grupo
-                </InputLabel>
-                <Select
-                  value={formikMeta.values.id_grupo_pertence}
+              <FlexBox
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <FormControl fullWidth>
+                  <LightTextField
+                    select
+                    value={formikMeta.values.id_grupo}
+                    id="id_grupo"
+                    onChange={formikMeta.handleChange}
+                    name="id_grupo"
+                    label="grupo"
+                  >
+                    {grupoPertence.map((option) => (
+                      <MenuItem value={option.id} key={option.id}>
+                        {option.nome}
+                      </MenuItem>
+                    ))}
+                  </LightTextField>
+                </FormControl>
+              </FlexBox>
+              <FlexBox
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <LightTextField
+                  label="Data Inicial"
                   fullWidth
-                  id="id_grupo_pertence"
+                  value={formikMeta.values.dt_inicial}
                   onChange={formikMeta.handleChange}
-                  name="id_grupo_pertence"
-                  label="grupo"
-                >
-                  {grupoPertence.map((option) => (
-                    <MenuItem value={option.id} key={option.id}>
-                      {option.nome}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <br />
-              <br />
+                  name="dt_inicial"
+                  InputProps={{
+                    inputComponent: MaskDt as any,
+                  }}
+                />
+              </FlexBox>
+              <FlexBox
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <LightTextField
+                  label="DataFinal"
+                  fullWidth
+                  value={formikMeta.values.dt_final}
+                  onChange={formikMeta.handleChange}
+                  name="dt_final"
+                  InputProps={{
+                    inputComponent: MaskDt as any,
+                  }}
+                />
+              </FlexBox>
+
               <FlexBox justifyContent="space-between" alignItems="center">
                 <Button fullWidth type="submit" variant="contained">
                   Enviar
@@ -131,8 +211,8 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                       id: -1,
                       id_pessoa: '',
                       id_grupo_pertence: 0,
-                      dtalteracao: '',
-                      dtinclusao: '',
+                      dt_inicial: '',
+                      dt_final: '',
                     });
                   }}
                 >
