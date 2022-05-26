@@ -1,10 +1,10 @@
 import { MoreHoriz } from '@mui/icons-material';
 import { Box, IconButton, Typography } from '@mui/material';
-import FlexBox from '../../FlexBox';
-import { H6, Tiny } from '../../Typography';
+import axios from 'axios';
 import React, { FC, MouseEvent } from 'react';
 import { herokuConfig } from '../../../config';
-import axios from 'axios';
+import FlexBox from '../../FlexBox';
+import { H6 } from '../../Typography';
 
 // component interface
 interface ListCardProps {
@@ -53,8 +53,16 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
               item.id_grupo === object.id ? object.nome : null,
             )}
           </H6>
-          <Typography>Inicio: {item.dt_inicial}</Typography>
-          <Typography>{item.dt_final === null ? null: ('Fim: ' + item.dt_final)}</Typography>
+          <Typography>
+            Inicio: {item.dt_inicial.split('-')[2].split('T')[0]}/
+            {item.dt_inicial.split('-')[1]}/{item.dt_inicial.split('-')[0]}
+          </Typography>
+          <Typography>
+            {item.dt_final === null || item.dt_final === undefined
+              ? null
+              : 'Fim: ' + item.dt_final.split('-')[2].split('T')[0] + '/' +
+              item.dt_final.split('-')[1] + '/' + item.dt_final.split('-')[0]}
+          </Typography>
         </Box>
       </FlexBox>
       <IconButton onClick={handleMore}>
