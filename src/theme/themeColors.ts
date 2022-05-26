@@ -22,10 +22,10 @@ export const primary = {
 };
 
 export const secondary = {
-  100: "#F9F9F9",
-  200: "#ECEFF5",
-  300: "#E5EAF2", // outline or border
-  400: "#94A4C4", // text muted
+  100: "#c5c5c5",
+  200: "#babdc2",
+  300: "#b4b8bf", // outline or border
+  400: "#6d7991", // text muted
   500: "#283252", // main text
   main: "#283252", // main text
   light: "#F9F9F9",
