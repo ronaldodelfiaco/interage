@@ -1,59 +1,160 @@
-import { Box, Button, Card, LinearProgress } from '@mui/material';
-import LightTextField from '../LightTextField';
-import { H5, H6, Tiny } from '../Typography';
-import React, { FC } from 'react';
+import { Card, Grid, Typography } from '@mui/material';
+import axios from 'axios';
+import { FC, MouseEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { herokuConfig } from '../../config';
+import AddIconButton from '../AddIconButton';
+import FlexBox from '../FlexBox';
+import MoreOptions from '../MoreOptions';
+import ModalEndereco from '../pessoaInformation/itens/modalEndereco';
+import { H3, Tiny } from '../Typography';
+import ListEndereco from './itens/ListEndereco';
 
-const Password: FC = () => {
+interface TelefonesProps {
+  idPessoa: string;
+}
+
+type Endereco = {
+  id: number;
+  id_pessoa: string;
+  id_cidade: number;
+  cep: string;
+  logradouro: string;
+  uf: string;
+  bairro: string;
+  complemento: string;
+  recebe_correspondencia: boolean;
+  status: boolean;
+  dtalteracao: string;
+  dtinclusao: string;
+};
+
+const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
   const { t } = useTranslation();
+  const [moreEl, setMoreEl] = useState<null | HTMLElement>(null);
+  const handleMoreOpen = (event: MouseEvent<HTMLButtonElement>) => {
+    setMoreEl(event.currentTarget);
+  };
+  const handleMoreClose = () => setMoreEl(null);
+  const [EnderecoPessoa, setEnderecoPessoa] = useState<Endereco[]>([]);
+
+  const [newEnderecoPessoa, setNewEnderecoPessoa] = useState<Endereco>();
+  const [openModalTelefone, setOpenModalEndereco] = useState(false);
+
+  const [itemDados, setItemDados] = useState<Endereco>();
+
+  let user = localStorage.getItem('user');
+  user = user === null ? '...' : user;
+  const _user = JSON.parse(user);
+
+  const [editar, setEditar] = useState(false);
+  
+  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_enderecos&filter=id_pessoa=${idPessoa}`;
+
+  useEffect(() => {
+    axios
+      .get(heroku)
+      .then(({ data }: any) => {
+        console.log(heroku);
+        // setPessoa(data.body.rows[0]);
+        setEnderecoPessoa(data.body.rows);
+      })
+      .catch((error) => {
+        console.log(2, error);
+        setEnderecoPessoa([]);
+      });
+  }, [heroku]);
+
+  //Adiciona novos dados, no vetor de Endereco
+  useEffect(() => {
+    if (newEnderecoPessoa !== undefined) {
+      if (!editar) {
+        setEnderecoPessoa((prevTelefone) => [
+          ...prevTelefone,
+          {
+            id: EnderecoPessoa.length,
+            id_pessoa: idPessoa,
+            id_cidade: newEnderecoPessoa.id_cidade,
+            cep: newEnderecoPessoa.cep,
+            logradouro: newEnderecoPessoa.logradouro,
+            bairro: newEnderecoPessoa.bairro,
+            uf: newEnderecoPessoa.uf,
+            complemento: newEnderecoPessoa.complemento,
+            recebe_correspondencia: newEnderecoPessoa.recebe_correspondencia,
+            status: newEnderecoPessoa.status,
+            dtalteracao: newEnderecoPessoa.dtalteracao,
+            dtinclusao: newEnderecoPessoa.dtinclusao,
+          },
+        ]);
+      } else {
+        EnderecoPessoa.splice(newEnderecoPessoa.id, 1, newEnderecoPessoa);
+        setEditar(false);
+        setItemDados({
+          id: -1,
+          id_pessoa: '',
+          id_cidade: -1,
+          cep: '',
+          uf: '',
+          logradouro: '',
+          bairro: '',
+          complemento: '',
+          recebe_correspondencia: false,
+          status: false,
+          dtalteracao: '',
+          dtinclusao: '',
+        });
+      }
+    }
+  }, [newEnderecoPessoa]);
+
+  const editarNumero = (id: number) => {
+    setItemDados(EnderecoPessoa[id]);
+    setOpenModalEndereco(true);
+    setEditar(true);
+    handleMoreClose();
+  };
+
+  const apagarNumero = (id: number) => {
+    setEnderecoPessoa(EnderecoPessoa.splice(id, 0));
+    handleMoreClose();
+  };
+
   return (
-    <Card
-      sx={{
-        padding: 3,
-        pb: 5,
-        '& li': {
-          fontSize: 10,
-          fontWeight: 500,
-          color: 'text.disabled',
-        },
-      }}
-    >
-      <H5>{t('Change Your Password')}</H5>
-      <Box maxWidth={350}>
-        <LightTextField
-          fullWidth
-          sx={{ mt: 2 }}
-          placeholder="Enter current password"
-        />
-        <LightTextField
-          fullWidth
-          sx={{ mt: 2, mb: 1 }}
-          placeholder="Enter new password"
-        />
-        <LinearProgress variant="determinate" value={10} />
-        <LightTextField
-          fullWidth
-          sx={{ mt: 2 }}
-          placeholder="Confirm new password"
-        />
+    <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
+      <H3>Endereço</H3>
+      <Grid container spacing={4} pt="1.5rem">
+        {EnderecoPessoa.map((item) => (
+          <Grid item xs={12} sm={6} key={item?.id}>
+            <ListEndereco item={item} handleMore={handleMoreOpen} />
+            <MoreOptions
+              id={item.id}
+              anchorEl={moreEl}
+              handleMoreClose={handleMoreClose}
+              editar={editarNumero}
+              apagar={apagarNumero}
+            />
+          </Grid>
+        ))}
 
-        <Box my={3}>
-          <H6>{t('Password requirements:')}</H6>
-          <Tiny fontWeight={500} color="text.disabled">
-            Ensure that these requirements are met:
-          </Tiny>
-          <ul>
-            <li>Minimum 8 characters long - the more, the better</li>
-            <li>At least one lowercase character</li>
-            <li>At least one uppercase character</li>
-            <li>At least one number, symbol, or whitespace character</li>
-          </ul>
-        </Box>
-
-        <Button variant="contained">{t('Save Changes')}</Button>
-      </Box>
+        <Grid item xs={12} sm={6}>
+          <FlexBox alignItems={'center'}>
+            <AddIconButton onClick={() => setOpenModalEndereco(true)} />
+            <Grid ml="1rem">
+              <Typography variant="h6">Adicionar</Typography>
+              <Tiny color="secondary.400">novo Endereco</Tiny>
+            </Grid>
+            <ModalEndereco
+              open={openModalTelefone}
+              setOpen={setOpenModalEndereco}
+              setDadosAtributos={setNewEnderecoPessoa}
+              itemDados={itemDados}
+              setItemDados={setItemDados}
+            />
+          </FlexBox>
+        </Grid>
+      </Grid>
     </Card>
   );
 };
 
-export default Password;
+export default Endereco;

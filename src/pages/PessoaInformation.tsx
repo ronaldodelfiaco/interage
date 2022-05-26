@@ -1,24 +1,22 @@
 import { Box, Button, Card, Grid, styled, useTheme } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import FlexBox from '../../components/FlexBox';
-import Anexos from '../../components/pessoaInformation/Anexos';
-import Enderecos from '../../components/pessoaInformation/Enderecos';
-import Eventos from '../../components/pessoaInformation/Eventos';
-import Grupos from '../../components/pessoaInformation/Grupos';
-import InformacoesPrincipais from '../../components/pessoaInformation/InformacoesPrincipais';
-import Networking from '../../components/pessoaInformation/Networking';
-import Questionarios from '../../components/pessoaInformation/Questionarios';
-import Telefones from '../../components/pessoaInformation/Telefones';
-import useTitle from '../../hooks/useTitle';
-import ContactPhoneIcon from '../../icons/ContactPhoneIcon';
-import DiamondIcon from '../../icons/DiamondIcon';
-import ProfileIcon from '../../icons/ProfileIcon';
-import SettingIcon from '../../icons/SettingIcon';
-import convertToSlug from '../../utils/convertSlug';
-import PeopleIcon from '../../icons/PeopleIcon';
-
+import FlexBox from '../components/FlexBox';
+import Anexos from '../components/pessoaInformation/Anexos';
+import Enderecos from '../components/pessoaInformation/Enderecos';
+import Eventos from '../components/pessoaInformation/Eventos';
+import Grupos from '../components/pessoaInformation/Grupos';
+import InformacoesPrincipais from '../components/pessoaInformation/InformacoesPrincipais';
+import Networking from '../components/pessoaInformation/Networking';
+import Questionarios from '../components/pessoaInformation/Questionarios';
+import Telefones from '../components/pessoaInformation/Telefones';
+import ContactPhoneIcon from '../icons/ContactPhoneIcon';
+import DiamondIcon from '../icons/DiamondIcon';
+import PeopleIcon from '../icons/PeopleIcon';
+import ProfileIcon from '../icons/ProfileIcon';
+import SettingIcon from '../icons/SettingIcon';
+import convertToSlug from '../utils/convertSlug';
 
 // styled component
 const StyledButton = styled(Button)(() => ({
@@ -31,14 +29,9 @@ const StyledButton = styled(Button)(() => ({
 
 var idPessoa: string;
 
-const Post = () => {
+const PessoaInformation: FC = () => {
   const router = useRouter();
   const { id } = router.query;
-
-  // change navbar title
-  // var pessoa: string;
-  // pessoa = nome !== "" ? nome : "...";
-  useTitle('pessoa');
 
   const theme = useTheme();
   const { t } = useTranslation();
@@ -120,19 +113,11 @@ const Post = () => {
           {active === convertToSlug(tabList[3].name) && (
             <Enderecos idPessoa={id} />
           )}
-          {active === convertToSlug(tabList[4].name) && (
-            <Eventos idPessoa={id} />
-          )}
-          {active === convertToSlug(tabList[5].name) && (
-            <Networking idPessoa={id} />
-          )}
-          {active === convertToSlug(tabList[6].name) && (
-            <Questionarios idPessoa={id} />
-          )}
-          {active === convertToSlug(tabList[7].name) && (
-            <Anexos idPessoa={id} />
-          )}
-        </Grid>
+            {active === convertToSlug(tabList[4].name) && <Eventos />}
+            {active === convertToSlug(tabList[5].name) && <Networking />}
+            {active === convertToSlug(tabList[6].name) && <Questionarios />}
+            {active === convertToSlug(tabList[7].name) && <Anexos />}
+          </Grid>)}}
       </Grid>
     </Box>
   );
@@ -181,4 +166,4 @@ const tabList = [
   },
 ];
 
-export default Post;
+export default PessoaInformation;

@@ -1,49 +1,64 @@
-import { CameraAlt } from '@mui/icons-material';
 import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Grid,
-  IconButton,
   MenuItem,
+  Stack,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
-import { parseJSON } from 'date-fns/esm';
 import { useFormik } from 'formik';
+import { useRouter } from 'next/router';
 import * as React from 'react';
 import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IMaskInput } from 'react-imask';
 import * as Yup from 'yup';
+import useTitle from '../../hooks/useTitle';
 import FlexBox from '../FlexBox';
 import LightTextField from '../LightTextField';
-import { H5, Tiny } from '../Typography';
-import UkoAvatar from '../UkoAvatar';
-import { herokuConfig } from '../../config';
-import useAuth from '../../hooks/useAuth';
-import { StyledBadge } from './StyledComponent';
-import axios from 'axios';
-import { useRouter } from 'next/router';
 import LerPessoa from './LerDados';
-
 
 interface CustomProps {
   onChange: (event: { target: { name: string; value: string } }) => void;
   name: string;
 }
 
-const maskCPFCNPJ = React.forwardRef<HTMLElement, CustomProps>(
+const maskCPF = React.forwardRef<HTMLElement, CustomProps>(function maskCPFCNPJ(
+  props,
+  ref,
+) {
+  const { onChange, ...other } = props;
+
+  return (
+    <IMaskInput
+      {...other}
+      mask="000.000.000-00"
+      definitions={{
+        '#': /[1-9]/,
+      }}
+      //InputRef = {ref}
+      onAccept={(value: any) =>
+        onChange({ target: { name: props.name, value } })
+      }
+      overwrite
+    />
+  );
+});
+
+const maskCNPJ = React.forwardRef<HTMLElement, CustomProps>(
   function maskCPFCNPJ(props, ref) {
     const { onChange, ...other } = props;
 
     return (
       <IMaskInput
         {...other}
-        mask="000.000.000-00"
+        mask="00.000.000/0000-00"
         definitions={{
           '#': /[1-9]/,
         }}
@@ -79,7 +94,34 @@ const maskDtNascimento = React.forwardRef<HTMLElement, CustomProps>(
 );
 
 interface InformacoesPrincipaisProps {
-  idPessoa: string ;
+  idPessoa: string;
+}
+
+interface IFormData {
+  tipo: string;
+  idPronomeTratamento: string;
+  id_atividade: string;
+  nome: string;
+  apelidoFantasia: string;
+  email: string;
+  website: string;
+  cpfCpj: string;
+  rgIe: string;
+  rgOrgaoemisssor: string;
+  rgUf: string;
+  rgVia: string;
+  rgDtExpedicao: string;
+  dataNascimento: string;
+  observacoes: string;
+  sexo: string;
+  nacionalidade: string;
+  estadoCivil: string;
+  idEscolaridade: string;
+  cnh: string;
+  cnhValidade: string;
+  status: boolean;
+  cnhCategoria: string;
+  idCidadeNatural: string;
 }
 
 const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
@@ -87,49 +129,44 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
 }) => {
   const { t } = useTranslation();
   const [idPronome, setPronome] = useState('1');
-  const [pessoa, setPessoa] = useState({});
 
-  useEffect(() => {
-   
-    LerPessoa(idPessoa)
-      .then(( result ) : any => {
-        setPessoa(result?.pessoa);
-      })
-      .catch((error) : any => {
-        console.log('Error ', error)
-        setPessoa([]);
-      });
+  // useEffect(() => {
+  //   LerPessoa(idPessoa)
+  //     .then((result): any => {
+  //       setPessoa(result.pessoa);
+  //     })
+  //     .catch((error): any => {
+  //       console.log('Error ', error);
+  //       setPessoa([]);
+  //     });
+  // }, []);
 
-
-
-  }, []);
-
-  const initialValues = {
+  const initialValues: IFormData = {
     //name: data?.name || "",
-    tipo: pessoa?.tipo || 'F',
-    idPronomeTratamento: pessoa?.id_pronome_tratamento || '', // F
-    id_atividade: pessoa?.id_atividade || '', // F - profissão  J- atividade atividade comercail
-    nome: pessoa?.nome || '', // F- nome J - Razão Social
-    apelidoFantasia: pessoa?.apelido_fantasia || '', // F - aplido  J Nome de Fantasia
-    email: pessoa?.email || '',
-    website: pessoa?.website || '', // J
-    cpfCpj: pessoa?.cpf_cnpj || '', // F - CPF  J - CNPJ
-    rgIe: pessoa?.rg_ie || '', // F Ristro geral    J -  inscrição estadual
-    rgOrgaoemisssor: pessoa?.rg_orgaoemissor || '', // F
-    rgUf: pessoa?.rg_uf || '', //  F
-    rgVia: pessoa?.rg_via || '', //  F
-    rgDtExpedicao: pessoa?.rg_dt_expedicao || '', // F
-    dataNascimento: pessoa?.datanascimento || '', // F
-    observacoes: pessoa?.observacoes || '',
-    sexo: pessoa?.sexo || '', // F
-    nacionalidade: pessoa?.nacionalidade || '', // F
-    estadoCivil: pessoa?.estado_civil || '', // F
-    idEscolaridade: pessoa?.id_escolaridade || '', // F
-    cnh: pessoa?.cnh || '', // F
-    cnhValidade: pessoa?.cnh_validade || '', // F
-    status: pessoa?.status || true,
-    cnhCategoria: pessoa?.cnh_categoria || '', // F
-    idCidadeNatural: pessoa?.id_cidade_natural || '', // F
+    tipo: 'F',
+    idPronomeTratamento: '', // F
+    id_atividade: '', // F - profissão  J- atividade atividade comercail
+    nome: '', // F- nome J - Razão Social
+    apelidoFantasia: '', // F - aplido  J Nome de Fantasia
+    email: '',
+    website: '', // J
+    cpfCpj: '', // F - CPF  J - CNPJ
+    rgIe: '', // F Ristro geral    J -  inscrição estadual
+    rgOrgaoemisssor: '', // F
+    rgUf: '', //  F
+    rgVia: '', //  F
+    rgDtExpedicao: '', // F
+    dataNascimento: '', // F
+    observacoes: '',
+    sexo: '', // F
+    nacionalidade: '', // F
+    estadoCivil: '', // F
+    idEscolaridade: '', // F
+    cnh: '', // F
+    cnhValidade: '', // F
+    status: true,
+    cnhCategoria: '', // F
+    idCidadeNatural: '', // F
   };
 
   const fieldValidationSchema = Yup.object().shape({
@@ -139,7 +176,7 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
     cpfCpj: Yup.string().required('Campo obrigatório!'),
   });
 
-  const { values, errors, touched, handleChange, handleSubmit } = useFormik({
+  const formik = useFormik({
     initialValues,
     validationSchema: fieldValidationSchema,
     onSubmit: (values) => {
@@ -170,136 +207,185 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
     setPronome(event.target.value);
   };
 
+  if (idPessoa) useTitle('Editando: ' + formik.values.nome);
+  else useTitle('Adicionando Pessoa');
   const router = useRouter();
+
+  const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (idPessoa) {
+      LerPessoa(idPessoa).then((row: any) => {
+        formik.setValues({
+          nome: row.pessoa.nome,
+          tipo: row.pessoa.tipo,
+          idPronomeTratamento: row.pessoa.id_pronome_tratamento,
+          id_atividade: row.pessoa.id_atividade,
+          apelidoFantasia: row.pessoa.apelido_fantasia,
+          email: row.pessoa.email,
+          website: row.pessoa.website,
+          cpfCpj: row.pessoa.cpf_cnpj,
+          rgIe: row.pessoa.rg_ie,
+          rgOrgaoemisssor: row.pessoa.rg_orgaoemissor,
+          rgUf: row.pessoa.rg_uf,
+          rgVia: row.pessoa.rg_via,
+          rgDtExpedicao: row.pessoa.rg_dt_expedicao,
+          dataNascimento: row.pessoa.datanascimento,
+          observacoes: row.pessoa.observacoes,
+          sexo: row.pessoa.sexo,
+          nacionalidade: row.pessoa.nacionalidade,
+          estadoCivil: row.pessoa.estadoCivil,
+          idEscolaridade: row.pessoa.id_escolaridade,
+          cnh: row.pessoa.cnh,
+          cnhValidade: row.pessoa.cnh_validade,
+          status: row.pessoa.status,
+          cnhCategoria: row.pessoa.cnh_categoria,
+          idCidadeNatural: row.pessoa.id_cidade_natural,
+        });
+      });
+      setLoading(false);
+    } else {
+      setLoading(false);
+    }
+  }, [idPessoa]);
 
   return (
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
-      <form onSubmit={handleSubmit}>
-        <FlexBox
-          my="1.5rem"
-          flexWrap="wrap"
-          alignItems="center"
-          justifyContent="space-between"
+      {isLoading ? (
+        <Stack
+          justifyContent="center"
+          sx={{ color: 'grey.500' }}
+          spacing={2}
+          direction="row"
+          alignContent="center"
         >
-          <Box my="1rem">
-            <Typography variant="h6">Tipo de Pessoa</Typography>
-            <RadioGroup
-              row
-              name="tipoPessoa"
-              defaultValue="F"
-              //onChange={handleChange}
-            >
-              <FormControlLabel value="F" control={<Radio />} label="Física" />
-              <FormControlLabel
-                value="J"
-                control={<Radio />}
-                label="Jurídica"
+          <CircularProgress />
+        </Stack>
+      ) : (
+        <form onSubmit={formik.handleSubmit}>
+          <FlexBox
+            my="1.5rem"
+            flexWrap="wrap"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Box my="1rem">
+              <Typography variant="h6">Tipo de Pessoa</Typography>
+              <RadioGroup
+                row
+                name="tipo"
+                onChange={formik.handleChange}
+                value={formik.values.tipo}
+              >
+                <FormControlLabel
+                  value="F"
+                  control={<Radio />}
+                  label="Física"
+                />
+                <FormControlLabel
+                  value="J"
+                  control={<Radio />}
+                  label="Jurídica"
+                />
+              </RadioGroup>
+            </Box>
+            <div>
+              <TextField
+                id="pronome"
+                select
+                label="Pronome"
+                value={idPronome}
+                onChange={pronomeChange}
+                sx={{ width: 100 }}
+              >
+                {pronomes.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.nome}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
+          </FlexBox>
+
+          <Grid container spacing={4}>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="nome"
+                label="Nome"
+                value={formik.values.nome}
+                onChange={formik.handleChange}
+                helperText={formik.touched.nome && formik.errors.nome}
+                error={Boolean(formik.touched.nome && formik.errors.nome)}
               />
-            </RadioGroup>
-          </Box>
-          <div>
-            <TextField
-              id="pronome"
-              select
-              label="Pronome"
-              value={idPronome}
-              onChange={pronomeChange}
-              sx={{ width: 100 }}
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="apelidoFantasia"
+                label="Apelido"
+                onChange={formik.handleChange}
+                value={formik.values.apelidoFantasia}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="cpfCpj"
+                label="CPF ou CNPJ"
+                value={formik.values.cpfCpj}
+                onChange={formik.handleChange}
+                helperText={formik.touched.cpfCpj && formik.errors.cpfCpj}
+                error={Boolean(formik.touched.cpfCpj && formik.errors.cpfCpj)}
+                InputProps={
+                  formik.values.tipo === 'F'
+                    ? {
+                        inputComponent: maskCPF as any,
+                      }
+                    : {
+                        inputComponent: maskCNPJ as any,
+                      }
+                }
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="dataNascimento"
+                label="Data de Nascimento"
+                onChange={formik.handleChange}
+                value={formik.values.dataNascimento}
+                InputProps={{
+                  inputComponent: maskDtNascimento as any,
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="email"
+                label="Email"
+                onChange={formik.handleChange}
+                value={formik.values.email}
+              />
+            </Grid>
+          </Grid>
+          <br />
+          <br />
+          <FlexBox justifyContent="space-between" alignItems="center">
+            <Button
+              fullWidth
+              type="submit"
+              variant="contained"
+              sx={{ width: 124 }}
             >
-              {pronomes.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                  {option.nome}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        </FlexBox>
-
-        <Grid container spacing={4}>
-          <Grid item xs={12} sm={6}>
-            <LightTextField
-              fullWidth
-              name="nome"
-              label="Nome"
-              value={pessoa?.nome}
-              onChange={handleChange}
-              helperText={touched.nome && errors.nome}
-              error={Boolean(touched.nome && errors.nome)}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <LightTextField
-              fullWidth
-              name="apelidoFantasia"
-              label="Apelido"
-              value={values.apelidoFantasia}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <LightTextField
-              fullWidth
-              name="cpfCpj"
-              label="CPF"
-              value={values.cpfCpj}
-              // onChange={handleChange}
-              //helperText={touched.cpfCpj && errors.cpfCpj}
-              // error={Boolean(touched.cpfCpj && errors.cpfCpj)}
-              // InputProps={{
-              //   inputComponent: maskCPFCNPJ as any,
-              // }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <LightTextField
-              fullWidth
-              name="dataNascimento"
-              label="Data de Nascimento"
-              value={values.dataNascimento}
-              InputProps={{
-                inputComponent: maskDtNascimento as any,
-              }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <LightTextField
-              fullWidth
-              name="email"
-              label="Email"
-              value={values.email}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            {idPessoa}
-          </Grid>
-        </Grid>
-        <br />
-        <br />
-        <FlexBox justifyContent="space-between" alignItems="center">
-          <Button
-            variant="outlined"
-            sx={{
-              width: 124,
-              color: 'text.disabled',
-              borderColor: 'text.disabled',
-            }}
-            fullWidth
-            onClick={() => router.back()}
-          >
-            {t('Cancel')}
-          </Button>
-          <Button
-            fullWidth
-            type="submit"
-            variant="contained"
-            sx={{ width: 124 }}
-          >
-            {t('Save')}
-          </Button>
-        </FlexBox>
-      </form>
+              {t('Save')}
+            </Button>
+          </FlexBox>
+        </form>
+      )}
     </Card>
   );
 };

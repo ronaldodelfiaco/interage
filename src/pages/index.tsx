@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
 
+import cookie from 'js-cookie';
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 
@@ -7,18 +8,18 @@ import { useRouter } from 'next/router'
 
 const Home: NextPage = () => {
   const router = useRouter()
-  const user = localStorage.getItem('user');
+  const user = cookie.get('user');
 
 
   useEffect(() => {
     if (user !== null) {
-      router.push('/authentication/Login')
+      router.push('Pessoas')
     }
   }, [])
 
   return (
     <>
-     
+
     </>
   )
 }

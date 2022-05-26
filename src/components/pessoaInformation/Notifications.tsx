@@ -9,7 +9,7 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
-import { H5, Small } from 'components/Typography';
+import { H5, Small } from '../../components/Typography';
 import { FC } from 'react';
 import ScrollBar from 'simplebar-react';
 

@@ -6,6 +6,7 @@ import useAuth from "../../../hooks/useAuth";
 import { FC, Fragment, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import PopoverLayout from "./PopoverLayout";
+import { useRouter } from "next/router";
 
 // styled components
 const StyledSmall = styled(Small)(({ theme }) => ({
@@ -19,6 +20,7 @@ const StyledSmall = styled(Small)(({ theme }) => ({
 }));
 
 const ProfilePopover: FC = () => {
+  const navigate = useRouter();
   const anchorRef = useRef(null);
   const { logout, user } = useAuth();
   const [open, setOpen] = useState(false);
@@ -78,8 +80,9 @@ const ProfilePopover: FC = () => {
           <Divider sx={{ my: 1 }} />
           <StyledSmall
             onClick={() => {
-              logout();
+              logout(user);
               toast.error("You Logout Successfully");
+              navigate.reload();
             }}
           >
             Sign Out

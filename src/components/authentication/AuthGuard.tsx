@@ -1,7 +1,9 @@
-import useAuth from "../../hooks/useAuth";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import React, { Fragment, ReactNode, useState } from "react";
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import React, { Fragment, ReactNode, useState } from 'react';
+import useAuth from '../../hooks/useAuth';
+import ForgetPassword from '../../pages/authentication/ForgetPassword';
+import Login from '../../pages/authentication/Login';
 
 // component props interface
 interface AuthGuardProps {
@@ -10,20 +12,23 @@ interface AuthGuardProps {
 
 const AuthGuard = ({ children }: AuthGuardProps) => {
   const { isAuthenticated } = useAuth();
-  const { pathname, push } = useRouter();
-  const [requestedLocation, setRequestedLocation] = useState<string>("");
+  const { pathname } = useRouter();
+  const [requestedLocation, setRequestedLocation] = useState<string>('');
 
   if (!isAuthenticated) {
     if (pathname !== requestedLocation) {
       setRequestedLocation(pathname);
     }
-
-    // return <Login />;
-    push("/login");
+    if (pathname !== '/authentication/ForgetPassword') {
+      return <Login />;
+    } else {
+      return <ForgetPassword />;
+    }
+    // push("/login");
   }
 
   if (requestedLocation && pathname !== requestedLocation) {
-    setRequestedLocation("");
+    setRequestedLocation('');
     return <Link href={requestedLocation} />;
   }
   return <Fragment>{children}</Fragment>;

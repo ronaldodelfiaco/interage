@@ -1,6 +1,6 @@
 import { Checkbox, CheckboxProps } from "@mui/material";
-import OvalCheckedIcon from "icons/OvalCheckedIcon";
-import OvalIcon from "icons/OvalIcon";
+import OvalCheckedIcon from "../icons/OvalCheckedIcon";
+import OvalIcon from "../icons/OvalIcon";
 import { FC } from "react";
 
 const RoundCheckBox: FC<CheckboxProps> = (props) => {

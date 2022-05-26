@@ -1,5 +1,5 @@
 import { Auth0Client } from "@auth0/auth0-spa-js";
-import LoadingScreen from "components/LoadingScreen";
+import LoadingScreen from "../components/LoadingScreen";
 import { auth0Config } from "config";
 import { createContext, ReactNode, useEffect, useReducer } from "react";
 import { ActionMap, AuthState, AuthUser } from "./JWTAuthContext";

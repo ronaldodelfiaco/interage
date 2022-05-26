@@ -1,8 +1,7 @@
-import LoadingScreen from "components/LoadingScreen";
+import LoadingScreen from "../components/LoadingScreen";
 import jwtDecode from "jwt-decode";
 import { createContext, ReactNode, useEffect, useReducer } from "react";
-import axios from "utils/axios";
-
+import axios from "../utils/axios";
 // All types
 // =============================================
 export type ActionMap<M extends { [index: string]: any }> = {

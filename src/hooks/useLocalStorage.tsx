@@ -13,7 +13,11 @@ const useLocalStorage = (key: string, initialValue: any) => {
 
   const storeData = (updateValue: any | themeSettingsProps) => {
     setData(updateValue);
-    window.localStorage.setItem(key, JSON.stringify(updateValue));
+    try {
+      window.localStorage.setItem(key, JSON.stringify(updateValue));
+    } catch (error) {
+      console.error("Pouco espaço na memoria");
+    }
   };
 
   return { data, storeData };
