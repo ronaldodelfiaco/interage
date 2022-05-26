@@ -17,9 +17,9 @@ interface GruposProps {
 type grupo = {
   id: number;
   id_pessoa: string;
-  id_grupo_pertence: number;
-  dtalteracao: string;
-  dtinclusao: string;
+  id_grupo: number;
+  dt_final: string;
+  dt_inicial: string;
 };
 
 const Grupos: FC<GruposProps> = ({ idPessoa }) => {
@@ -67,9 +67,9 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
           {
             id: GruposPessoa.length,
             id_pessoa: idPessoa,
-            id_grupo_pertence: newGrupo.id_grupo_pertence,
-            dtalteracao: newGrupo.dtalteracao,
-            dtinclusao: newGrupo.dtinclusao,
+            id_grupo: newGrupo.id_grupo,
+            dt_final: newGrupo.dt_final,
+            dt_inicial: newGrupo.dt_inicial,
           },
         ]);
       } else {
@@ -82,9 +82,9 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
         setItemDados({
           id: -1,
           id_pessoa: '',
-          id_grupo_pertence: -1,
-          dtalteracao: '',
-          dtinclusao: '',
+          id_grupo: -1,
+          dt_final: '',
+          dt_inicial: '',
         });
       }
     }
