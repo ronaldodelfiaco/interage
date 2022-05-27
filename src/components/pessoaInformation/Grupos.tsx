@@ -65,7 +65,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
         setGruposPessoa((prevGrupo) => [
           ...prevGrupo,
           {
-            id: GruposPessoa.length,
+            id: GruposPessoa.length + 1,
             id_pessoa: idPessoa,
             id_grupo: newGrupo.id_grupo,
             dt_final: newGrupo.dt_final,
@@ -73,11 +73,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
           },
         ]);
       } else {
-        GruposPessoa.splice(
-          newGrupo.id,
-          1,
-          newGrupo,
-        );
+        GruposPessoa.splice(newGrupo.id, 1, newGrupo);
         setEditar(false);
         setItemDados({
           id: -1,
@@ -98,7 +94,14 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
   };
 
   const apagarNumero = (id: number) => {
-    setGruposPessoa(GruposPessoa.splice(id, 0));
+    // console.log(GruposPessoa);
+    // Achar o indice do vetor
+    GruposPessoa.forEach((Element) => {
+      if (Element.id === id) {
+        const index = GruposPessoa.indexOf(Element);
+        GruposPessoa.splice(index, 1);
+      }
+    });
     handleMoreClose();
   };
 

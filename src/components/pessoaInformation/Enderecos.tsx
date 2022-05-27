@@ -48,7 +48,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
   const _user = JSON.parse(user);
 
   const [editar, setEditar] = useState(false);
-  
+
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_enderecos&filter=id_pessoa=${idPessoa}`;
 
   useEffect(() => {
@@ -115,7 +115,12 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
   };
 
   const apagarNumero = (id: number) => {
-    setEnderecoPessoa(EnderecoPessoa.splice(id, 0));
+    EnderecoPessoa.forEach((Element) => {
+      if (Element.id === id) {
+        const index = EnderecoPessoa.indexOf(Element);
+        EnderecoPessoa.splice(index, 1);
+      }
+    });
     handleMoreClose();
   };
 

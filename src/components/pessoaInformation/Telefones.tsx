@@ -116,7 +116,12 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   };
 
   const apagarNumero = (id: number) => {
-    setTelefonesPessoa(TelefonesPessoa.splice(id, 0));
+    TelefonesPessoa.forEach((Element) => {
+      if (Element.id === id) {
+        const index = TelefonesPessoa.indexOf(Element);
+        TelefonesPessoa.splice(index, 1);
+      }
+    });
     handleMoreClose();
   };
 

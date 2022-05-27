@@ -22,15 +22,17 @@ const MoreOptions: FC<MoreOptionsProps> = ({
   apagar,
   editar,
 }) => {
+  const index = id;
   return (
     <Menu
+      id={`basic-menu-${id}`}
       anchorEl={anchorEl}
       open={Boolean(anchorEl)}
       onClose={handleMoreClose}
     >
       <MenuItem
         onClick={() => {
-          editar(id);
+          editar(index);
         }}
         sx={{ '&:hover': { color: 'primary.main' } }}
       >
@@ -39,7 +41,7 @@ const MoreOptions: FC<MoreOptionsProps> = ({
       </MenuItem>
       <MenuItem
         onClick={() => {
-          apagar(id);
+          apagar(index);
         }}
         sx={{ '&:hover': { color: 'primary.main' } }}
       >
