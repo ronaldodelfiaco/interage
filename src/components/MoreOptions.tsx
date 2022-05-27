@@ -1,15 +1,15 @@
 import { Menu, MenuItem } from '@mui/material';
+import React, { FC, useEffect, useState } from 'react';
 import DeleteIcon from '../icons/DeleteIcon';
 import PencilIcon from '../icons/PencilIcon';
-import React, { FC } from 'react';
 import { Small } from './Typography';
 
 // component props interface
 
 interface MoreOptionsProps {
-  open?: boolean;
+  // open: boolean;
   anchorEl: HTMLElement | null;
-  id?: number;
+  id: number;
   handleMoreClose: () => void;
   apagar: (id: any) => void;
   editar: (id: any) => void;
@@ -17,8 +17,8 @@ interface MoreOptionsProps {
 
 const MoreOptions: FC<MoreOptionsProps> = ({
   anchorEl,
-  handleMoreClose,
   id,
+  handleMoreClose,
   apagar,
   editar,
 }) => {
