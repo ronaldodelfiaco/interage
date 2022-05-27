@@ -73,14 +73,19 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
           },
         ]);
       } else {
-        GruposPessoa.splice(newGrupo.id, 1, newGrupo);
-        setEditar(false);
-        setItemDados({
-          id: -1,
-          id_pessoa: '',
-          id_grupo: -1,
-          dt_final: '',
-          dt_inicial: '',
+        GruposPessoa.forEach((Element) => {
+          if (Element.id === newGrupo.id) {
+            const index = GruposPessoa.indexOf(Element);
+            GruposPessoa.splice(index, 1, newGrupo);
+            setEditar(false);
+            setItemDados({
+              id: -1,
+              id_pessoa: '',
+              id_grupo: -1,
+              dt_final: '',
+              dt_inicial: '',
+            });
+          }
         });
       }
     }

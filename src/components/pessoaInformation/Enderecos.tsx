@@ -87,21 +87,27 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
           },
         ]);
       } else {
-        EnderecoPessoa.splice(newEnderecoPessoa.id, 1, newEnderecoPessoa);
-        setEditar(false);
-        setItemDados({
-          id: -1,
-          id_pessoa: '',
-          id_cidade: -1,
-          cep: '',
-          uf: '',
-          logradouro: '',
-          bairro: '',
-          complemento: '',
-          recebe_correspondencia: false,
-          status: false,
-          dtalteracao: '',
-          dtinclusao: '',
+        EnderecoPessoa.forEach((Element) => {
+          if (Element.id === newEnderecoPessoa.id) {
+            const index = EnderecoPessoa.indexOf(Element);
+            EnderecoPessoa.splice(index, 1, newEnderecoPessoa);
+            EnderecoPessoa.splice(newEnderecoPessoa.id, 1, newEnderecoPessoa);
+            setEditar(false);
+            setItemDados({
+              id: -1,
+              id_pessoa: '',
+              id_cidade: -1,
+              cep: '',
+              uf: '',
+              logradouro: '',
+              bairro: '',
+              complemento: '',
+              recebe_correspondencia: false,
+              status: false,
+              dtalteracao: '',
+              dtinclusao: '',
+            });
+          }
         });
       }
     }

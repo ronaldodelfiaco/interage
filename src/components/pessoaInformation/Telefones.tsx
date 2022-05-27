@@ -85,24 +85,26 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
           },
         ]);
       } else {
-        TelefonesPessoa.splice(
-          newTelefonePessoa.id,
-          1,
-          newTelefonePessoa,
-        );
-        setEditar(false);
-        setItemDados({
-          id: -1,
-          id_pessoa: '',
-          ddd: '',
-          telefone: '',
-          ramal: '',
-          principal: false,
-          id_tipo_telefone: 0,
-          contato: '',
-          ddi: '',
-          dtalteracao: '',
-          dtinclusao: '',
+        TelefonesPessoa.forEach((Element) => {
+          if (Element.id === newTelefonePessoa.id) {
+            const index = TelefonesPessoa.indexOf(Element);
+            TelefonesPessoa.splice(index, 1, newTelefonePessoa);
+            TelefonesPessoa.splice(newTelefonePessoa.id, 1, newTelefonePessoa);
+            setEditar(false);
+            setItemDados({
+              id: -1,
+              id_pessoa: '',
+              ddd: '',
+              telefone: '',
+              ramal: '',
+              principal: false,
+              id_tipo_telefone: 0,
+              contato: '',
+              ddi: '',
+              dtalteracao: '',
+              dtinclusao: '',
+            });
+          }
         });
       }
     }
