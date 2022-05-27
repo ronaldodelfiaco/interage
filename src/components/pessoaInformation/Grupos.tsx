@@ -92,9 +92,14 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
   }, [newGrupo]);
 
   const editarNumero = (id: number) => {
-    setItemDados(GruposPessoa[id]);
-    setOpenModalGrupo(true);
-    setEditar(true);
+    GruposPessoa.forEach((Element) => {
+      if (Element.id === id) {
+        const index = GruposPessoa.indexOf(Element);
+        setItemDados(GruposPessoa[index]);
+        setOpenModalGrupo(true);
+        setEditar(true);
+      }
+    });
     handleMoreClose();
   };
 
@@ -135,6 +140,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
               <Tiny color="secondary.400">novo grupo</Tiny>
             </Grid>
             <ModalGrupo
+              editar={editar}
               open={openModalGrupo}
               setOpen={setOpenModalGrupo}
               setDadosAtributos={setNewGrupo}

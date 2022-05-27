@@ -54,6 +54,7 @@ interface ModalFilhoProps {
   // openDados: Array<any>;
   // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
   itemDados: any;
+  editar: boolean;
 }
 
 const modalTelefone: FC<ModalFilhoProps> = ({
@@ -62,17 +63,24 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   setDadosAtributos,
   setItemDados,
   itemDados,
+  editar,
 }) => {
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
 
-  const initialValues = {
-    id: 0 || itemDados?.id,
-    id_pessoa: '' || itemDados?.id_pessoa,
-    id_grupo: '' || itemDados?.id_grupo,
-    dt_final: '' || itemDados?.dt_final,
-    dt_inicial: '' || itemDados?.dt_inicial,
+  const initialValues = editar?{
+    id: itemDados?.id,
+    id_pessoa: itemDados?.id_pessoa,
+    id_grupo: itemDados?.id_grupo,
+    dt_final: itemDados?.dt_final,
+    dt_inicial: itemDados?.dt_inicial,
+  }:{
+    id: 0,
+    id_pessoa: '',
+    id_grupo: '',
+    dt_final: '',
+    dt_inicial: '',
   };
 
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=grupos`;

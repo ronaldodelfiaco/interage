@@ -114,9 +114,14 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
   }, [newEnderecoPessoa]);
 
   const editarNumero = (id: number) => {
-    setItemDados(EnderecoPessoa[id]);
-    setOpenModalEndereco(true);
-    setEditar(true);
+    EnderecoPessoa.forEach((Element) => {
+      if (Element.id === id) {
+        const index = EnderecoPessoa.indexOf(Element);
+        setItemDados(EnderecoPessoa[index]);
+        setOpenModalEndereco(true);
+        setEditar(true);
+      }
+    });
     handleMoreClose();
   };
 

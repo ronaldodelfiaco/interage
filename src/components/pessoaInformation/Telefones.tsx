@@ -111,9 +111,14 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   }, [newTelefonePessoa]);
 
   const editarNumero = (id: number) => {
-    setItemDados(TelefonesPessoa[id]);
-    setOpenModalTelefone(true);
-    setEditar(true);
+    TelefonesPessoa.forEach((Element) => {
+      if (Element.id === id) {
+        const index = TelefonesPessoa.indexOf(Element);
+        setItemDados(TelefonesPessoa[index]);
+        setOpenModalTelefone(true);
+        setEditar(true);
+      }
+    });
     handleMoreClose();
   };
 
