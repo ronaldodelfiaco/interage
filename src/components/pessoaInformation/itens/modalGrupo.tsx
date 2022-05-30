@@ -56,7 +56,7 @@ interface ModalFilhoProps {
   itemDados: any;
   editar: boolean;
 }
-
+// Adicionar YUP
 const modalTelefone: FC<ModalFilhoProps> = ({
   open,
   setOpen,
@@ -69,19 +69,21 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
 
-  const initialValues = editar?{
-    id: itemDados?.id,
-    id_pessoa: itemDados?.id_pessoa,
-    id_grupo: itemDados?.id_grupo,
-    dt_final: itemDados?.dt_final,
-    dt_inicial: itemDados?.dt_inicial,
-  }:{
-    id: 0,
-    id_pessoa: '',
-    id_grupo: '',
-    dt_final: '',
-    dt_inicial: '',
-  };
+  const initialValues = editar
+    ? {
+        id: itemDados?.id,
+        id_pessoa: itemDados?.id_pessoa,
+        id_grupo: itemDados?.id_grupo,
+        dt_final: itemDados?.dt_final,
+        dt_inicial: itemDados?.dt_inicial,
+      }
+    : {
+        id: 0,
+        id_pessoa: '',
+        id_grupo: '',
+        dt_final: '',
+        dt_inicial: '',
+      };
 
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=grupos`;
 
@@ -107,25 +109,25 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         initialValues={initialValues}
         onSubmit={(values, actions) => {
           setTimeout(() => {
+            let dataInicial = new Date();
             const diaInicial: number = +values.dt_inicial.split('/')[0];
             const mesInicial: number = +values.dt_inicial.split('/')[1];
             const anoInicial: number = +values.dt_inicial.split('/')[2];
-            let dataInicial = new Date();
             dataInicial.setDate(diaInicial);
             dataInicial.setMonth(mesInicial);
             dataInicial.setFullYear(anoInicial);
             values.dt_inicial = format(dataInicial, 'yyyy-MM-dd');
-
-            if (values.dt_final !== '') {
+            
+            try {
+              let dataFinal = new Date();
               const diaFinal: number = +values.dt_final.split('/')[0];
               const mesFinal: number = +values.dt_final.split('/')[1];
               const anoFinal: number = +values.dt_final.split('/')[2];
-              let dataFinal = new Date();
               dataFinal.setDate(diaFinal);
               dataFinal.setMonth(mesFinal);
               dataFinal.setFullYear(anoFinal);
               values.dt_final = format(dataFinal, 'yyyy-MM-dd');
-            } else {
+            } catch (error) {
               values.dt_final = null;
             }
 
@@ -194,7 +196,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                 justifyContent="space-between"
               >
                 <LightTextField
-                  label="DataFinal"
+                  label="Data Final"
                   fullWidth
                   value={formikMeta.values.dt_final}
                   onChange={formikMeta.handleChange}
