@@ -78,13 +78,6 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
             const index = GruposPessoa.indexOf(Element);
             GruposPessoa.splice(index, 1, newGrupo);
             setEditar(false);
-            setItemDados({
-              id: -1,
-              id_pessoa: '',
-              id_grupo: -1,
-              dt_final: '',
-              dt_inicial: '',
-            });
           }
         });
       }

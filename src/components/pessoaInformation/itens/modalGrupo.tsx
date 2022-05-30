@@ -5,6 +5,7 @@ import { Form, Formik } from 'formik';
 import * as React from 'react';
 import { Dispatch, FC } from 'react';
 import { IMaskInput } from 'react-imask';
+import * as Yup from 'yup';
 import { herokuConfig } from '../../../config';
 import FlexBox from '../../FlexBox';
 import LightTextField from '../../LightTextField';
@@ -68,6 +69,20 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
+  let itemData;
+
+  try {
+    const DataItem = new Date();
+    const itemDataDia: number = +itemDados?.dt_inicial
+      .split('-')[2]
+      .split('T')[0];
+    const itemDataMes: number = +itemDados?.dt_inicial.split('-')[1];
+    const itemDataAno: number = +itemDados?.dt_inicial.split('-')[0];
+    DataItem.setFullYear(itemDataAno, itemDataMes - 1, itemDataDia);
+    itemData = format(DataItem, 'dd/MM/yyyy');
+  } catch (error) {
+    itemData = '00/00/0000';
+  }
 
   const initialValues = editar
     ? {
@@ -75,7 +90,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         id_pessoa: itemDados?.id_pessoa,
         id_grupo: itemDados?.id_grupo,
         dt_final: itemDados?.dt_final,
-        dt_inicial: itemDados?.dt_inicial,
+        dt_inicial: itemData,
       }
     : {
         id: 0,
@@ -102,11 +117,16 @@ const modalTelefone: FC<ModalFilhoProps> = ({
       });
   }, [heroku]);
 
-  // falta colocar o id, e o id_pessoa
+  const fieldValidationSchema = Yup.object().shape({
+    dt_inicial: Yup.string().required('Campo obrigatório!'),
+    id_grupo: Yup.string().required('Campo obrigatório!'),
+  });
+
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
       <Formik
         initialValues={initialValues}
+        validationSchema={fieldValidationSchema}
         onSubmit={(values, actions) => {
           setTimeout(() => {
             let dataInicial = new Date();
@@ -114,10 +134,10 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             const mesInicial: number = +values.dt_inicial.split('/')[1];
             const anoInicial: number = +values.dt_inicial.split('/')[2];
             dataInicial.setDate(diaInicial);
-            dataInicial.setMonth(mesInicial);
+            dataInicial.setMonth(mesInicial - 1);
             dataInicial.setFullYear(anoInicial);
             values.dt_inicial = format(dataInicial, 'yyyy-MM-dd');
-            
+
             try {
               let dataFinal = new Date();
               const diaFinal: number = +values.dt_final.split('/')[0];
@@ -163,6 +183,12 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                     onChange={formikMeta.handleChange}
                     name="id_grupo"
                     label="grupo"
+                    helperText={
+                      formikMeta.touched.id_grupo && formikMeta.errors.id_grupo
+                    }
+                    error={Boolean(
+                      formikMeta.touched.id_grupo && formikMeta.errors.id_grupo,
+                    )}
                   >
                     {grupoPertence.map((option) => (
                       <MenuItem value={option.id} key={option.id}>
@@ -184,6 +210,14 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                   value={formikMeta.values.dt_inicial}
                   onChange={formikMeta.handleChange}
                   name="dt_inicial"
+                  helperText={
+                    formikMeta.touched.dt_inicial &&
+                    formikMeta.errors.dt_inicial
+                  }
+                  error={Boolean(
+                    formikMeta.touched.dt_inicial &&
+                      formikMeta.errors.dt_inicial,
+                  )}
                   InputProps={{
                     inputComponent: MaskDt as any,
                   }}
