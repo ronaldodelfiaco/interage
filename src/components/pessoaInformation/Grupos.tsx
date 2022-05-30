@@ -65,7 +65,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
         setGruposPessoa((prevGrupo) => [
           ...prevGrupo,
           {
-            id: GruposPessoa.length + 1,
+            id: -1,
             id_pessoa: idPessoa,
             id_grupo: newGrupo.id_grupo,
             dt_final: newGrupo.dt_final,

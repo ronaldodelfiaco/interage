@@ -72,7 +72,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
         setEnderecoPessoa((prevTelefone) => [
           ...prevTelefone,
           {
-            id: EnderecoPessoa.length,
+            id: -1,
             id_pessoa: idPessoa,
             id_cidade: newEnderecoPessoa.id_cidade,
             cep: newEnderecoPessoa.cep,

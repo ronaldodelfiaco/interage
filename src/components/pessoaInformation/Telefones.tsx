@@ -71,7 +71,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
         setTelefonesPessoa((prevTelefone) => [
           ...prevTelefone,
           {
-            id: TelefonesPessoa.length,
+            id: -1,
             id_pessoa: idPessoa,
             ddd: newTelefonePessoa.ddd,
             telefone: newTelefonePessoa.telefone,
