@@ -267,7 +267,7 @@ export const Tiny: React.FC<BoxProps & Props> = ({
         [className || ""]: true,
       })}
       component="small"
-      fontSize="10px"
+      fontSize="11px"
       lineHeight="1.5"
       {...props}
     >

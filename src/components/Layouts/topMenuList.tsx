@@ -39,6 +39,16 @@ const index = [
     Icon: Icons.KanbanIcon,
     path: "/TodoList",
   },
+  {
+    title: "Anamnese",
+    Icon: Icons.ProjectIcon,
+    path: "/anamnese",
+  },
+  {
+    title: "Reavaliação",
+    Icon: Icons.SessionsIcon,
+    path: "/reavaliacao",
+  },
 ];
 
 export default index;
