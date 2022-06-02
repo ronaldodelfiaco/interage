@@ -2,6 +2,7 @@ import { Box, Button, Card, FormControl, MenuItem, Modal } from '@mui/material';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { Form, Formik } from 'formik';
+import Router from 'next/router';
 import * as React from 'react';
 import { Dispatch, FC } from 'react';
 import { IMaskInput } from 'react-imask';
@@ -69,32 +70,46 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
-  let itemData;
+  let itemDataInicio;
+  let itemDataFim;
+
+  const { id } = Router.query;
+  const idPessoa = typeof id === 'string' ? parseInt(id) : null;
 
   try {
     const DataItem = new Date();
     const itemDataDia: number = +itemDados?.dt_inicial
       .split('-')[2]
       .split('T')[0];
-    const itemDataMes: number = +itemDados?.dt_inicial.split('-')[1];
+    const itemDataMes: number = +itemDados?.dt_inicial.split('-')[1] - 1;
     const itemDataAno: number = +itemDados?.dt_inicial.split('-')[0];
-    DataItem.setFullYear(itemDataAno, itemDataMes - 1, itemDataDia);
-    itemData = format(DataItem, 'dd/MM/yyyy');
+    DataItem.setFullYear(itemDataAno, itemDataMes, itemDataDia);
+    itemDataInicio = format(DataItem, 'dd/MM/yyyy');
   } catch (error) {
-    itemData = '00/00/0000';
+    itemDataInicio = '';
+  }
+  try {
+    const DataItem = new Date();
+    const itemDataDia: number = +itemDados?.dt_final
+      .split('-')[2]
+      .split('T')[0];
+    const itemDataMes: number = +itemDados?.dt_final.split('-')[1] - 1;
+    const itemDataAno: number = +itemDados?.dt_final.split('-')[0];
+    DataItem.setFullYear(itemDataAno, itemDataMes, itemDataDia);
+    itemDataFim = format(DataItem, 'dd/MM/yyyy');
+  } catch (error) {
+    itemDataFim = '';
   }
 
   const initialValues = editar
     ? {
-        id: itemDados?.id,
-        id_pessoa: itemDados?.id_pessoa,
+        id: itemDados.id,
         id_grupo: itemDados?.id_grupo,
-        dt_final: itemDados?.dt_final,
-        dt_inicial: itemData,
+        dt_final: itemDataFim,
+        dt_inicial: itemDataInicio,
       }
     : {
-        id: 0,
-        id_pessoa: '',
+        id_pessoa: idPessoa,
         id_grupo: '',
         dt_final: '',
         dt_inicial: '',
@@ -136,7 +151,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             dataInicial.setDate(diaInicial);
             dataInicial.setMonth(mesInicial - 1);
             dataInicial.setFullYear(anoInicial);
-            values.dt_inicial = format(dataInicial, 'yyyy-MM-dd');
+            values.dt_inicial = format(dataInicial, 'dd-MM-yyyy');
 
             try {
               let dataFinal = new Date();
@@ -144,11 +159,11 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               const mesFinal: number = +values.dt_final.split('/')[1];
               const anoFinal: number = +values.dt_final.split('/')[2];
               dataFinal.setDate(diaFinal);
-              dataFinal.setMonth(mesFinal);
+              dataFinal.setMonth(mesFinal - 1);
               dataFinal.setFullYear(anoFinal);
-              values.dt_final = format(dataFinal, 'yyyy-MM-dd');
+              values.dt_final = format(dataFinal, 'dd-MM-yyyy');
             } catch (error) {
-              values.dt_final = null;
+              values.dt_final = '';
             }
 
             setDadosAtributos(values), setOpen(false);

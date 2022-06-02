@@ -7,11 +7,12 @@ import {
   FormControlLabel,
   FormGroup,
   MenuItem,
-  Modal
+  Modal,
 } from '@mui/material';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { useFormik } from 'formik';
+import Router from 'next/router';
 import * as React from 'react';
 import { Dispatch, FC } from 'react';
 import { IMaskInput } from 'react-imask';
@@ -33,6 +34,7 @@ interface ModalFilhoProps {
   // openDados: Array<any>;
   // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
   itemDados: any;
+  editar: boolean;
 }
 
 const maskCEP = React.forwardRef<HTMLElement, CustomProps>(function maskCPFCNPJ(
@@ -80,31 +82,20 @@ type CEPInfo = {
   bairro: string;
 };
 
-type FormValues = {
-  id: number;
-  id_pessoa: string;
-  id_cidade: number;
-  cep: string;
-  uf: string;
-  logradouro: string;
-  bairro: string;
-  complemento: string;
-  recebe_correspondencia: boolean;
-  status: boolean;
-  dtalteracao: string;
-  dtinclusao: string;
-};
-
 const modalTelefone: FC<ModalFilhoProps> = ({
   open,
   setOpen,
   setDadosAtributos,
   setItemDados,
   itemDados,
+  editar,
 }) => {
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
+
+  const { id } = Router.query;
+  console.log('Router: ', id);
 
   // controla cidade e estado
   const [cidade, setCidade] = React.useState<cidade[]>([]);
@@ -112,20 +103,35 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   const [estado, setEstado] = React.useState<uf[]>([]);
   const [CEP, setCepInfo] = React.useState<CEPInfo>();
 
-  const initialValues: FormValues = {
-    id: 0 || itemDados?.id,
-    id_pessoa: '' || itemDados?.id_pessoa,
-    id_cidade: 0 || itemDados?.id_cidade,
-    cep: '' || itemDados?.cep,
-    uf: '' || itemDados?.uf,
-    logradouro: '' || itemDados?.logradouro,
-    bairro: '' || itemDados?.bairro,
-    complemento: '' || itemDados?.complemento,
-    recebe_correspondencia: false || itemDados?.recebe_correspondencia,
-    status: false || itemDados?.status,
-    dtalteracao: '' || itemDados?.dtalteracao,
-    dtinclusao: '' || itemDados?.dtinclusao,
-  };
+  const initialValues = !editar
+    ? {
+        id: '',
+        id_pessoa: id,
+        id_cidade: '',
+        cep: '',
+        logradouro: '',
+        bairro: '',
+        complemento: '',
+        status: '',
+        recebe_correspondencia: '',
+        dtalteracao: '',
+        dtinclusao: '',
+        uf: '',
+      }
+    : {
+        id: itemDados.id,
+        id_pessoa: id,
+        id_cidade: itemDados.id_cidade,
+        cep: itemDados.cep,
+        logradouro: itemDados.logradouro,
+        bairro: itemDados.bairro,
+        complemento: itemDados.complemento,
+        status: itemDados.status,
+        recebe_correspondencia: itemDados.recebe_correspondencia,
+        dtalteracao: itemDados.dtalteracao,
+        dtinclusao: itemDados.dtinclusao,
+        uf: itemDados.uf,
+      };
 
   const fieldValidationSchema = Yup.object().shape({
     cep: Yup.string()
@@ -146,8 +152,21 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         } else {
           values.dtinclusao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
         }
+        const valoresBanco = {
+          id: values.id,
+          id_pessoa: values.id_pessoa,
+          id_cidade: values.id_cidade,
+          cep: values.cep.replace('-', ''),
+          logradouro: values.logradouro,
+          bairro: values.bairro,
+          complemento: values.complemento,
+          status: values.status,
+          recebe_correspondencia: values.recebe_correspondencia,
+          dtalteracao: values.dtalteracao,
+          dtinclusao: values.dtinclusao,
+        };
         setOpen(false);
-        setDadosAtributos(values);
+        setDadosAtributos(valoresBanco);
         console.log(values);
       }, 1000);
     },

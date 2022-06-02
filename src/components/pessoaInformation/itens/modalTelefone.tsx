@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import { Form, Formik } from 'formik';
+import Router from 'next/router';
 import * as React from 'react';
 import { Dispatch, FC } from 'react';
 import FlexBox from '../../FlexBox';
@@ -35,9 +36,12 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   setItemDados,
   itemDados,
 }) => {
+  const { id } = Router.query;
+  const idPessoa = typeof id === 'string' ? parseInt(id) : null;
+
   const initialValues = {
     id: 0 || itemDados?.id,
-    id_pessoa: '' || itemDados?.id_pessoa,
+    id_pessoa: idPessoa,
     ddd: '' || itemDados?.ddd,
     telefone: '' || itemDados?.telefone,
     ramal: '' || itemDados?.ramal,

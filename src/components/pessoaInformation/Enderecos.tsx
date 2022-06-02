@@ -20,7 +20,6 @@ type Endereco = {
   id_cidade: number;
   cep: string;
   logradouro: string;
-  uf: string;
   bairro: string;
   complemento: string;
   recebe_correspondencia: boolean;
@@ -36,7 +35,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
     setMoreEl(event.currentTarget);
   };
   const handleMoreClose = () => setMoreEl(null);
-  const [EnderecoPessoa, setEnderecoPessoa] = useState<Endereco[]>([]);
+  const [EnderecoPessoa, setEnderecoPessoa] = useState([]);
 
   const [newEnderecoPessoa, setNewEnderecoPessoa] = useState<Endereco>();
   const [openModalTelefone, setOpenModalEndereco] = useState(false);
@@ -47,70 +46,81 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
 
+  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_enderecos`;
+
   const [editar, setEditar] = useState(false);
 
-  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_enderecos&filter=id_pessoa=${idPessoa}`;
+  const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
+  const loadTable = () => {
+    setTimeout(() => {
+      axios
+        .get(herokuFiltro)
+        .then(({ data }: any) => {
+          console.log(heroku);
+          // setPessoa(data.body.rows[0]);
+          setEnderecoPessoa(data.body.rows);
+        })
+        .catch((error) => {
+          console.log(2, error);
+          setEnderecoPessoa([]);
+        });
+    }, 1);
+  };
 
   useEffect(() => {
-    axios
-      .get(heroku)
-      .then(({ data }: any) => {
-        console.log(heroku);
-        // setPessoa(data.body.rows[0]);
-        setEnderecoPessoa(data.body.rows);
-      })
-      .catch((error) => {
-        console.log(2, error);
-        setEnderecoPessoa([]);
-      });
+    loadTable();
   }, [heroku]);
 
   //Adiciona novos dados, no vetor de Endereco
   useEffect(() => {
     if (newEnderecoPessoa !== undefined) {
       if (!editar) {
-        setEnderecoPessoa((prevTelefone) => [
-          ...prevTelefone,
-          {
-            id: -1,
-            id_pessoa: idPessoa,
-            id_cidade: newEnderecoPessoa.id_cidade,
-            cep: newEnderecoPessoa.cep,
-            logradouro: newEnderecoPessoa.logradouro,
-            bairro: newEnderecoPessoa.bairro,
-            uf: newEnderecoPessoa.uf,
-            complemento: newEnderecoPessoa.complemento,
-            recebe_correspondencia: newEnderecoPessoa.recebe_correspondencia,
-            status: newEnderecoPessoa.status,
-            dtalteracao: newEnderecoPessoa.dtalteracao,
-            dtinclusao: newEnderecoPessoa.dtinclusao,
-          },
-        ]);
+        // setEnderecoPessoa((prevTelefone) => [
+        //   ...prevTelefone,
+        //   {
+        //     id: -1,
+        //     id_pessoa: idPessoa,
+        //     id_cidade: newEnderecoPessoa.id_cidade,
+        //     cep: newEnderecoPessoa.cep,
+        //     logradouro: newEnderecoPessoa.logradouro,
+        //     bairro: newEnderecoPessoa.bairro,
+        //     uf: newEnderecoPessoa.uf,
+        //     complemento: newEnderecoPessoa.complemento,
+        //     recebe_correspondencia: newEnderecoPessoa.recebe_correspondencia,
+        //     status: newEnderecoPessoa.status,
+        //     dtalteracao: newEnderecoPessoa.dtalteracao,
+        //     dtinclusao: newEnderecoPessoa.dtinclusao,
+        //   },
+        // ]);
+        axios
+          .post(heroku, newEnderecoPessoa)
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
       } else {
         EnderecoPessoa.forEach((Element) => {
-          if (Element.id === newEnderecoPessoa.id) {
-            const index = EnderecoPessoa.indexOf(Element);
-            EnderecoPessoa.splice(index, 1, newEnderecoPessoa);
-            EnderecoPessoa.splice(newEnderecoPessoa.id, 1, newEnderecoPessoa);
-            setEditar(false);
-            setItemDados({
-              id: -1,
-              id_pessoa: '',
-              id_cidade: -1,
-              cep: '',
-              uf: '',
-              logradouro: '',
-              bairro: '',
-              complemento: '',
-              recebe_correspondencia: false,
-              status: false,
-              dtalteracao: '',
-              dtinclusao: '',
+          axios
+            .put(heroku + '&id=' + newEnderecoPessoa.id, newEnderecoPessoa)
+            .then((response) => {
+              console.log(response);
+            })
+            .catch((error) => {
+              console.error(error);
             });
+          if (Element.id === newEnderecoPessoa.id) {
+            // const index = EnderecoPessoa.indexOf(Element);
+            // EnderecoPessoa.splice(index, 1, newEnderecoPessoa);
+            // EnderecoPessoa.splice(newEnderecoPessoa.id, 1, newEnderecoPessoa);
+            setEditar(false);
+            setItemDados(undefined);
           }
         });
       }
     }
+    loadTable();
   }, [newEnderecoPessoa]);
 
   const editarNumero = (id: number) => {
@@ -128,10 +138,19 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
   const apagarNumero = (id: number) => {
     EnderecoPessoa.forEach((Element) => {
       if (Element.id === id) {
-        const index = EnderecoPessoa.indexOf(Element);
-        EnderecoPessoa.splice(index, 1);
+        // const index = EnderecoPessoa.indexOf(Element);
+        // EnderecoPessoa.splice(index, 1);
+        axios
+          .delete(heroku + '&id=' + id)
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
       }
     });
+    loadTable();
     handleMoreClose();
   };
 
@@ -165,6 +184,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
               setDadosAtributos={setNewEnderecoPessoa}
               itemDados={itemDados}
               setItemDados={setItemDados}
+              editar={editar}
             />
           </FlexBox>
         </Grid>
