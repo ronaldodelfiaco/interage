@@ -114,10 +114,10 @@ const DataPessoas: FC<DataTableProps> = ({ data = [] }) => {
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (pageOptions.length != 0) {
+    if (headerGroups.length != 0) {
       setLoading(false);
     }
-  }, [pageOptions.length]);
+  }, [headerGroups]);
 
   return (
     <Box>

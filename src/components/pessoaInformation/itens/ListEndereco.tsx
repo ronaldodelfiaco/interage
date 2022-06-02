@@ -1,10 +1,10 @@
 import { MoreHoriz } from '@mui/icons-material';
 import { Box, IconButton } from '@mui/material';
-import FlexBox from '../../FlexBox';
-import { H6, Tiny } from '../../Typography';
+import axios from 'axios';
 import React, { FC, MouseEvent } from 'react';
 import { herokuConfig } from '../../../config';
-import axios from 'axios';
+import FlexBox from '../../FlexBox';
+import { H6, Tiny } from '../../Typography';
 
 type cidade = {
   id: number;
@@ -63,7 +63,7 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
           </H6>
           <Tiny>
             {'Bairro: ' + item.bairro + ' Cep: ' + item.cep}
-            {item.complemento ? 'Complemento: ' + item.complemento : null}
+            {item.complemento ? ' Complemento: ' + item.complemento : null}
           </Tiny>
           {item.logradouro === '' ? null : (
             <>

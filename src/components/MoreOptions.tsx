@@ -9,7 +9,7 @@ import { Small } from './Typography';
 interface MoreOptionsProps {
   // open: boolean;
   anchorEl: HTMLElement | null;
-  id: number;
+  id?: number;
   handleMoreClose: () => void;
   apagar: (id: any) => void;
   editar: (id: any) => void;

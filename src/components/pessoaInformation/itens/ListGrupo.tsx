@@ -5,6 +5,11 @@ import React, { FC, MouseEvent } from 'react';
 import { herokuConfig } from '../../../config';
 import FlexBox from '../../FlexBox';
 import { H6 } from '../../Typography';
+import { format } from 'date-fns';
+import { addYears, formatWithOptions } from 'date-fns/fp'
+import { ptBR } from 'date-fns/locale'
+
+const dateToString = formatWithOptions({ locale: ptBR }, 'dd/MM/yyyy');
 
 // component interface
 interface ListCardProps {
@@ -26,7 +31,7 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
-
+  
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=grupos`;
 
   const [grupoPertence, setGrupoPertence] = React.useState<Grupos[]>([]);
@@ -43,6 +48,7 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
         setGrupoPertence([]);
       });
   }, [heroku]);
+  // console.log(3, item);
 
   return (
     <FlexBox justifyContent="space-between" alignItems="center">
@@ -54,14 +60,17 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
             )}
           </H6>
           <Typography>
-            Inicio: {item.dt_inicial.split('-')[2].split('T')[0]}/
-            {item.dt_inicial.split('-')[1]}/{item.dt_inicial.split('-')[0]}
+            {/* Inicio: {item.dt_inicial.split('-')[2].split('T')[0]}/
+            {item.dt_inicial.split('-')[1]}/{item.dt_inicial.split('-')[0]} */}
+            Inicio: {format(new Date(item.dt_inicial), 'dd/MM/yyyy', {locale:ptBR})}
           </Typography>
           <Typography>
-            {item.dt_final === null || item.dt_final === undefined
+            {item.dt_final === null || item.dt_final === undefined || item.dt_final === ''
               ? null
-              : 'Fim: ' + item.dt_final.split('-')[2].split('T')[0] + '/' +
-              item.dt_final.split('-')[1] + '/' + item.dt_final.split('-')[0]}
+              : 'Fim: ' + format(new Date(item.dt_final), 'dd/MM/yyyy', {locale:ptBR})
+              //item.dt_final.split('-')[2].split('T')[0] + '/' +
+              //item.dt_final.split('-')[1] + '/' + item.dt_final.split('-')[0]
+            }
           </Typography>
         </Box>
       </FlexBox>
