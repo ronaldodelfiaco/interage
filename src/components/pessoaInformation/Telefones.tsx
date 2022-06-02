@@ -46,50 +46,74 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
 
-  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_telefones&filter=id_pessoa=${idPessoa}`;
+  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_telefones`;
 
   const [editar, setEditar] = useState(false);
 
+  const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
+
+  const loadTable = () => {
+    setTimeout(() => {
+      axios
+        .get(herokuFiltro)
+        .then(({ data }: any) => {
+          console.log(heroku);
+          // setPessoa(data.body.rows[0]);
+          setTelefonesPessoa(data.body.rows);
+        })
+        .catch((error) => {
+          console.log(2, error);
+          setTelefonesPessoa([]);
+        });
+    }, 1);
+  };
+
   useEffect(() => {
-    axios
-      .get(heroku)
-      .then(({ data }: any) => {
-        console.log(heroku);
-        // setPessoa(data.body.rows[0]);
-        setTelefonesPessoa(data.body.rows);
-      })
-      .catch((error) => {
-        console.log(2, error);
-        setTelefonesPessoa([]);
-      });
+    loadTable();
   }, [heroku]);
 
   //Adiciona novos dados, no vetor de telefone
   useEffect(() => {
     if (newTelefonePessoa !== undefined) {
       if (!editar) {
-        setTelefonesPessoa((prevTelefone) => [
-          ...prevTelefone,
-          {
-            id: -1,
-            id_pessoa: idPessoa,
-            ddd: newTelefonePessoa.ddd,
-            telefone: newTelefonePessoa.telefone,
-            ramal: newTelefonePessoa.ramal,
-            principal: newTelefonePessoa.principal,
-            id_tipo_telefone: newTelefonePessoa.id_tipo_telefone,
-            contato: newTelefonePessoa.contato,
-            ddi: newTelefonePessoa.ddi,
-            dtalteracao: newTelefonePessoa.dtalteracao,
-            dtinclusao: newTelefonePessoa.dtinclusao,
-          },
-        ]);
+        // setTelefonesPessoa((prevTelefone) => [
+        //   ...prevTelefone,
+        //   {
+        //     id: -1,
+        //     id_pessoa: idPessoa,
+        //     ddd: newTelefonePessoa.ddd,
+        //     telefone: newTelefonePessoa.telefone,
+        //     ramal: newTelefonePessoa.ramal,
+        //     principal: newTelefonePessoa.principal,
+        //     id_tipo_telefone: newTelefonePessoa.id_tipo_telefone,
+        //     contato: newTelefonePessoa.contato,
+        //     ddi: newTelefonePessoa.ddi,
+        //     dtalteracao: newTelefonePessoa.dtalteracao,
+        //     dtinclusao: newTelefonePessoa.dtinclusao,
+        //   },
+        // ]);
+        axios
+          .post(heroku, newTelefonePessoa)
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
       } else {
+        axios
+          .put(heroku + '&id=' + newTelefonePessoa.id, newTelefonePessoa)
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
         TelefonesPessoa.forEach((Element) => {
           if (Element.id === newTelefonePessoa.id) {
-            const index = TelefonesPessoa.indexOf(Element);
-            TelefonesPessoa.splice(index, 1, newTelefonePessoa);
-            TelefonesPessoa.splice(newTelefonePessoa.id, 1, newTelefonePessoa);
+            // const index = TelefonesPessoa.indexOf(Element);
+            // TelefonesPessoa.splice(index, 1, newTelefonePessoa);
+            // TelefonesPessoa.splice(newTelefonePessoa.id, 1, newTelefonePessoa);
             setEditar(false);
             setItemDados({
               id: -1,
@@ -108,6 +132,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
         });
       }
     }
+    loadTable();
   }, [newTelefonePessoa]);
 
   const editarNumero = (id: number) => {
@@ -125,10 +150,19 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   const apagarNumero = (id: number) => {
     TelefonesPessoa.forEach((Element) => {
       if (Element.id === id) {
-        const index = TelefonesPessoa.indexOf(Element);
-        TelefonesPessoa.splice(index, 1);
+        // const index = TelefonesPessoa.indexOf(Element);
+        // TelefonesPessoa.splice(index, 1);
+        axios
+          .delete(heroku + '&id=' + id)
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
       }
     });
+    loadTable();
     handleMoreClose();
   };
 

@@ -15,8 +15,8 @@ interface GruposProps {
 }
 
 type grupo = {
-  id: number;
-  id_pessoa: string;
+  id?: number;
+  id_pessoa?: string;
   id_grupo: number;
   dt_final: string;
   dt_inicial: string;
@@ -40,48 +40,73 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
 
-  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_grupos&filter=id_pessoa=${idPessoa}`;
+  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_grupos`;
 
   const [editar, setEditar] = useState(false);
 
+  const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
+
+  const loadTable = () => {
+    setTimeout(() => {
+      axios
+        .get(herokuFiltro)
+        .then(({ data }: any) => {
+          console.log(herokuFiltro);
+          // setPessoa(data.body.rows[0]);
+          setGruposPessoa(data.body.rows);
+        })
+        .catch((error) => {
+          console.log(2, error);
+          setGruposPessoa([]);
+        });
+    }, 1);
+  };
   useEffect(() => {
-    axios
-      .get(heroku)
-      .then(({ data }: any) => {
-        console.log(heroku);
-        // setPessoa(data.body.rows[0]);
-        setGruposPessoa(data.body.rows);
-      })
-      .catch((error) => {
-        console.log(2, error);
-        setGruposPessoa([]);
-      });
+    loadTable();
   }, [heroku]);
 
   //Adiciona novos dados, no vetor de grupo
   useEffect(() => {
     if (newGrupo !== undefined) {
       if (!editar) {
-        setGruposPessoa((prevGrupo) => [
-          ...prevGrupo,
-          {
-            id: -1,
-            id_pessoa: idPessoa,
-            id_grupo: newGrupo.id_grupo,
-            dt_final: newGrupo.dt_final,
-            dt_inicial: newGrupo.dt_inicial,
-          },
-        ]);
+        // setGruposPessoa((prevGrupo) => [
+        //   ...prevGrupo,
+        //   {
+        //     id_grupo: newGrupo.id_grupo,
+        //     dt_final: newGrupo.dt_final,
+        //     dt_inicial: newGrupo.dt_inicial,
+        //   },
+        // ]);
+        console.log(1, heroku);
+        console.log(2, newGrupo);
+        axios
+          .post(heroku, newGrupo)
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
       } else {
+        axios
+          .put(heroku + '&id=' + newGrupo.id, newGrupo)
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
         GruposPessoa.forEach((Element) => {
           if (Element.id === newGrupo.id) {
-            const index = GruposPessoa.indexOf(Element);
-            GruposPessoa.splice(index, 1, newGrupo);
+            // const index = GruposPessoa.indexOf(Element);
+            // GruposPessoa.splice(index, 1, newGrupo);
             setEditar(false);
+            setItemDados(undefined);
           }
         });
       }
     }
+    loadTable();
   }, [newGrupo]);
 
   const editarNumero = (id: number) => {
@@ -101,10 +126,19 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
     // Achar o indice do vetor
     GruposPessoa.forEach((Element) => {
       if (Element.id === id) {
-        const index = GruposPessoa.indexOf(Element);
-        GruposPessoa.splice(index, 1);
+        // const index = GruposPessoa.indexOf(Element);
+        // GruposPessoa.splice(index, 1);
+        axios
+          .delete(heroku + '&id=' + id)
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
       }
     });
+    loadTable();
     handleMoreClose();
   };
 
@@ -116,7 +150,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
           <Grid item xs={12} sm={6} key={item?.id}>
             <ListGrupo item={item} handleMore={handleMoreOpen} />
             <MoreOptions
-              id={item.id}
+              id={item?.id}
               anchorEl={moreEl}
               handleMoreClose={handleMoreClose}
               editar={editarNumero}
