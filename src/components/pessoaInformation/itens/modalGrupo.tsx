@@ -51,7 +51,7 @@ type Grupos = {
 type view_Table = {
   id_pessoa: number;
   id_grupo: number;
-  avalibe: boolean;
+  disponivel: boolean;
 };
 
 interface ModalFilhoProps {
@@ -63,6 +63,7 @@ interface ModalFilhoProps {
   // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
   itemDados: any;
   editar: boolean;
+  disponiveis: any;
 }
 // Adicionar YUP
 const modalTelefone: FC<ModalFilhoProps> = ({
@@ -72,6 +73,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   setItemDados,
   itemDados,
   editar,
+  disponiveis,
 }) => {
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
@@ -124,7 +126,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=grupos`;
   const [grupoPertence, setGrupoPertence] = React.useState<Grupos[]>([]);
 
-  const herokuAvailability = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=view_availability_grupo&filter=id_pessoa=${idPessoa}`;
+  // const herokuAvailability = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=view_availability_grupo&filter=id_pessoa=${idPessoa}`;
   const [availability, setAvailability] = React.useState<view_Table[]>([]);
 
   React.useEffect(() => {
@@ -138,20 +140,21 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         console.log(2, error);
         setGrupoPertence([]);
       });
+    setAvailability(disponiveis);
   }, [heroku]);
 
-  React.useEffect(() => {
-    axios
-      .get(herokuAvailability)
-      .then(({ data }: any) => {
-        console.log(herokuAvailability);
-        setAvailability(data.body.rows);
-      })
-      .catch((error) => {
-        console.log(2, error);
-        setAvailability([]);
-      });
-  }, [herokuAvailability]);
+  // React.useEffect(() => {
+  //   axios
+  //     .get(herokuAvailability)
+  //     .then(({ data }: any) => {
+  //       console.log(herokuAvailability);
+  //       setAvailability(data.body.rows);
+  //     })
+  //     .catch((error) => {
+  //       console.log(2, error);
+  //       setAvailability([]);
+  //     });
+  // }, [herokuAvailability]);
 
   /*
     Novo View feito somente para ver se o grupo pode ser usando ou não.
@@ -160,7 +163,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
       CASE WHEN dt_final IS NULL 
               THEN false
               ELSE true 
-      END AS avalibe) from pessoas_grupos pg;
+      END AS disponivel) from pessoas_grupos pg;
   */
 
   const fieldValidationSchema = Yup.object().shape({
@@ -238,23 +241,25 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                   >
                     {grupoPertence.map((option) =>
                       availability.map((element) =>
-                        !editar ? (
-                          element?.id_grupo === option.id ? (
-                            element?.avalibe ? (
+                        element.id_pessoa === idPessoa ? (
+                          !editar ? (
+                            element?.id_grupo === option.id ? (
+                              element?.disponivel ? (
+                                <MenuItem value={option.id} key={option.id}>
+                                  {option.nome}
+                                </MenuItem>
+                              ) : null
+                            ) : (
                               <MenuItem value={option.id} key={option.id}>
                                 {option.nome}
                               </MenuItem>
-                            ) : null
+                            )
                           ) : (
                             <MenuItem value={option.id} key={option.id}>
                               {option.nome}
                             </MenuItem>
                           )
-                        ) : (
-                          <MenuItem value={option.id} key={option.id}>
-                            {option.nome}
-                          </MenuItem>
-                        ),
+                        ) : null,
                       ),
                     )}
                   </LightTextField>

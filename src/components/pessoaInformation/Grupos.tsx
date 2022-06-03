@@ -22,6 +22,12 @@ type grupo = {
   dt_inicial: string;
 };
 
+type view_Table = {
+  id_pessoa: number;
+  id_grupo: number;
+  disponivel: boolean;
+};
+
 const Grupos: FC<GruposProps> = ({ idPessoa }) => {
   const { t } = useTranslation();
   const [moreEl, setMoreEl] = useState<null | HTMLElement>(null);
@@ -64,6 +70,32 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
   useEffect(() => {
     loadTable();
   }, [heroku]);
+
+  const [availability, setAvailability] = useState<view_Table[]>([]);
+
+  useEffect(() => {
+    GruposPessoa.forEach((element) => {
+      if (element.dt_final === null) {
+        setAvailability((prevAvailability) => [
+          ...prevAvailability,
+          {
+            disponivel: false,
+            id_grupo: element.id_grupo,
+            id_pessoa: parseInt(element.id_pessoa),
+          },
+        ]);
+      } else {
+        setAvailability((prevAvailability) => [
+          ...prevAvailability,
+          {
+            disponivel: true,
+            id_grupo: element.id_grupo,
+            id_pessoa: parseInt(element.id_pessoa),
+          },
+        ]);
+      }
+    });
+  }, [GruposPessoa]);
 
   //Adiciona novos dados, no vetor de grupo
   useEffect(() => {
@@ -173,6 +205,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
               setDadosAtributos={setNewGrupo}
               itemDados={itemDados}
               setItemDados={setItemDados}
+              disponiveis={availability}
             />
           </FlexBox>
         </Grid>
