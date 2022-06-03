@@ -194,7 +194,7 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
       }
       else{
         values.dtalteracao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
-      }1
+      }
       !idPessoa
         ? adicionarPessoa(values)
         : atualizarPessoa(values, parseInt(idPessoa));
