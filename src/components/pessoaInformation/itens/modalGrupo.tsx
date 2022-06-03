@@ -48,6 +48,12 @@ type Grupos = {
   state: boolean;
 };
 
+type view_Table = {
+  id_pessoa: number;
+  id_grupo: number;
+  avalibe: boolean;
+};
+
 interface ModalFilhoProps {
   open: boolean;
   setOpen: Dispatch<React.SetStateAction<boolean>>;
@@ -116,8 +122,10 @@ const modalTelefone: FC<ModalFilhoProps> = ({
       };
 
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=grupos`;
-
   const [grupoPertence, setGrupoPertence] = React.useState<Grupos[]>([]);
+
+  const herokuAvailability = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=view_availability_grupo&filter=id_pessoa=${idPessoa}`;
+  const [availability, setAvailability] = React.useState<view_Table[]>([]);
 
   React.useEffect(() => {
     axios
@@ -131,6 +139,29 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         setGrupoPertence([]);
       });
   }, [heroku]);
+
+  React.useEffect(() => {
+    axios
+      .get(herokuAvailability)
+      .then(({ data }: any) => {
+        console.log(herokuAvailability);
+        setAvailability(data.body.rows);
+      })
+      .catch((error) => {
+        console.log(2, error);
+        setAvailability([]);
+      });
+  }, [herokuAvailability]);
+
+  /*
+    Novo View feito somente para ver se o grupo pode ser usando ou não.
+    Tabela:
+    select pg.id_pessoa, id_grupo,(SELECT 
+      CASE WHEN dt_final IS NULL 
+              THEN false
+              ELSE true 
+      END AS avalibe) from pessoas_grupos pg;
+  */
 
   const fieldValidationSchema = Yup.object().shape({
     dt_inicial: Yup.string().required('Campo obrigatório!'),
@@ -205,11 +236,27 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                       formikMeta.touched.id_grupo && formikMeta.errors.id_grupo,
                     )}
                   >
-                    {grupoPertence.map((option) => (
-                      <MenuItem value={option.id} key={option.id}>
-                        {option.nome}
-                      </MenuItem>
-                    ))}
+                    {grupoPertence.map((option) =>
+                      availability.map((element) =>
+                        !editar ? (
+                          element?.id_grupo === option.id ? (
+                            element?.avalibe ? (
+                              <MenuItem value={option.id} key={option.id}>
+                                {option.nome}
+                              </MenuItem>
+                            ) : null
+                          ) : (
+                            <MenuItem value={option.id} key={option.id}>
+                              {option.nome}
+                            </MenuItem>
+                          )
+                        ) : (
+                          <MenuItem value={option.id} key={option.id}>
+                            {option.nome}
+                          </MenuItem>
+                        ),
+                      ),
+                    )}
                   </LightTextField>
                 </FormControl>
               </FlexBox>
