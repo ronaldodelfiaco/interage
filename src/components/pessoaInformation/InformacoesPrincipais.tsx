@@ -7,11 +7,12 @@ import {
   MenuItem,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
+import { format } from 'date-fns';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/router';
 import * as React from 'react';
@@ -22,7 +23,11 @@ import * as Yup from 'yup';
 import useTitle from '../../hooks/useTitle';
 import FlexBox from '../FlexBox';
 import LightTextField from '../LightTextField';
-import LerPessoa from './LerDados';
+import LerPessoa, {
+  adicionarPessoa,
+  atualizarPessoa,
+  apagarPessoa,
+} from './LerDados';
 
 interface CustomProps {
   onChange: (event: { target: { name: string; value: string } }) => void;
@@ -99,29 +104,31 @@ interface InformacoesPrincipaisProps {
 
 interface IFormData {
   tipo: string;
-  idPronomeTratamento: string;
+  id_pronome_tratamento: string;
   id_atividade: string;
   nome: string;
-  apelidoFantasia: string;
+  apelido_fantasia: string;
   email: string;
   website: string;
-  cpfCpj: string;
-  rgIe: string;
-  rgOrgaoemisssor: string;
-  rgUf: string;
-  rgVia: string;
-  rgDtExpedicao: string;
-  dataNascimento: string;
+  cpf_cnpj: string;
+  rg_ie: string;
+  rg_orgaoemissor: string;
+  rg_uf: string;
+  rg_via: string;
+  rg_dt_expedicao: string;
+  datanascimento: string;
   observacoes: string;
   sexo: string;
   nacionalidade: string;
-  estadoCivil: string;
-  idEscolaridade: string;
+  estado_civil: string;
+  id_escolaridade: string;
   cnh: string;
-  cnhValidade: string;
+  cnh_validade: string;
   status: boolean;
-  cnhCategoria: string;
-  idCidadeNatural: string;
+  cnh_categoria: string;
+  id_cidade_natural: string;
+  dtinclusao: string;
+  dtalteracao: string;
 }
 
 const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
@@ -144,43 +151,54 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
   const initialValues: IFormData = {
     //name: data?.name || "",
     tipo: 'F',
-    idPronomeTratamento: '', // F
+    id_pronome_tratamento: '', // F
     id_atividade: '', // F - profissão  J- atividade atividade comercail
     nome: '', // F- nome J - Razão Social
-    apelidoFantasia: '', // F - aplido  J Nome de Fantasia
+    apelido_fantasia: '', // F - aplido  J Nome de Fantasia
     email: '',
     website: '', // J
-    cpfCpj: '', // F - CPF  J - CNPJ
-    rgIe: '', // F Ristro geral    J -  inscrição estadual
-    rgOrgaoemisssor: '', // F
-    rgUf: '', //  F
-    rgVia: '', //  F
-    rgDtExpedicao: '', // F
-    dataNascimento: '', // F
+    cpf_cnpj: '', // F - CPF  J - CNPJ
+    rg_ie: '', // F Ristro geral    J -  inscrição estadual
+    rg_orgaoemissor: '', // F
+    rg_uf: '', //  F
+    rg_via: '', //  F
+    rg_dt_expedicao: '', // F
+    datanascimento: '', // F
     observacoes: '',
     sexo: '', // F
     nacionalidade: '', // F
-    estadoCivil: '', // F
-    idEscolaridade: '', // F
+    estado_civil: '', // F
+    id_escolaridade: '', // F
     cnh: '', // F
-    cnhValidade: '', // F
+    cnh_validade: '', // F
     status: true,
-    cnhCategoria: '', // F
-    idCidadeNatural: '', // F
+    cnh_categoria: '', // F
+    id_cidade_natural: '', // F
+    dtinclusao: '',
+    dtalteracao: '',
   };
 
   const fieldValidationSchema = Yup.object().shape({
     nome: Yup.string()
       .min(3, 'Nome muito curto')
       .required('Campo obrigatório!'),
-    cpfCpj: Yup.string().required('Campo obrigatório!'),
+    cpf_cnpj: Yup.string().required('Campo obrigatório!'),
   });
 
   const formik = useFormik({
     initialValues,
     validationSchema: fieldValidationSchema,
     onSubmit: (values) => {
-      console.log(values);
+      if (values.dtinclusao === '' || values.dtinclusao === null) {
+        values.dtinclusao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
+      }
+      else{
+        values.dtalteracao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
+      }1
+      !idPessoa
+        ? adicionarPessoa(values)
+        : atualizarPessoa(values, parseInt(idPessoa));
+      console.log(idPessoa);
     },
   });
 
@@ -219,28 +237,30 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
         formik.setValues({
           nome: row.pessoa.nome,
           tipo: row.pessoa.tipo,
-          idPronomeTratamento: row.pessoa.id_pronome_tratamento,
+          id_pronome_tratamento: row.pessoa.id_pronome_tratamento,
           id_atividade: row.pessoa.id_atividade,
-          apelidoFantasia: row.pessoa.apelido_fantasia,
+          apelido_fantasia: row.pessoa.apelido_fantasia,
           email: row.pessoa.email,
           website: row.pessoa.website,
-          cpfCpj: row.pessoa.cpf_cnpj,
-          rgIe: row.pessoa.rg_ie,
-          rgOrgaoemisssor: row.pessoa.rg_orgaoemissor,
-          rgUf: row.pessoa.rg_uf,
-          rgVia: row.pessoa.rg_via,
-          rgDtExpedicao: row.pessoa.rg_dt_expedicao,
-          dataNascimento: row.pessoa.datanascimento,
+          cpf_cnpj: row.pessoa.cpf_cnpj,
+          rg_ie: row.pessoa.rg_ie,
+          rg_orgaoemissor: row.pessoa.rg_orgaoemissor,
+          rg_uf: row.pessoa.rg_uf,
+          rg_via: row.pessoa.rg_via,
+          rg_dt_expedicao: row.pessoa.rg_dt_expedicao,
+          datanascimento: format(new Date(row.pessoa.datanascimento), 'dd/MM/yyyy'),
           observacoes: row.pessoa.observacoes,
           sexo: row.pessoa.sexo,
           nacionalidade: row.pessoa.nacionalidade,
-          estadoCivil: row.pessoa.estadoCivil,
-          idEscolaridade: row.pessoa.id_escolaridade,
+          estado_civil: row.pessoa.estado_civil,
+          id_escolaridade: row.pessoa.id_escolaridade,
           cnh: row.pessoa.cnh,
-          cnhValidade: row.pessoa.cnh_validade,
+          cnh_validade: row.pessoa.cnh_validade,
           status: row.pessoa.status,
-          cnhCategoria: row.pessoa.cnh_categoria,
-          idCidadeNatural: row.pessoa.id_cidade_natural,
+          cnh_categoria: row.pessoa.cnh_categoria,
+          id_cidade_natural: row.pessoa.id_cidade_natural,
+          dtalteracao: row.pessoa.dtalteracao, 
+          dtinclusao: row.pessoa.dtinclusao,
         });
       });
       setLoading(false);
@@ -322,21 +342,23 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
             <Grid item xs={12} sm={6}>
               <LightTextField
                 fullWidth
-                name="apelidoFantasia"
+                name="apelido_fantasia"
                 label="Apelido"
                 onChange={formik.handleChange}
-                value={formik.values.apelidoFantasia}
+                value={formik.values.apelido_fantasia}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <LightTextField
                 fullWidth
-                name="cpfCpj"
+                name="cpf_cnpj"
                 label="CPF ou CNPJ"
-                value={formik.values.cpfCpj}
+                value={formik.values.cpf_cnpj}
                 onChange={formik.handleChange}
-                helperText={formik.touched.cpfCpj && formik.errors.cpfCpj}
-                error={Boolean(formik.touched.cpfCpj && formik.errors.cpfCpj)}
+                helperText={formik.touched.cpf_cnpj && formik.errors.cpf_cnpj}
+                error={Boolean(
+                  formik.touched.cpf_cnpj && formik.errors.cpf_cnpj,
+                )}
                 InputProps={
                   formik.values.tipo === 'F'
                     ? {
@@ -352,10 +374,10 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
             <Grid item xs={12} sm={6}>
               <LightTextField
                 fullWidth
-                name="dataNascimento"
+                name="datanascimento"
                 label="Data de Nascimento"
                 onChange={formik.handleChange}
-                value={formik.values.dataNascimento}
+                value={formik.values.datanascimento}
                 InputProps={{
                   inputComponent: maskDtNascimento as any,
                 }}
