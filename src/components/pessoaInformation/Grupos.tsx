@@ -41,8 +41,8 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
   const [openModalGrupo, setOpenModalGrupo] = useState(false);
 
   const [itemDados, setItemDados] = useState<grupo>();
-
   let user = localStorage.getItem('user');
+
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
 
@@ -67,35 +67,10 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
         });
     }, 1);
   };
+
   useEffect(() => {
     loadTable();
-  }, [heroku]);
-
-  const [availability, setAvailability] = useState<view_Table[]>([]);
-
-  useEffect(() => {
-    GruposPessoa.forEach((element) => {
-      if (element.dt_final === null) {
-        setAvailability((prevAvailability) => [
-          ...prevAvailability,
-          {
-            disponivel: false,
-            id_grupo: element.id_grupo,
-            id_pessoa: parseInt(element.id_pessoa),
-          },
-        ]);
-      } else {
-        setAvailability((prevAvailability) => [
-          ...prevAvailability,
-          {
-            disponivel: true,
-            id_grupo: element.id_grupo,
-            id_pessoa: parseInt(element.id_pessoa),
-          },
-        ]);
-      }
-    });
-  }, [GruposPessoa]);
+  }, []);
 
   //Adiciona novos dados, no vetor de grupo
   useEffect(() => {
@@ -205,7 +180,6 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
               setDadosAtributos={setNewGrupo}
               itemDados={itemDados}
               setItemDados={setItemDados}
-              disponiveis={availability}
             />
           </FlexBox>
         </Grid>

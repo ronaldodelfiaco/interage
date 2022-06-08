@@ -63,7 +63,6 @@ interface ModalFilhoProps {
   // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
   itemDados: any;
   editar: boolean;
-  disponiveis: any;
 }
 // Adicionar YUP
 const modalTelefone: FC<ModalFilhoProps> = ({
@@ -73,7 +72,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   setItemDados,
   itemDados,
   editar,
-  disponiveis,
 }) => {
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
@@ -123,52 +121,37 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         dt_inicial: '',
       };
 
-  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=grupos`;
-  const [grupoPertence, setGrupoPertence] = React.useState<Grupos[]>([]);
-
-  // const herokuAvailability = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=view_availability_grupo&filter=id_pessoa=${idPessoa}`;
-  const [availability, setAvailability] = React.useState<view_Table[]>([]);
+  // const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=grupos`;
+  const heroku = `${herokuConfig}executaSQL?id_usuario=${_user?.id}&token=${_user?.token}`;
+  const herokuBody = `sql=select DISTINCT g.id, g.nome 
+                      from grupos g
+                      where
+                      g.status and
+                      g.id not in (
+                        select pg.id_grupo 
+                        from pessoas_grupos pg
+                        where pg.dt_final is null 
+                        and pg.id_pessoa = ${idPessoa}
+                      )`;
+  const [grupoAtual, setGrupoAtual] = React.useState<Grupos[]>([]);
 
   React.useEffect(() => {
+    console.log(heroku);
     axios
-      .get(heroku)
-      .then(({ data }: any) => {
-        console.log(heroku);
-        setGrupoPertence(data.body.rows);
+      .post(heroku, herokuBody)
+      .then((response) => {
+        console.log(response.data.body.table);
+        setGrupoAtual(response.data.body.table);
       })
       .catch((error) => {
         console.log(2, error);
-        setGrupoPertence([]);
+        setGrupoAtual([]);
       });
-    setAvailability(disponiveis);
-  }, [heroku]);
-
-  // React.useEffect(() => {
-  //   axios
-  //     .get(herokuAvailability)
-  //     .then(({ data }: any) => {
-  //       console.log(herokuAvailability);
-  //       setAvailability(data.body.rows);
-  //     })
-  //     .catch((error) => {
-  //       console.log(2, error);
-  //       setAvailability([]);
-  //     });
-  // }, [herokuAvailability]);
-
-  /*
-    Novo View feito somente para ver se o grupo pode ser usando ou não.
-    Tabela:
-    select pg.id_pessoa, id_grupo,(SELECT 
-      CASE WHEN dt_final IS NULL 
-              THEN false
-              ELSE true 
-      END AS disponivel) from pessoas_grupos pg;
-  */
+  }, []);
 
   const fieldValidationSchema = Yup.object().shape({
-    dt_inicial: Yup.string().required('Campo obrigatório!'),
     id_grupo: Yup.string().required('Campo obrigatório!'),
+    dt_inicial: Yup.string().required('Campo obrigatório!'),
   });
 
   return (
@@ -232,36 +215,16 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                     onChange={formikMeta.handleChange}
                     name="id_grupo"
                     label="grupo"
-                    helperText={
-                      formikMeta.touched.id_grupo && formikMeta.errors.id_grupo
-                    }
                     error={Boolean(
                       formikMeta.touched.id_grupo && formikMeta.errors.id_grupo,
                     )}
+                    helperText={'Campo obrigatório!'}
                   >
-                    {grupoPertence.map((option) =>
-                      availability.map((element) =>
-                        element.id_pessoa === idPessoa ? (
-                          !editar ? (
-                            element?.id_grupo === option.id ? (
-                              element?.disponivel ? (
-                                <MenuItem value={option.id} key={option.id}>
-                                  {option.nome}
-                                </MenuItem>
-                              ) : null
-                            ) : (
-                              <MenuItem value={option.id} key={option.id}>
-                                {option.nome}
-                              </MenuItem>
-                            )
-                          ) : (
-                            <MenuItem value={option.id} key={option.id}>
-                              {option.nome}
-                            </MenuItem>
-                          )
-                        ) : null,
-                      ),
-                    )}
+                    {grupoAtual.map((option) => (
+                      <MenuItem value={option.id} key={option.id}>
+                        {option.nome}
+                      </MenuItem>
+                    ))}
                   </LightTextField>
                 </FormControl>
               </FlexBox>

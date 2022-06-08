@@ -1,13 +1,13 @@
 import { MoreHoriz } from '@mui/icons-material';
 import { Box, IconButton, Typography } from '@mui/material';
 import axios from 'axios';
+import { format } from 'date-fns';
+import { formatWithOptions } from 'date-fns/fp';
+import { ptBR } from 'date-fns/locale';
 import React, { FC, MouseEvent } from 'react';
 import { herokuConfig } from '../../../config';
 import FlexBox from '../../FlexBox';
 import { H6 } from '../../Typography';
-import { format } from 'date-fns';
-import { addYears, formatWithOptions } from 'date-fns/fp'
-import { ptBR } from 'date-fns/locale'
 
 const dateToString = formatWithOptions({ locale: ptBR }, 'dd/MM/yyyy');
 
@@ -28,7 +28,7 @@ type Grupos = {
 };
 
 const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
-  let user = localStorage.getItem('user');
+   let user = localStorage.getItem('user');;
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
   
