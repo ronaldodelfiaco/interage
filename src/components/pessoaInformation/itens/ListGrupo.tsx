@@ -28,7 +28,7 @@ type Grupos = {
 };
 
 const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
-   let user = localStorage.getItem('user');;
+  let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
   
