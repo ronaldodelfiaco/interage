@@ -3,7 +3,7 @@ import Router from 'next/router';
 import { createContext, ReactNode, useEffect, useState } from 'react';
 import sha1 from 'sha1';
 import { herokuConfig } from '../config';
-import axios from '../utils/axios';
+import axios from 'axios';
 
 const agora = new Date();
 
