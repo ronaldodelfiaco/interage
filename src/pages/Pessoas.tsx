@@ -10,7 +10,7 @@ import { H5 } from '../components/Typography';
 import { herokuConfig } from '../config';
 import useTitle from '../hooks/useTitle';
 import PeopleIcon from '../icons/PeopleIcon';
-import axios from '../utils/axios';
+import axios from 'axios';
 
 // styled components
 const Wrapper = styled(Box)(() => ({
