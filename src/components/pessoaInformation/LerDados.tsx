@@ -1,11 +1,11 @@
-import axios from '../../utils/axios';
 import { herokuConfig } from '../../config';
-
-let user = localStorage.getItem('user');
-user = user === null ? '...' : user;
-const _user = JSON.parse(user);
+import axios from 'axios';
 
 const LerPessoa = (idPessoa: string) => {
+  let user = localStorage.getItem('user');
+  user = user === null ? '...' : user;
+  const _user = JSON.parse(user);
+
   return new Promise(async function (resolve, reject) {
     const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas&filter=id=${idPessoa}`;
 
@@ -22,6 +22,9 @@ const LerPessoa = (idPessoa: string) => {
 };
 
 export const adicionarPessoa = (info: any) => {
+  let user = localStorage.getItem('user');
+  user = user === null ? '...' : user;
+  const _user = JSON.parse(user);
   return new Promise(async function (resolve, reject) {
     const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas`;
     axios
@@ -36,6 +39,9 @@ export const adicionarPessoa = (info: any) => {
 };
 
 export const atualizarPessoa = (info: any, id: number) => {
+  let user = localStorage.getItem('user');
+  user = user === null ? '...' : user;
+  const _user = JSON.parse(user);
   return new Promise(async function (resolve, reject) {
     const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas`;
     axios
@@ -50,6 +56,9 @@ export const atualizarPessoa = (info: any, id: number) => {
 };
 
 export const apagarPessoa = (id: number) => {
+  let user = localStorage.getItem('user');
+  user = user === null ? '...' : user;
+  const _user = JSON.parse(user);
   return new Promise(async function (resolve, reject) {
     const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas`;
     axios
