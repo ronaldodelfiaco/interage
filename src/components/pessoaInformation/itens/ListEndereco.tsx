@@ -21,7 +21,7 @@ interface ListCardProps {
     id_cidade: number;
     cep: string;
     logradouro: string;
-    uf: string;
+    uf?: string;
     bairro: string;
     complemento: string;
     recebe_correspondencia: boolean;
@@ -37,7 +37,7 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
 
   const [cidade, setCidade] = React.useState<cidade[]>([]);
 
-  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=cidades&filter=uf_cidade=\'${item.uf}\'`;
+  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=cidades`;
 
   React.useEffect(() => {
     axios
@@ -56,11 +56,10 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
     <FlexBox justifyContent="space-between" alignItems="center">
       <FlexBox alignItems="center">
         <Box ml="1rem">
-          <H6>
-            {cidade.map((object) =>
-              item.id_cidade === object.id ? object.nome : null,
-            )}
-          </H6>
+          {cidade.map((object) =>
+            object.id === item.id_cidade ? <H6>{object.nome}</H6> : null,
+          )}
+
           <Tiny>
             {'Bairro: ' + item.bairro + ' Cep: ' + item.cep}
             {item.complemento ? ' Complemento: ' + item.complemento : null}
