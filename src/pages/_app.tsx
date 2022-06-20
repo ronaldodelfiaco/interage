@@ -1,4 +1,4 @@
-import { LocalizationProvider } from '@mui/lab';
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import { Card, CssBaseline, ThemeProvider } from '@mui/material';
 import { StyledEngineProvider } from '@mui/material/styles';
