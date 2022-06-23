@@ -43,11 +43,10 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
     axios
       .get(heroku)
       .then(({ data }: any) => {
-        console.log(heroku);
         setCidade(data.body.rows);
       })
       .catch((error) => {
-        console.log(2, error);
+        console.error(2, error);
         setCidade([]);
       });
   }, [heroku]);

@@ -15,7 +15,7 @@ const LerPessoa = (idPessoa: string) => {
         resolve({ pessoa: data.body.rows[0] });
       })
       .catch((error) => {
-        console.log(2, error);
+        console.error(2, error);
         reject(error);
       });
   });

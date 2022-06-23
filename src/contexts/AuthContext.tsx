@@ -1,9 +1,8 @@
+import axios from 'axios';
 import cookie from 'js-cookie';
-import Router from 'next/router';
 import { createContext, ReactNode, useEffect, useState } from 'react';
 import sha1 from 'sha1';
 import { herokuConfig } from '../config';
-import axios from 'axios';
 
 const agora = new Date();
 
@@ -38,7 +37,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setSession(true);
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setSession(false);
     }
   };

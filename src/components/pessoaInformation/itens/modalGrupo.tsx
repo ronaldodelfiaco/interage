@@ -136,7 +136,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   const [grupoAtual, setGrupoAtual] = React.useState<Grupos[]>([]);
 
   React.useEffect(() => {
-    console.log(heroku, editar);
     axios
       .post(
         heroku,
@@ -150,7 +149,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         setGrupoAtual(response.data.body.table);
       })
       .catch((error) => {
-        console.log(2, error);
+        console.error(2, error);
         setGrupoAtual([]);
       });
   }, [editar]);

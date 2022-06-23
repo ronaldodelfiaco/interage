@@ -51,12 +51,11 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
       axios
         .get(herokuFiltro)
         .then(({ data }: any) => {
-          console.log(heroku);
           // setPessoa(data.body.rows[0]);
           setEnderecoPessoa(data.body.rows);
         })
         .catch((error) => {
-          console.log(2, error);
+          console.error(2, error);
           setEnderecoPessoa([]);
         });
     }, 10);
@@ -114,7 +113,6 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
     });
     setEditar(true);
     setOpenModalEndereco(true);
-    console.log(EnderecoPessoa[itemDados]);
     handleMoreClose();
   }
 

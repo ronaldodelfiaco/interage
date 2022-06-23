@@ -57,12 +57,11 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
       axios
         .get(herokuFiltro)
         .then(({ data }: any) => {
-          console.log(heroku);
           // setPessoa(data.body.rows[0]);
           setTelefonesPessoa(data.body.rows);
         })
         .catch((error) => {
-          console.log(2, error);
+          console.error(2, error);
           setTelefonesPessoa([]);
         });
     }, 1);

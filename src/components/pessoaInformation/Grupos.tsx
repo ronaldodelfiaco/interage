@@ -63,7 +63,6 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
       axios
         .get(herokuFiltro)
         .then(({ data }: any) => {
-          console.log(herokuFiltro);
           // setPessoa(data.body.rows[0]);
           setGruposPessoa(data.body.rows);
         })
@@ -90,8 +89,6 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
         //     dt_inicial: newGrupo.dt_inicial,
         //   },
         // ]);
-        console.log(1, heroku);
-        console.log(2, newGrupo);
         axios
           .post(heroku, newGrupo)
           .then((response) => {
@@ -135,7 +132,6 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
   };
 
   const apagarNumero = (id: number) => {
-    // console.log(GruposPessoa);
     // Achar o indice do vetor
     GruposPessoa.forEach((Element) => {
       if (Element.id === id) {

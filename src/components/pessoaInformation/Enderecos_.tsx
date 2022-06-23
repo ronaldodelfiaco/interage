@@ -53,17 +53,15 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
 
   const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
   const loadTable = () => {
-    console.log("Povoar - Endereço");
     setTimeout(() => {
       axios
         .get(herokuFiltro)
         .then(({ data }: any) => {
-          console.log(heroku);
           // setPessoa(data.body.rows[0]);
           setEnderecoPessoa(data.body.rows);
         })
         .catch((error) => {
-          console.log(2, error);
+          console.error(2, error);
           setEnderecoPessoa([]);
         });
     }, 1);
@@ -75,7 +73,6 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
 
   //Adiciona novos dados, no vetor de Endereco
   useEffect(() => {
-    console.log('adiciona endereco');
     if (newEnderecoPessoa !== undefined) {
       if (!editar) {
         axios
@@ -112,7 +109,6 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
         setItem(id);
       }
     });
-    console.log('editarEndereco: ', EnderecoPessoa[itemDados]);
     setEditar(true);
     setOpenModalEndereco(true);
     handleMoreClose();

@@ -1,6 +1,7 @@
 import { ControlPoint } from '@mui/icons-material';
 import { TabContext, TabList } from '@mui/lab';
 import { Box, Button, Card, Grid, styled, Tab } from '@mui/material';
+import axios from 'axios';
 import { useRouter } from 'next/router';
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +11,6 @@ import { H5 } from '../components/Typography';
 import { herokuConfig } from '../config';
 import useTitle from '../hooks/useTitle';
 import PeopleIcon from '../icons/PeopleIcon';
-import axios from 'axios';
 
 // styled components
 const Wrapper = styled(Box)(() => ({
@@ -73,7 +73,7 @@ const Pessoas: FC = () => {
         setTableData(data.body.rows);
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
       });
   }, [heroku]);
 

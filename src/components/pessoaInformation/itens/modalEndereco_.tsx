@@ -207,11 +207,10 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     axios
       .get(herokuUF)
       .then(({ data }: any) => {
-        console.log(herokuUF);
         setEstado(data.body.rows);
       })
       .catch((error) => {
-        console.log(2, error);
+        console.error(2, error);
         setEstado([]);
       });
   }, [herokuUF]);
@@ -220,16 +219,13 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     axios
       .get(herokuCidade)
       .then(({ data }: any) => {
-        console.log(herokuCidade);
         setCidade(data.body.rows);
       })
       .catch((error) => {
-        console.log(2, error);
+        console.error(2, error);
         setCidade([]);
       });
   }, [herokuCidade]);
-
-  console.log('Modal', Formik.values);
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>

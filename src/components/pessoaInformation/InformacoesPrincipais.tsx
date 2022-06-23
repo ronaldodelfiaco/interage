@@ -143,7 +143,7 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
   //       setPessoa(result.pessoa);
   //     })
   //     .catch((error): any => {
-  //       console.log('Error ', error);
+  //       console.error('Error ', error);
   //       setPessoa([]);
   //     });
   // }, []);
@@ -198,7 +198,6 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
       !idPessoa
         ? adicionarPessoa(values)
         : atualizarPessoa(values, parseInt(idPessoa));
-      console.log(idPessoa);
     },
   });
 
