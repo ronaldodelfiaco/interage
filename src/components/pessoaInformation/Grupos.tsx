@@ -52,6 +52,12 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
 
   const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
 
+  useEffect(() =>{
+    if(!openModalGrupo && editar){
+      setEditar(false);
+    }
+  }, [openModalGrupo])
+
   const loadTable = () => {
     setTimeout(() => {
       axios
@@ -179,7 +185,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
               setOpen={setOpenModalGrupo}
               setDadosAtributos={setNewGrupo}
               itemDados={itemDados}
-              setItemDados={setItemDados}
+              // setItemDados={setItemDados}
             />
           </FlexBox>
         </Grid>

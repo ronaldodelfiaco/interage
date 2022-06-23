@@ -58,7 +58,7 @@ interface ModalFilhoProps {
   open: boolean;
   setOpen: Dispatch<React.SetStateAction<boolean>>;
   setDadosAtributos: Dispatch<React.SetStateAction<any>>;
-  setItemDados: Dispatch<React.SetStateAction<any>>;
+  // setItemDados: Dispatch<React.SetStateAction<any>>;
   // openDados: Array<any>;
   // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
   itemDados: any;
@@ -66,12 +66,12 @@ interface ModalFilhoProps {
 }
 // Adicionar YUP
 const modalTelefone: FC<ModalFilhoProps> = ({
+  editar,
   open,
   setOpen,
   setDadosAtributos,
-  setItemDados,
+  // setItemDados,
   itemDados,
-  editar,
 }) => {
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
@@ -136,9 +136,15 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   const [grupoAtual, setGrupoAtual] = React.useState<Grupos[]>([]);
 
   React.useEffect(() => {
-    console.log(heroku);
+    console.log(heroku, editar);
     axios
-      .post(heroku, herokuBody)
+      .post(
+        heroku,
+        editar
+          ? `sql=select DISTINCT g.id, g.nome 
+        from grupos g`
+          : herokuBody,
+      )
       .then((response) => {
         console.log(response.data.body.table);
         setGrupoAtual(response.data.body.table);
@@ -147,7 +153,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         console.log(2, error);
         setGrupoAtual([]);
       });
-  }, []);
+  }, [editar]);
 
   const fieldValidationSchema = Yup.object().shape({
     id_grupo: Yup.string().required('Campo obrigatório!'),
@@ -281,13 +287,13 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                   fullWidth
                   onClick={() => {
                     setOpen(false);
-                    setItemDados({
-                      id: -1,
-                      id_pessoa: '',
-                      id_grupo_pertence: 0,
-                      dt_inicial: '',
-                      dt_final: '',
-                    });
+                    // setItemDados({
+                    //   id: -1,
+                    //   id_pessoa: '',
+                    //   id_grupo_pertence: 0,
+                    //   dt_inicial: '',
+                    //   dt_final: '',
+                    // });
                   }}
                 >
                   Cancelar
