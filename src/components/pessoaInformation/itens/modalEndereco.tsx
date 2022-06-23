@@ -21,20 +21,20 @@ import { herokuConfig } from '../../../config';
 import FlexBox from '../../FlexBox';
 import LightTextField from '../../LightTextField';
 
-interface CustomProps {
-  onChange: (event: { target: { name: string; value: string } }) => void;
-  name: string;
-}
-
 interface ModalFilhoProps {
   open: boolean;
   setOpen: Dispatch<React.SetStateAction<boolean>>;
   setDadosAtributos: Dispatch<React.SetStateAction<any>>;
-  setItemDados: Dispatch<React.SetStateAction<any>>;
-  // openDados: Array<any>;
-  // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
   itemDados: any;
   editar: boolean;
+  // setItemDados: Dispatch<React.SetStateAction<any>>;
+  // openDados: Array<any>;
+  // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
+}
+
+interface CustomProps {
+  onChange: (event: { target: { name: string; value: string } }) => void;
+  name: string;
 }
 
 const maskCEP = React.forwardRef<HTMLElement, CustomProps>(function maskCPFCNPJ(
@@ -58,6 +58,20 @@ const maskCEP = React.forwardRef<HTMLElement, CustomProps>(function maskCPFCNPJ(
     />
   );
 });
+
+type Endereco = {
+  id: number;
+  id_pessoa: number;
+  id_cidade: number;
+  cep: string;
+  logradouro: string;
+  bairro: string;
+  complemento?: string;
+  recebe_correspondencia: boolean;
+  status: boolean;
+  dtalteracao: string;
+  dtinclusao: string;
+};
 
 type uf = {
   uf: string;
@@ -83,55 +97,51 @@ type CEPInfo = {
 };
 
 const modalTelefone: FC<ModalFilhoProps> = ({
+  editar,
   open,
+  itemDados,
   setOpen,
   setDadosAtributos,
-  setItemDados,
-  itemDados,
-  editar,
+  // setItemDados,
 }) => {
+  console.log(
+    'Editar:',
+    editar,
+    'Abrir Modal:',
+    open,
+    'O que veio:',
+    itemDados,
+  );
+
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
-
   const { id } = Router.query;
-  console.log('Router: ', id);
-
+  const [idPessoa, setPessoa] = React.useState<number>(
+    typeof id === 'string' ? parseInt(id) : 0,
+  );
   // controla cidade e estado
   const [cidade, setCidade] = React.useState<cidade[]>([]);
   const [cidadeID, setCidadeID] = React.useState(0);
   const [estado, setEstado] = React.useState<uf[]>([]);
   const [CEP, setCepInfo] = React.useState<CEPInfo>();
+  const herokuUF = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=uf`;
+  const herokuCidade = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=cidades`;
 
-  const initialValues = !editar
-    ? {
-        id: '',
-        id_pessoa: id,
-        id_cidade: '',
-        cep: '',
-        logradouro: '',
-        bairro: '',
-        complemento: '',
-        status: '',
-        recebe_correspondencia: '',
-        dtalteracao: '',
-        dtinclusao: '',
-        uf: '',
-      }
-    : {
-        id: itemDados.id,
-        id_pessoa: id,
-        id_cidade: itemDados.id_cidade,
-        cep: itemDados.cep,
-        logradouro: itemDados.logradouro,
-        bairro: itemDados.bairro,
-        complemento: itemDados.complemento,
-        status: itemDados.status,
-        recebe_correspondencia: itemDados.recebe_correspondencia,
-        dtalteracao: itemDados.dtalteracao,
-        dtinclusao: itemDados.dtinclusao,
-        uf: itemDados.uf,
-      };
+  const initialValues = {
+    id: 0,
+    id_pessoa: idPessoa,
+    id_cidade: 0,
+    cep: '',
+    logradouro: '',
+    bairro: '',
+    complemento: '',
+    recebe_correspondencia: false,
+    status: false,
+    dtalteracao: '',
+    dtinclusao: '',
+    uf: '',
+  };
 
   const fieldValidationSchema = Yup.object().shape({
     cep: Yup.string()
@@ -173,10 +183,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   });
 
   // Busca cidades e estado disponivel do banco de dados
-
-  const herokuUF = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=uf`;
-  const herokuCidade = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=cidades`;
-
   React.useEffect(() => {
     axios
       .get(herokuUF)
@@ -239,6 +245,42 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     Formik.values.id_cidade = cidadeID;
   }, [cidadeID]);
 
+  React.useEffect(() => {
+    Formik.setValues(
+      editar
+        ? {
+            id: itemDados.id,
+            id_pessoa: idPessoa,
+            id_cidade: itemDados.id_cidade,
+            cep: itemDados.cep,
+            logradouro: itemDados.logradouro,
+            bairro: itemDados.bairro,
+            complemento: itemDados.complemento,
+            status: itemDados.status,
+            recebe_correspondencia: itemDados.recebe_correspondencia,
+            dtalteracao: itemDados.dtalteracao,
+            dtinclusao: itemDados.dtinclusao,
+            uf: '',
+          }
+        : {
+            id: 0,
+            id_pessoa: idPessoa,
+            id_cidade: 0,
+            cep: '',
+            logradouro: '',
+            bairro: '',
+            complemento: '',
+            recebe_correspondencia: false,
+            status: false,
+            dtalteracao: '',
+            dtinclusao: '',
+            uf: '',
+          },
+    );
+  }, [editar]);
+
+  console.log('Formulario:', Formik.values);
+
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
       <form onSubmit={Formik.handleSubmit}>
@@ -259,7 +301,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             alignItems="center"
             justifyContent="space-between"
           >
-            {/* https://viacep.com.br/ */}
             <LightTextField
               label="cep"
               value={Formik.values.cep}
@@ -333,7 +374,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               fullWidth
               onChange={Formik.handleChange}
               name={'logradouro'}
-              helperText={Formik.touched.logradouro && Formik.errors.logradouro}
+              // helperText={Formik.touched.logradouro && Formik.errors.logradouro}
               error={Boolean(
                 Formik.touched.logradouro && Formik.errors.logradouro,
               )}
@@ -351,7 +392,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               fullWidth
               onChange={Formik.handleChange}
               name={'bairro'}
-              helperText={Formik.touched.bairro && Formik.errors.bairro}
+              // helperText={Formik.touched.bairro && Formik.errors.bairro}
               error={Boolean(Formik.touched.bairro && Formik.errors.bairro)}
             />
           </FlexBox>
@@ -396,20 +437,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               fullWidth
               onClick={() => {
                 setOpen(false);
-                setItemDados({
-                  id: -1,
-                  id_pessoa: '',
-                  id_cidade: 0,
-                  cep: '',
-                  uf: '',
-                  logradouro: '',
-                  bairro: '',
-                  complemento: '',
-                  recebe_correspondencia: false,
-                  status: false,
-                  dtalteracao: '',
-                  dtinclusao: '',
-                });
               }}
             >
               Cancelar

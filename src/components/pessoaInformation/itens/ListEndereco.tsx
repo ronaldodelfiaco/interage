@@ -23,7 +23,7 @@ interface ListCardProps {
     logradouro: string;
     uf?: string;
     bairro: string;
-    complemento: string;
+    complemento?: string;
     recebe_correspondencia: boolean;
     status: boolean;
   };
