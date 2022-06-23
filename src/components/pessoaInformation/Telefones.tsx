@@ -72,6 +72,12 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
     loadTable();
   }, [heroku]);
 
+  useEffect(() =>{
+    if(!openModalTelefone && editar){
+      setEditar(false);
+    }
+  }, [openModalTelefone])
+
   //Adiciona novos dados, no vetor de telefone
   useEffect(() => {
     if (newTelefonePessoa !== undefined) {
