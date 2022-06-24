@@ -119,20 +119,34 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   const herokuUF = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=uf`;
   const herokuCidade = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=cidades`;
 
-  const initialValues = {
-    id: 0,
-    id_pessoa: idPessoa,
-    id_cidade: 0,
-    cep: '',
-    logradouro: '',
-    bairro: '',
-    complemento: '',
-    recebe_correspondencia: false,
-    status: false,
-    dtalteracao: '',
-    dtinclusao: '',
-    uf: '',
-  };
+  const initialValues = editar
+    ? {
+        id: itemDados.id,
+        id_pessoa: idPessoa,
+        id_cidade: itemDados.id_cidade,
+        cep: itemDados.cep,
+        logradouro: itemDados.logradouro,
+        bairro: itemDados.bairro,
+        complemento: itemDados.complemento,
+        status: itemDados.status,
+        recebe_correspondencia: itemDados.recebe_correspondencia,
+        dtalteracao: itemDados.dtalteracao,
+        dtinclusao: itemDados.dtinclusao,
+        uf: '',
+      }
+    : {
+        id_pessoa: idPessoa,
+        id_cidade: 0,
+        cep: '',
+        logradouro: '',
+        bairro: '',
+        complemento: '',
+        recebe_correspondencia: false,
+        status: false,
+        dtalteracao: '',
+        dtinclusao: '',
+        uf: '',
+      };
 
   const fieldValidationSchema = Yup.object().shape({
     cep: Yup.string()
@@ -252,7 +266,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             uf: '',
           }
         : {
-            id: 0,
             id_pessoa: idPessoa,
             id_cidade: 0,
             cep: '',
@@ -267,7 +280,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
           },
     );
   }, [editar]);
-
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>

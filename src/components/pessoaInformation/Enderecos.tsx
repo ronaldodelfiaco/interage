@@ -29,7 +29,7 @@ type Endereco = {
 
 const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
   const [EnderecoPessoa, setEnderecoPessoa] = useState<Endereco[]>([]);
-  const [newEnderecoPessoa, setNewEnderecoPessoa] = useState<Endereco>();
+  const [newEndereco, setNewEndereco] = useState<Endereco>();
   const [moreEl, setMoreEl] = useState<null | HTMLElement>(null);
   const [openModalEndereco, setOpenModalEndereco] = useState(false);
   const [itemDados, setItem] = useState<number>(0);
@@ -58,7 +58,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
           console.error(2, error);
           setEnderecoPessoa([]);
         });
-    }, 10);
+    }, 15);
   }
 
   // Primeira chamada da tabela
@@ -68,19 +68,21 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
 
   // Adicionar Novos dados na tabela
   useEffect(() => {
-    if (newEnderecoPessoa !== undefined) {
+    if (newEndereco !== undefined) {
       if (!editar) {
+        console.log("Enviou");
         axios
-          .post(heroku, newEnderecoPessoa)
-          .then((response) => {
-            console.log(response);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+        .post(heroku, newEndereco)
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.log(heroku, error, "erro");
+          console.error(error);
+        });
       } else {
         axios
-          .put(heroku + '&id=' + newEnderecoPessoa.id, newEnderecoPessoa)
+          .put(heroku + '&id=' + newEndereco.id, newEndereco)
           .then((response) => {
             console.log(response);
           })
@@ -88,7 +90,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
             console.error(error);
           });
         EnderecoPessoa.forEach((Element) => {
-          if (Element.id === newEnderecoPessoa.id) {
+          if (Element.id === newEndereco.id) {
             setEditar(false);
             setItem(0);
           }
@@ -96,7 +98,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
       }
     }
     loadTable();
-  }, [newEnderecoPessoa]);
+  }, [newEndereco]);
 
   useEffect(() =>{
     if(!openModalEndereco && editar){
@@ -156,7 +158,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
             <ModalEndereco
               open={openModalEndereco}
               setOpen={setOpenModalEndereco}
-              setDadosAtributos={setNewEnderecoPessoa}
+              setDadosAtributos={setNewEndereco}
               itemDados={EnderecoPessoa[itemDados]}
               editar={editar}
             />
