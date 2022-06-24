@@ -70,7 +70,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
           console.log(2, error);
           setGruposPessoa([]);
         });
-    }, 1);
+    }, 15);
   };
 
   useEffect(() => {
@@ -81,14 +81,6 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
   useEffect(() => {
     if (newGrupo !== undefined) {
       if (!editar) {
-        // setGruposPessoa((prevGrupo) => [
-        //   ...prevGrupo,
-        //   {
-        //     id_grupo: newGrupo.id_grupo,
-        //     dt_final: newGrupo.dt_final,
-        //     dt_inicial: newGrupo.dt_inicial,
-        //   },
-        // ]);
         axios
           .post(heroku, newGrupo)
           .then((response) => {
@@ -108,8 +100,6 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
           });
         GruposPessoa.forEach((Element) => {
           if (Element.id === newGrupo.id) {
-            // const index = GruposPessoa.indexOf(Element);
-            // GruposPessoa.splice(index, 1, newGrupo);
             setEditar(false);
             setItemDados(undefined);
           }
