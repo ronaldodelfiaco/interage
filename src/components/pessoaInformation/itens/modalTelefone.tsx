@@ -23,9 +23,9 @@ interface ModalFilhoProps {
   open: boolean;
   setOpen: Dispatch<React.SetStateAction<boolean>>;
   setDadosAtributos: Dispatch<React.SetStateAction<any>>;
-  setItemDados: Dispatch<React.SetStateAction<any>>;
   // openDados: Array<any>;
   // setDadosProps: Dispatch<React.SetStateAction<Array<any> >>;
+  editar: boolean;
   itemDados: any;
 }
 
@@ -33,25 +33,38 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   open,
   setOpen,
   setDadosAtributos,
-  setItemDados,
+  editar,
   itemDados,
 }) => {
   const { id } = Router.query;
   const idPessoa = typeof id === 'string' ? parseInt(id) : null;
 
-  const initialValues = {
-    id: 0 || itemDados?.id,
-    id_pessoa: idPessoa,
-    ddd: '' || itemDados?.ddd,
-    telefone: '' || itemDados?.telefone,
-    ramal: '' || itemDados?.ramal,
-    principal: false || itemDados?.principal,
-    id_tipo_telefone: '' || itemDados?.id_tipo_telefone,
-    contato: '' || itemDados?.contato,
-    ddi: '+55' || itemDados?.ddi,
-    dtalteracao: '' || itemDados?.dtalteracao,
-    dtinclusao: '' || itemDados?.dtinclusao,
-  };
+  const initialValues = editar
+    ? {
+        id: itemDados?.id,
+        id_pessoa: idPessoa,
+        ddd: itemDados?.ddd,
+        telefone: itemDados?.telefone,
+        ramal: itemDados?.ramal,
+        principal: itemDados?.principal,
+        id_tipo_telefone: itemDados?.id_tipo_telefone,
+        contato: itemDados?.contato,
+        ddi: itemDados?.ddi,
+        dtalteracao: itemDados?.dtalteracao,
+        dtinclusao: itemDados?.dtinclusao,
+      }
+    : {
+        id_pessoa: idPessoa,
+        ddd: '',
+        telefone: '',
+        ramal: '',
+        principal: false,
+        id_tipo_telefone: '',
+        contato: '',
+        ddi: '+55',
+        dtalteracao: '',
+        dtinclusao: '',
+      };
 
   const tipoTelefone = [
     {
@@ -214,9 +227,11 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                 justifyContent="space-between"
               >
                 <FormControl fullWidth>
-                  <InputLabel defaultValue={0} id="tipoTelefone">tipo de telefone</InputLabel>
+                  <InputLabel defaultValue={0} id="tipoTelefone">
+                    tipo de telefone
+                  </InputLabel>
                   <Select
-                  value={formikMeta.values.id_tipo_telefone}
+                    value={formikMeta.values.id_tipo_telefone}
                     fullWidth
                     id="id_tipo_telefone"
                     onChange={formikMeta.handleChange}
@@ -251,19 +266,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                   fullWidth
                   onClick={() => {
                     setOpen(false);
-                    setItemDados({
-                      id: -1,
-                      id_pessoa: '',
-                      ddd: '',
-                      telefone: '',
-                      ramal: '',
-                      principal: false,
-                      id_tipo_telefone: 0,
-                      contato: '',
-                      ddi: '',
-                      dtalteracao: '',
-                      dtinclusao: '',
-                    });
                   }}
                 >
                   Cancelar

@@ -37,7 +37,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   const handleMoreClose = () => setMoreEl(null);
   const [TelefonesPessoa, setTelefonesPessoa] = useState<telefone[]>([]);
 
-  const [newTelefonePessoa, setNewTelefonePessoa] = useState<telefone>();
+  const [newTelefone, setNewTelefone] = useState<telefone>();
   const [openModalTelefone, setOpenModalTelefone] = useState(false);
 
   const [itemDados, setItemDados] = useState<telefone>();
@@ -79,35 +79,21 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
 
   //Adiciona novos dados, no vetor de telefone
   useEffect(() => {
-    if (newTelefonePessoa !== undefined) {
+    if (newTelefone !== undefined) {
       if (!editar) {
-        // setTelefonesPessoa((prevTelefone) => [
-        //   ...prevTelefone,
-        //   {
-        //     id: -1,
-        //     id_pessoa: idPessoa,
-        //     ddd: newTelefonePessoa.ddd,
-        //     telefone: newTelefonePessoa.telefone,
-        //     ramal: newTelefonePessoa.ramal,
-        //     principal: newTelefonePessoa.principal,
-        //     id_tipo_telefone: newTelefonePessoa.id_tipo_telefone,
-        //     contato: newTelefonePessoa.contato,
-        //     ddi: newTelefonePessoa.ddi,
-        //     dtalteracao: newTelefonePessoa.dtalteracao,
-        //     dtinclusao: newTelefonePessoa.dtinclusao,
-        //   },
-        // ]);
+        console.log(heroku, newTelefone);
         axios
-          .post(heroku, newTelefonePessoa)
-          .then((response) => {
-            console.log(response);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+        .post(heroku, newTelefone)
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.log("falha");
+          console.error(error);
+        });
       } else {
         axios
-          .put(heroku + '&id=' + newTelefonePessoa.id, newTelefonePessoa)
+          .put(heroku + '&id=' + newTelefone.id, newTelefone)
           .then((response) => {
             console.log(response);
           })
@@ -115,10 +101,10 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
             console.error(error);
           });
         TelefonesPessoa.forEach((Element) => {
-          if (Element.id === newTelefonePessoa.id) {
+          if (Element.id === newTelefone.id) {
             // const index = TelefonesPessoa.indexOf(Element);
-            // TelefonesPessoa.splice(index, 1, newTelefonePessoa);
-            // TelefonesPessoa.splice(newTelefonePessoa.id, 1, newTelefonePessoa);
+            // TelefonesPessoa.splice(index, 1, newTelefone);
+            // TelefonesPessoa.splice(newTelefone.id, 1, newTelefone);
             setEditar(false);
             setItemDados({
               id: -1,
@@ -138,7 +124,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
       }
     }
     loadTable();
-  }, [newTelefonePessoa]);
+  }, [newTelefone]);
 
   const editarNumero = (id: number) => {
     TelefonesPessoa.forEach((Element) => {
@@ -198,9 +184,9 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
             <ModalTelefone
               open={openModalTelefone}
               setOpen={setOpenModalTelefone}
-              setDadosAtributos={setNewTelefonePessoa}
+              setDadosAtributos={setNewTelefone}
               itemDados={itemDados}
-              setItemDados={setItemDados}
+              editar={editar}
             />
           </FlexBox>
         </Grid>
