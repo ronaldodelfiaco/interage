@@ -7,12 +7,12 @@ import {
   MenuItem,
   Stack,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/router';
 import * as React from 'react';
@@ -23,11 +23,7 @@ import * as Yup from 'yup';
 import useTitle from '../../hooks/useTitle';
 import FlexBox from '../FlexBox';
 import LightTextField from '../LightTextField';
-import LerPessoa, {
-  adicionarPessoa,
-  atualizarPessoa,
-  apagarPessoa,
-} from './LerDados';
+import LerPessoa, { adicionarPessoa, atualizarPessoa } from './LerDados';
 
 interface CustomProps {
   onChange: (event: { target: { name: string; value: string } }) => void;
@@ -190,10 +186,13 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
     validationSchema: fieldValidationSchema,
     onSubmit: (values) => {
       if (values.dtinclusao === '' || values.dtinclusao === null) {
-        values.dtinclusao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
-      }
-      else{
-        values.dtalteracao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
+        values.dtinclusao = format(new Date(), 'dd-MM-yyyy HH:MI:ss');
+      } else {
+        values.dtinclusao = format(
+          new Date(parseISO(values.dtinclusao)),
+          'dd-MM-yyyy HH:MI:ss',
+        );
+        values.dtalteracao = format(new Date(), 'dd-MM-yyyy');
       }
       !idPessoa
         ? adicionarPessoa(values)
@@ -247,7 +246,10 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
           rg_uf: row.pessoa.rg_uf,
           rg_via: row.pessoa.rg_via,
           rg_dt_expedicao: row.pessoa.rg_dt_expedicao,
-          datanascimento: format(new Date(row.pessoa.datanascimento), 'dd/MM/yyyy'),
+          datanascimento: format(
+            new Date(row.pessoa.datanascimento),
+            'dd/MM/yyyy HH:mi:ss',
+          ),
           observacoes: row.pessoa.observacoes,
           sexo: row.pessoa.sexo,
           nacionalidade: row.pessoa.nacionalidade,
@@ -258,7 +260,7 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
           status: row.pessoa.status,
           cnh_categoria: row.pessoa.cnh_categoria,
           id_cidade_natural: row.pessoa.id_cidade_natural,
-          dtalteracao: row.pessoa.dtalteracao, 
+          dtalteracao: row.pessoa.dtalteracao,
           dtinclusao: row.pessoa.dtinclusao,
         });
       });
@@ -390,6 +392,111 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
                 label="Email"
                 onChange={formik.handleChange}
                 value={formik.values.email}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="website"
+                label="Website"
+                onChange={formik.handleChange}
+                value={formik.values.website}
+              />
+            </Grid>
+          </Grid>
+          <Grid container spacing={4}>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="rg_ie"
+                label="Rg ie"
+                onChange={formik.handleChange}
+                value={formik.values.rg_ie}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="rg_orgaoemissor"
+                label="rg orgaoemissor"
+                onChange={formik.handleChange}
+                value={formik.values.rg_orgaoemissor}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="rg_uf"
+                label="rg uf"
+                onChange={formik.handleChange}
+                value={formik.values.rg_uf}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="rg_via"
+                label="rg via"
+                onChange={formik.handleChange}
+                value={formik.values.rg_via}
+              />
+            </Grid>
+          </Grid>
+          <Grid container spacing={4}>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="rg_dt_expedicao"
+                label="rg data de expedição"
+                onChange={formik.handleChange}
+                value={formik.values.rg_dt_expedicao}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="nacionalidade"
+                label="Nacionalidade"
+                onChange={formik.handleChange}
+                value={formik.values.nacionalidade}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="cnh"
+                label="Cnh"
+                onChange={formik.handleChange}
+                value={formik.values.cnh}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="cnh_validade"
+                label="Cnh validade"
+                onChange={formik.handleChange}
+                value={formik.values.cnh_validade}
+              />
+            </Grid>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <LightTextField
+              fullWidth
+              name="datanascimento"
+              label="Debug"
+              onChange={formik.handleChange}
+              value={formik.values.datanascimento}
+            />
+          </Grid>
+          <Grid container spacing={4}>
+            <Grid item xs={12} sm={6}>
+              <LightTextField
+                fullWidth
+                name="cnh_categoria"
+                label="cnh categoria"
+                onChange={formik.handleChange}
+                value={formik.values.cnh_categoria}
               />
             </Grid>
           </Grid>
