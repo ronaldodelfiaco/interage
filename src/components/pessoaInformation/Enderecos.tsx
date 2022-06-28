@@ -70,16 +70,16 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
   useEffect(() => {
     if (newEndereco !== undefined) {
       if (!editar) {
-        console.log("Enviou");
+        console.log('Enviou');
         axios
-        .post(heroku, newEndereco)
-        .then((response) => {
-          console.log(response);
-        })
-        .catch((error) => {
-          console.log(heroku, error, "erro");
-          console.error(error);
-        });
+          .post(heroku, newEndereco)
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.log(heroku, error, 'erro');
+            console.error(error);
+          });
       } else {
         axios
           .put(heroku + '&id=' + newEndereco.id, newEndereco)
@@ -100,11 +100,11 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
     loadTable();
   }, [newEndereco]);
 
-  useEffect(() =>{
-    if(!openModalEndereco && editar){
+  useEffect(() => {
+    if (!openModalEndereco && editar) {
       setEditar(false);
     }
-  }, [openModalEndereco])
+  }, [openModalEndereco]);
 
   function editarEndereco(id: number) {
     EnderecoPessoa.forEach((Element) => {
