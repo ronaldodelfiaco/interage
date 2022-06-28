@@ -331,6 +331,8 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                 error={Boolean(Formik.touched.uf && Formik.errors.uf)}
               >
                 {estado.map((item) => (
+                  item.uf === Formik.values.uf?
+                  <MenuItem value={item.uf} defaultChecked>{item.nome}</MenuItem>:
                   <MenuItem value={item.uf}>{item.nome}</MenuItem>
                 ))}
               </LightTextField>
