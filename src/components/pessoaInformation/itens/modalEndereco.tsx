@@ -281,7 +281,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             uf: '',
           },
     );
-  }, [editar]);
+  }, [open, editar]);
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
