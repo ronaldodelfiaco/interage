@@ -283,8 +283,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     );
   }, [editar]);
 
-  console.log(Formik.values.uf);
-
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
       <form onSubmit={Formik.handleSubmit}>
