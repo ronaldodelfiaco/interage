@@ -58,7 +58,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
           console.error(2, error);
           setEnderecoPessoa([]);
         });
-    }, 15);
+    }, 20);
   }
 
   // Primeira chamada da tabela

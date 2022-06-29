@@ -243,7 +243,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   React.useEffect(() => {
     if (CEP) {
       Formik.values.uf = CEP.uf;
-      console.log(Formik.values.uf);
     }
     Formik.values.id_cidade = cidadeID;
   }, [cidadeID]);
@@ -263,7 +262,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             recebe_correspondencia: itemDados.recebe_correspondencia,
             dtalteracao: itemDados.dtalteracao,
             dtinclusao: itemDados.dtinclusao,
-            uf: '',
+            uf: CEP.uf || "",
           }
         : {
             id_pessoa: idPessoa,
@@ -280,6 +279,9 @@ const modalTelefone: FC<ModalFilhoProps> = ({
           },
     );
   }, [editar]);
+
+
+  console.log(Formik.values.uf);
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
