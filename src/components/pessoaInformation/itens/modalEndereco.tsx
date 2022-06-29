@@ -262,7 +262,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             recebe_correspondencia: itemDados.recebe_correspondencia,
             dtalteracao: itemDados.dtalteracao,
             dtinclusao: itemDados.dtinclusao,
-            uf: CEP.uf || "",
+            uf: CEP?.uf || "",
           }
         : {
             id_pessoa: idPessoa,
