@@ -231,12 +231,15 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     if (CEP) {
       cidade.map((item) => {
         if (CEP.localidade === item.nome && CEP.uf === item.uf_cidade) {
+          console.log("Achou a cidade");
           setCidadeID(item.id);
         }
       });
       Formik.values.logradouro = CEP.logradouro;
       Formik.values.complemento = CEP.complemento;
       Formik.values.bairro = CEP.bairro;
+      Formik.values.uf = CEP.uf;
+      Formik.values.id_cidade = cidadeID;
     }
   }, [CEP]);
 
@@ -262,7 +265,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             recebe_correspondencia: itemDados.recebe_correspondencia,
             dtalteracao: itemDados.dtalteracao,
             dtinclusao: itemDados.dtinclusao,
-            uf: CEP?.uf || "",
+            uf: CEP?.uf || '',
           }
         : {
             id_pessoa: idPessoa,
@@ -279,7 +282,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
           },
     );
   }, [editar]);
-
 
   console.log(Formik.values.uf);
 
@@ -332,11 +334,15 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                 helperText={Formik.touched.uf && Formik.errors.uf}
                 error={Boolean(Formik.touched.uf && Formik.errors.uf)}
               >
-                {estado.map((item) => (
-                  item.uf === Formik.values.uf?
-                  <MenuItem value={item.uf} defaultChecked>{item.nome}</MenuItem>:
-                  <MenuItem value={item.uf}>{item.nome}</MenuItem>
-                ))}
+                {estado.map((item) =>
+                  item.uf === Formik.values.uf ? (
+                    <MenuItem value={item.uf} defaultChecked>
+                      {item.nome}
+                    </MenuItem>
+                  ) : (
+                    <MenuItem value={item.uf}>{item.nome}</MenuItem>
+                  ),
+                )}
               </LightTextField>
             </FormControl>
           </FlexBox>
