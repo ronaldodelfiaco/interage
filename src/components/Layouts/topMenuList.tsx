@@ -33,11 +33,20 @@ const index = [
     Icon: Icons.DashboardIcon,
     path: "/Eventos",
   },
- 
   {
     title: "Kanban",
     Icon: Icons.KanbanIcon,
     path: "/TodoList",
+  },
+  {
+    title: "Anamnese",
+    Icon: Icons.ProjectIcon,
+    path: "/anamnese",
+  },
+  {
+    title: "Reavaliação",
+    Icon: Icons.SessionsIcon,
+    path: "/reavaliacao",
   },
 ];
 
