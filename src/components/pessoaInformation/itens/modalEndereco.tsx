@@ -113,7 +113,6 @@ const modalTelefone: FC<ModalFilhoProps> = ({
   );
   // controla cidade e estado
   const [cidade, setCidade] = React.useState<cidade[]>([]);
-  const [cidadeID, setCidadeID] = React.useState(0);
   const [estado, setEstado] = React.useState<uf[]>([]);
   const [CEP, setCepInfo] = React.useState<CEPInfo>();
   const herokuUF = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=uf`;
@@ -220,6 +219,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         .get(`https://viacep.com.br/ws/${Formik.values.cep}/json`)
         .then((response: any) => {
           setCepInfo(response.data);
+          console.log(CEP);
         })
         .catch(function (error) {
           console.warn(error);
@@ -231,24 +231,47 @@ const modalTelefone: FC<ModalFilhoProps> = ({
     if (CEP) {
       cidade.map((item) => {
         if (CEP.localidade === item.nome && CEP.uf === item.uf_cidade) {
-          console.log("Achou a cidade");
-          setCidadeID(item.id);
+          console.log('Achou a cidade');
+          console.log(1, item.id);
+          Formik.setValues(
+            editar
+              ? {
+                  id: itemDados.id,
+                  id_pessoa: idPessoa,
+                  id_cidade: item.id,
+                  cep: CEP.cep,
+                  logradouro: CEP.logradouro,
+                  bairro: CEP.bairro,
+                  complemento: CEP.complemento,
+                  status: itemDados.status,
+                  recebe_correspondencia: itemDados.recebe_correspondencia,
+                  dtalteracao: itemDados.dtalteracao,
+                  dtinclusao: itemDados.dtinclusao,
+                  uf: CEP.uf,
+                }
+              : {
+                  id_pessoa: idPessoa,
+                  id_cidade: item.id,
+                  cep: CEP.cep,
+                  logradouro: CEP.logradouro,
+                  bairro: CEP.bairro,
+                  complemento: CEP.complemento,
+                  recebe_correspondencia: Formik.values.recebe_correspondencia,
+                  status: Formik.values.status,
+                  dtalteracao: Formik.values.dtalteracao,
+                  dtinclusao: Formik.values.dtinclusao,
+                  uf: CEP.uf,
+                },
+          );
+          Formik.values.id_cidade = item.id;
         }
       });
+      Formik.values.uf = CEP.uf;
       Formik.values.logradouro = CEP.logradouro;
       Formik.values.complemento = CEP.complemento;
       Formik.values.bairro = CEP.bairro;
-      Formik.values.uf = CEP.uf;
-      Formik.values.id_cidade = cidadeID;
     }
   }, [CEP]);
-
-  React.useEffect(() => {
-    if (CEP) {
-      Formik.values.uf = CEP.uf;
-    }
-    Formik.values.id_cidade = cidadeID;
-  }, [cidadeID]);
 
   React.useEffect(() => {
     Formik.setValues(
