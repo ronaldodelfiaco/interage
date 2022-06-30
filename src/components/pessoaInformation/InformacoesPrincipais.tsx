@@ -7,7 +7,7 @@ import {
   MenuItem,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
@@ -317,7 +317,15 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
                 label="Pronome"
                 value={idPronome}
                 onChange={pronomeChange}
-                sx={{ width: 100 }}
+                sx={{
+                  width: 120,
+                  height: 40,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  padding: '0px 15px',
+                  borderRadius: '8px',
+                  borderColor: '#61A9FF',
+                }}
               >
                 {pronomes.map((option) => (
                   <MenuItem key={option.id} value={option.id}>

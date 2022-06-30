@@ -227,23 +227,21 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                 justifyContent="space-between"
               >
                 <FormControl fullWidth>
-                  <InputLabel defaultValue={0} id="tipoTelefone">
-                    tipo de telefone
-                  </InputLabel>
-                  <Select
+                  <LightTextField
+                    select
+                    label="tipo de telefone"
                     value={formikMeta.values.id_tipo_telefone}
                     fullWidth
                     id="id_tipo_telefone"
                     onChange={formikMeta.handleChange}
                     name="id_tipo_telefone"
-                    label="tipo de telefone"
                   >
                     {tipoTelefone.map((option) => (
                       <MenuItem value={option.id} key={option.id}>
                         {option.nome}
                       </MenuItem>
                     ))}
-                  </Select>
+                  </LightTextField>
                 </FormControl>
               </FlexBox>
               <FormControl>

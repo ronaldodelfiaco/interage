@@ -1,9 +1,9 @@
-import { styled, TextField, TextFieldProps } from "@mui/material";
-import React from "react";
+import { styled, TextField, TextFieldProps } from '@mui/material';
+import React from 'react';
 
 const StyledTextField = styled(TextField)<TextFieldProps>(({ theme }) => ({
-  "& .MuiOutlinedInput-root:hover": {
-    "& .MuiOutlinedInput-notchedOutline": {
+  '& .MuiOutlinedInput-root:hover': {
+    '& .MuiOutlinedInput-notchedOutline': {
       borderColor: theme.palette.primary.main,
     },
   },
@@ -14,6 +14,9 @@ const StyledTextField = styled(TextField)<TextFieldProps>(({ theme }) => ({
     padding: "0px 15px",
     color: theme.palette.text.primary,
   },
+  "& .MuiSelect-select": {
+    padding: "3% 15px",
+  },
   "& .MuiOutlinedInput-notchedOutline": {
     borderRadius: "8px",
     border: "2px solid",
@@ -22,7 +25,7 @@ const StyledTextField = styled(TextField)<TextFieldProps>(({ theme }) => ({
         ? theme.palette.secondary[300]
         : theme.palette.divider,
   },
-  "& .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline": {
+  '& .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline': {
     borderColor: theme.palette.secondary[300],
   },
 }));
