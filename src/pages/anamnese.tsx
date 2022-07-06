@@ -8,15 +8,18 @@ import {
   FormGroup,
   FormLabel,
   Grid,
+  Hidden,
   Radio,
   RadioGroup,
   Typography,
 } from '@mui/material';
+import axios from 'axios';
 import { format } from 'date-fns';
 import { FastField, Form, Formik } from 'formik';
 import router from 'next/router';
 import * as React from 'react';
 import { FC, MouseEvent, useEffect, useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import * as Yup from 'yup';
 // import { IMaskInput } from 'react-imask';
 import AddIconButton from '../components/AddIconButton';
@@ -28,6 +31,7 @@ import MaskCPFCNPJ from '../components/masks/maskCPFCNPJ';
 import MaskDt from '../components/masks/maskDt';
 import MoreOptions from '../components/MoreOptions';
 import { Tiny } from '../components/Typography';
+import { herokuConfig } from '../config';
 import useTitle from '../hooks/useTitle';
 
 type filho = {
@@ -44,10 +48,19 @@ type irmao = {
   idade: number;
 };
 
-const anamnese: FC = () => {
+interface AnamneseProps {
+  idPessoa: string;
+}
+
+const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
   var title = 'Anamnese';
   useTitle(title);
 
+  let user = localStorage.getItem('user');
+  user = user === null ? '...' : user;
+  const _user = JSON.parse(user);
+
+  const [infoPessoa, setInfoPessoa] = useState();
   const [itemDados, setItem] = useState<number>(0);
 
   const [openModalFilho, setOpenModalFilho] = useState(false);
@@ -64,6 +77,8 @@ const anamnese: FC = () => {
 
   const [editarFilho, setEditarFilho] = useState(false);
   const [editarIrmao, setEditarIrmao] = useState(false);
+
+  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}`;
 
   useEffect(() => {
     if (!openModalFilho && editarFilho) {
@@ -294,37 +309,87 @@ const anamnese: FC = () => {
     handleSkillMoreClose();
   };
 
+  const testeIgual = (cpf: string) => {
+    const cpfTratada = cpf
+      .replaceAll('.', '')
+      .replaceAll('-', '')
+      .replaceAll('/', '');
+    axios
+      .get(heroku + `&table=view_pessoas`, {
+        params: {
+          filter: `cpf_cnpj='${cpfTratada}'`,
+        },
+      })
+      .then(({ data }: any) => {
+        setInfoPessoa(data.body.rows[0]);
+        console.log(infoPessoa);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   return (
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
       <Formik
         initialValues={initialValues}
         validationSchema={fieldValidationSchema}
         onSubmit={(values, actions) => {
-          setTimeout(() => {
-            const dia: number = +values.dataNascimento.split('/')[0];
-            const mes: number = +values.dataNascimento.split('/')[1];
-            const ano: number = +values.dataNascimento.split('/')[2];
-            let data = new Date();
-            data.setDate(dia);
-            data.setMonth(mes);
-            data.setFullYear(ano);
-            data.setHours(0);
-            data.setMinutes(0);
-            data.setSeconds(0);
-            const adicional = {
-              cpf: values.cpf.replaceAll('.', '').replaceAll('-', ''),
-              dtInsercao: format(new Date(), 'dd-MM-yyyy HH:mm:ss'),
-              dataNascimento: format(data, 'dd-MM-yyyy HH:mm:ss'),
-            };
-            const reavaliacao = Object.assign(values, adicional);
-            const JSONdata = JSON.stringify(reavaliacao);
-            console.log(reavaliacao);
-            console.log(JSONdata);
-            actions.setSubmitting(false);
-          }, 1000);
+          if (idPessoa) {
+            setTimeout(() => {
+              const dia: number = +values.dataNascimento.split('/')[0];
+              const mes: number = +values.dataNascimento.split('/')[1];
+              const ano: number = +values.dataNascimento.split('/')[2];
+              let data = new Date();
+              data.setDate(dia);
+              data.setMonth(mes);
+              data.setFullYear(ano);
+              data.setHours(0);
+              data.setMinutes(0);
+              data.setSeconds(0);
+              const adicional = {
+                cpf: values.cpf
+                  .replaceAll('.', '')
+                  .replaceAll('-', '')
+                  .replaceAll('/', ''),
+                dtInsercao: format(new Date(), 'dd-MM-yyyy HH:mm:ss'),
+                dataNascimento: format(data, 'dd-MM-yyyy HH:mm:ss'),
+              };
+              const reavaliacao = Object.assign(values, adicional);
+              const JSONdata = JSON.stringify(reavaliacao);
+              console.log(1, reavaliacao);
+              console.log(2, JSONdata);
+              actions.setSubmitting(false);
+
+              // Enviar para o banco de dados
+
+              axios
+                .post(heroku + `&table=ficha_anamnese`, {
+                  id_pessoa: idPessoa,
+                  status: true,
+                  anamnese: JSONdata,
+                })
+                .then((Response) => {
+                  console.log(Response);
+                  toast.success('Enviado com Sucesso');
+                })
+                .catch((error) => {
+                  console.log('Heroku', heroku + '&id=' + idPessoa);
+                  console.log(error);
+                  toast.error('Não foi possivel Enviar');
+                });
+            }, 1000);
+          } else {
+            toast.error('Não foi possivel encontrar a pessoa');
+          }
         }}
       >
-        {(formikMeta) => (
+        {(formikMeta) => {
+          formikMeta.values.nome = infoPessoa?.nome;
+          formikMeta.values.dataNascimento = infoPessoa? format(new Date('1959-06-20T03:00:00.000Z'), 'dd/MM/yyyy'): '';
+          formikMeta.values.naturalidade = infoPessoa?.natural;
+          formikMeta.values.estadoCivil = infoPessoa?.estado_civil;
+          return (
           <Form>
             <Box
               display="flex"
@@ -332,7 +397,7 @@ const anamnese: FC = () => {
               flexWrap="wrap"
               alignItems="center"
               justifyContent="space-between"
-            >
+              >
               <Typography variant="h5">Identificação</Typography>
             </Box>
             <Card sx={{ padding: 3, pb: 4 }}>
@@ -351,8 +416,16 @@ const anamnese: FC = () => {
                       label="cpf ou cnpj"
                       value={formikMeta.values.cpf}
                       onChange={formikMeta.handleChange}
-                      // helperText={touched.cpf && errors.cpf}
-                      // error={Boolean(touched.cpf && errors.cpf)}
+                      onBlur={
+                        (testeIgual(formikMeta.values.cpf),
+                        formikMeta.handleBlur)
+                      }
+                      helperText={
+                        formikMeta.touched.cpf && formikMeta.errors.cpf
+                      }
+                      error={Boolean(
+                        formikMeta.touched.cpf && formikMeta.errors.cpf,
+                      )}
                       InputProps={{
                         inputComponent: MaskCPFCNPJ as any,
                       }}
@@ -2332,21 +2405,24 @@ const anamnese: FC = () => {
               </FastField>
               {formikMeta.values.tomaRemedio === 'Y' ? (
                 <FastField name="sobreRemedio">
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="sobreRemedio"
-                      label="Qual, desde quando, quantidade, frequência?"
-                      value={formikMeta.values.sobreRemedio}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="sobreRemedio"
+                        // label="Qual, desde quando, quantidade, frequência?"
+                        label="Qual, desde quando, quantidade, frequência?"
+                        value={formikMeta.values.sobreRemedio}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
                 </FastField>
               ) : null}
               <FastField name="sintomasAnteriores">
@@ -2668,10 +2744,10 @@ const anamnese: FC = () => {
               </Button>
             </Box>
           </Form>
-        )}
+        )}}
       </Formik>
     </Card>
   );
 };
 
-export default anamnese;
+export default Anamnese;

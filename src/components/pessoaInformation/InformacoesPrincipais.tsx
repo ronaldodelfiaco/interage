@@ -24,75 +24,9 @@ import useTitle from '../../hooks/useTitle';
 import FlexBox from '../FlexBox';
 import LightTextField from '../LightTextField';
 import LerPessoa, { adicionarPessoa, atualizarPessoa } from './LerDados';
-
-interface CustomProps {
-  onChange: (event: { target: { name: string; value: string } }) => void;
-  name: string;
-}
-
-const maskCPF = React.forwardRef<HTMLElement, CustomProps>(function maskCPFCNPJ(
-  props,
-  ref,
-) {
-  const { onChange, ...other } = props;
-
-  return (
-    <IMaskInput
-      {...other}
-      mask="000.000.000-00"
-      definitions={{
-        '#': /[1-9]/,
-      }}
-      //InputRef = {ref}
-      onAccept={(value: any) =>
-        onChange({ target: { name: props.name, value } })
-      }
-      overwrite
-    />
-  );
-});
-
-const maskCNPJ = React.forwardRef<HTMLElement, CustomProps>(
-  function maskCPFCNPJ(props, ref) {
-    const { onChange, ...other } = props;
-
-    return (
-      <IMaskInput
-        {...other}
-        mask="00.000.000/0000-00"
-        definitions={{
-          '#': /[1-9]/,
-        }}
-        //InputRef = {ref}
-        onAccept={(value: any) =>
-          onChange({ target: { name: props.name, value } })
-        }
-        overwrite
-      />
-    );
-  },
-);
-
-const maskDtNascimento = React.forwardRef<HTMLElement, CustomProps>(
-  function maskDtNascimento(props, ref) {
-    const { onChange, ...other } = props;
-
-    return (
-      <IMaskInput
-        {...other}
-        mask="[00]{/}[00]{/}[0000]"
-        definitions={{
-          '#': /[0-9]/,
-        }}
-        //InputRef = {ref}
-        onAccept={(value: any) =>
-          onChange({ target: { name: props.name, value } })
-        }
-        overwrite
-      />
-    );
-  },
-);
+import MaskCPFCNPJ from '../components/masks/maskCPFCNPJ';
+import MaskDt from '../components/masks/maskDt';
+import { maskCNPJ, maskCPF } from '../masks/maskCPFCNPJ';
 
 interface InformacoesPrincipaisProps {
   idPessoa: string;
@@ -388,7 +322,7 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
                 onChange={formik.handleChange}
                 value={formik.values.datanascimento}
                 InputProps={{
-                  inputComponent: maskDtNascimento as any,
+                  inputComponent: MaskDtNascimento as any,
                 }}
               />
             </Grid>

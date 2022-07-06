@@ -18,7 +18,8 @@ import ProfileIcon from '../../icons/ProfileIcon';
 import SettingIcon from '../../icons/SettingIcon';
 import convertToSlug from '../../utils/convertSlug';
 import PeopleIcon from '../../icons/PeopleIcon';
-
+import Anamnese from '../anamnese';
+import Reavaliacao from '../reavaliacao';
 
 // styled component
 const StyledButton = styled(Button)(() => ({
@@ -132,6 +133,12 @@ const Post = () => {
           {active === convertToSlug(tabList[7].name) && (
             <Anexos idPessoa={id} />
           )}
+          {active === convertToSlug(tabList[8].name) && (
+            <Anamnese idPessoa={id} />
+          )}
+          {active === convertToSlug(tabList[9].name) && (
+            <Reavaliacao idPessoa={id} />
+          )}
         </Grid>
       </Grid>
     </Box>
@@ -177,6 +184,16 @@ const tabList = [
   {
     id: 8,
     name: 'Anexos',
+    Icon: DiamondIcon,
+  },
+  {
+    id: 9,
+    name: 'Ficha de Anamenese',
+    Icon: DiamondIcon,
+  },
+  {
+    id: 10,
+    name: 'Ficha de Reavaliação',
     Icon: DiamondIcon,
   },
 ];

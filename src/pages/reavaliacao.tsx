@@ -9,79 +9,95 @@ import {
   Radio,
   RadioGroup,
   Typography,
-} from "@mui/material";
-import { format } from "date-fns";
-import { FastField, Formik, Form } from "formik";
-import router from "next/router";
-import * as React from "react";
-import { FC } from "react";
-import LightTextField from "../components/LightTextField";
-import MaskCPFCNPJ from "../components/masks/maskCPFCNPJ";
-import MaskDt from "../components/masks/maskDt";
-import useTitle from "../hooks/useTitle";
-import * as Yup from "yup";
+} from '@mui/material';
+import { format } from 'date-fns';
+import { FastField, Formik, Form } from 'formik';
+import router from 'next/router';
+import * as React from 'react';
+import { FC } from 'react';
+import LightTextField from '../components/LightTextField';
+import MaskCPFCNPJ from '../components/masks/maskCPFCNPJ';
+import MaskDt from '../components/masks/maskDt';
+import useTitle from '../hooks/useTitle';
+import * as Yup from 'yup';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { herokuConfig } from '../config';
 
-const reavaliacao: FC<{}> = () => {
-  useTitle("Reavaliacao");
+interface ReavaliacaoProps {
+  idPessoa: string;
+}
+
+const Reavaliacao: FC<ReavaliacaoProps> = ({ idPessoa }) => {
+  useTitle('Reavaliacao');
+
+  let user = localStorage.getItem('user');
+  user = user === null ? '...' : user;
+  const _user = JSON.parse(user);
+
+  const [infoPessoa, setInfoPessoa] = React.useState();
+
   const initialValues = {
-    cpf: "",
-    nome: "",
-    dataInternacao: "",
-    responsavelInternacao: "",
-    tratamentoMedico: "",
-    especialidade: "",
-    porQue: "",
-    medicamentos: "",
-    medicamentosTipo: "",
-    temTontura: "",
-    tentativaSuicidio: "",
-    qualidadeSono: "",
-    comendo: "",
-    ingestaoAgua: "",
-    deficiencia: "",
-    qualDeficiencia: "",
-    agressividade: "",
-    agressividadeQuem: "",
-    alcoolismo: "",
-    alcoolismoQuem: "",
-    drogas: "",
-    drogasQuem: "",
-    suicidio: "",
-    suicidioQuem: "",
-    drogasUsos: "",
-    idadeInicioUso: "",
-    circunstancias: "",
-    quantidade: "",
-    quantidadeAntesInternar: "",
-    respostaPrejuisoDrogas: "",
-    quaisPrejuisos: "",
-    drogasPreferencia: "",
-    substanciasAssociadaUso: "",
-    efeitoEsperado: "",
-    efeitoInesperado: "",
-    sintomasAbstinecia: "",
-    internacaoAtual: "",
-    internacaoAnterior: "",
-    numeroInternacoes: "",
-    lembrancaMarcante: "",
-    arrependimento: "",
-    cometeuCrime: "",
-    motivoCrime: "",
-    motivoDrogas: "",
-    disponibilidadeTratamento: "",
-    nivelAbstinencia: "",
-    esperaInternacao: "",
-    expectativaSocial: "",
-    breveRelato: "",
+    cpf: '',
+    nome: '',
+    dataInternacao: '',
+    responsavelInternacao: '',
+    tratamentoMedico: '',
+    especialidade: '',
+    porQue: '',
+    medicamentos: '',
+    medicamentosTipo: '',
+    temTontura: '',
+    tentativaSuicidio: '',
+    qualidadeSono: '',
+    comendo: '',
+    ingestaoAgua: '',
+    deficiencia: '',
+    qualDeficiencia: '',
+    agressividade: '',
+    agressividadeQuem: '',
+    alcoolismo: '',
+    alcoolismoQuem: '',
+    drogas: '',
+    drogasQuem: '',
+    suicidio: '',
+    suicidioQuem: '',
+    drogasUsos: '',
+    idadeInicioUso: '',
+    circunstancias: '',
+    quantidade: '',
+    quantidadeAntesInternar: '',
+    respostaPrejuisoDrogas: '',
+    quaisPrejuisos: '',
+    drogasPreferencia: '',
+    substanciasAssociadaUso: '',
+    efeitoEsperado: '',
+    efeitoInesperado: '',
+    sintomasAbstinecia: '',
+    internacaoAtual: '',
+    internacaoAnterior: '',
+    numeroInternacoes: '',
+    lembrancaMarcante: '',
+    arrependimento: '',
+    cometeuCrime: '',
+    motivoCrime: '',
+    motivoDrogas: '',
+    disponibilidadeTratamento: '',
+    nivelAbstinencia: '',
+    esperaInternacao: '',
+    expectativaSocial: '',
+    breveRelato: '',
   };
 
   const fieldValidationSchema = Yup.object().shape({
     nome: Yup.string()
-      .min(3, "Nome muito curto")
-      .required("Campo obrigatório!"),
-    cpf: Yup.string().min(14, "CPF muito curto").required("Campo obrigatório!"),
-    dataInternacao: Yup.string().required("Campo obrigatório!"),
+      .min(3, 'Nome muito curto')
+      .required('Campo obrigatório!'),
+    cpf: Yup.string().min(14, 'CPF muito curto').required('Campo obrigatório!'),
+    dataInternacao: Yup.string().required('Campo obrigatório!'),
   });
+
+  const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}`;
 
   // const { values, handleChange, handleSubmit } = useFormik({
   //   initialValues,
@@ -98,7 +114,9 @@ const reavaliacao: FC<{}> = () => {
   //     data.setMinutes(0);
   //     data.setSeconds(0);
   //     const adicional = {
-  //       cpf: values.cpf.replaceAll(".", "").replaceAll("-", ""),
+  //       cpf: values.cpf.replaceAll('.', '')
+  //                      .replaceAll('-', '')
+  //                      .replaceAll('/', ''),
   //       dtInsercao: format(new Date(), "dd-MM-yyyy HH:mm:ss"),
   //       dataInternacao: format(data, "dd-MM-yyyy HH:mm:ss"),
   //     };
@@ -109,18 +127,36 @@ const reavaliacao: FC<{}> = () => {
   //   },
   // });
   // useTitle("Reavaliação" + " " + values.nome);
-
+  const testeIgual = (cpf: string) => {
+    const cpfTratada = cpf
+      .replaceAll('.', '')
+      .replaceAll('-', '')
+      .replaceAll('/', '');
+    axios
+      .get(heroku + `&table=view_pessoas`, {
+        params: {
+          filter: `cpf_cnpj='${cpfTratada}'`,
+        },
+      })
+      .then(({ data }: any) => {
+        setInfoPessoa(data.body.rows[0]);
+        console.log(infoPessoa);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   return (
-    <Card sx={{ padding: "1.5rem", pb: "4rem" }}>
+    <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
       <Formik
         initialValues={initialValues}
         validationSchema={fieldValidationSchema}
         onSubmit={(values, actions) => {
           setTimeout(() => {
-            const dia: number = +values.dataInternacao.split("/")[0];
-            const mes: number = +values.dataInternacao.split("/")[1];
-            const ano: number = +values.dataInternacao.split("/")[2];
-            console.log("%d/%d/%d", dia, mes, ano);
+            const dia: number = +values.dataInternacao.split('/')[0];
+            const mes: number = +values.dataInternacao.split('/')[1];
+            const ano: number = +values.dataInternacao.split('/')[2];
+            console.log('%d/%d/%d', dia, mes, ano);
             let data = new Date();
             data.setDate(dia);
             data.setMonth(mes);
@@ -129,19 +165,42 @@ const reavaliacao: FC<{}> = () => {
             data.setMinutes(0);
             data.setSeconds(0);
             const adicional = {
-              cpf: values.cpf.replaceAll(".", "").replaceAll("-", ""),
-              dtInsercao: format(new Date(), "dd-MM-yyyy HH:mm:ss"),
-              dataInternacao: format(data, "dd-MM-yyyy HH:mm:ss"),
+              cpf: values.cpf
+                .replaceAll('.', '')
+                .replaceAll('-', '')
+                .replaceAll('/', ''),
+              dtInsercao: format(new Date(), 'dd-MM-yyyy HH:mm:ss'),
+              dataInternacao: format(data, 'dd-MM-yyyy HH:mm:ss'),
             };
             const reavaliacao = Object.assign(values, adicional);
             console.log(reavaliacao);
             const JSONdata = JSON.stringify(reavaliacao);
             console.log(JSONdata);
             actions.setSubmitting(false);
+
+            // Enviar para o banco de dados
+
+            axios
+              .post(heroku + `&table=ficha_reavaliacao`, {
+                id_pessoa: idPessoa,
+                status: true,
+                anamnese: JSONdata,
+              })
+              .then((Response) => {
+                console.log(Response);
+                toast.success('Enviado com Sucesso');
+              })
+              .catch((error) => {
+                console.log('Heroku', heroku + '&id=' + idPessoa);
+                console.log(error);
+                toast.error('Não foi possivel Enviar');
+              });
           }, 1000);
         }}
       >
-        {(formikMeta) => (
+        {(formikMeta) => {
+          formikMeta.values.nome = infoPessoa?.nome;
+          return (
           <Form>
             <Box
               display="flex"
@@ -156,7 +215,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="cpf">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -167,6 +226,10 @@ const reavaliacao: FC<{}> = () => {
                       name="cpf"
                       label="cpf ou cnpj"
                       value={formikMeta.values.cpf}
+                      onBlur={
+                        (testeIgual(formikMeta.values.cpf),
+                        formikMeta.handleBlur)
+                      }
                       onChange={formikMeta.handleChange}
                       // helperText={touched.cpf && errors.cpf}
                       // error={Boolean(touched.cpf && errors.cpf)}
@@ -180,7 +243,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="nome">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -201,15 +264,15 @@ const reavaliacao: FC<{}> = () => {
                   {() => (
                     <Grid item xs={12} sm={6}>
                       <LightTextField
-                      fullWidth
-                      name="dataInternacao"
-                      label="Data de Internação"
-                      value={formikMeta.values.dataInternacao}
-                      onChange={formikMeta.handleChange}
-                      InputProps={{
-                        inputComponent: MaskDt as any,
-                      }}
-                    />
+                        fullWidth
+                        name="dataInternacao"
+                        label="Data de Internação"
+                        value={formikMeta.values.dataInternacao}
+                        onChange={formikMeta.handleChange}
+                        InputProps={{
+                          inputComponent: MaskDt as any,
+                        }}
+                      />
                     </Grid>
                   )}
                 </FastField>
@@ -240,7 +303,7 @@ const reavaliacao: FC<{}> = () => {
             <Card sx={{ padding: 3, pb: 4 }}>
               <FastField name="tratamentoMedico">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>
                         Durante os últimos 2 anos recebeu algum tratamento
@@ -266,7 +329,7 @@ const reavaliacao: FC<{}> = () => {
                   </Box>
                 )}
               </FastField>
-              {formikMeta.values.tratamentoMedico === "Y" ? (
+              {formikMeta.values.tratamentoMedico === 'Y' ? (
                 <Grid container spacing={4}>
                   <FastField name="especialidade">
                     {() => (
@@ -298,7 +361,7 @@ const reavaliacao: FC<{}> = () => {
               ) : null}
               <FastField name="medicamentos">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>Você toma algum Medicamento?</FormLabel>
                       <RadioGroup
@@ -321,11 +384,11 @@ const reavaliacao: FC<{}> = () => {
                   </Box>
                 )}
               </FastField>
-              {formikMeta.values.medicamentos === "Y" ? (
+              {formikMeta.values.medicamentos === 'Y' ? (
                 <FastField name="medicamentosTipo">
                   {() => (
                     <Box
-                      display={"flex"}
+                      display={'flex'}
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -344,7 +407,7 @@ const reavaliacao: FC<{}> = () => {
               ) : null}
               <FastField name="temTontura">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>
                         Costuma sentir tonturas ou ter desmaios?
@@ -371,7 +434,7 @@ const reavaliacao: FC<{}> = () => {
               </FastField>
               <FastField name="tentativaSuicidio">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>
                         Pensamentos ou tentativas de suicídio?
@@ -398,7 +461,7 @@ const reavaliacao: FC<{}> = () => {
               </FastField>
               <FastField name="qualidadeSono">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>Qualidade do sono:</FormLabel>
                       <RadioGroup
@@ -428,7 +491,7 @@ const reavaliacao: FC<{}> = () => {
               </FastField>
               <FastField name="comendo">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>Se Alimenta:</FormLabel>
                       <RadioGroup
@@ -459,7 +522,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="ingestaoAgua">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -490,7 +553,7 @@ const reavaliacao: FC<{}> = () => {
             <Card sx={{ padding: 3, pb: 4 }}>
               <FastField name="deficiencia">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>Deficiência Física/ mental:</FormLabel>
                       <RadioGroup
@@ -513,10 +576,10 @@ const reavaliacao: FC<{}> = () => {
                   </Box>
                 )}
               </FastField>
-              {formikMeta.values.deficiencia === "Y" ? (
+              {formikMeta.values.deficiencia === 'Y' ? (
                 <FastField name="qualDeficiencia">
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -534,7 +597,7 @@ const reavaliacao: FC<{}> = () => {
               ) : null}
               <FastField name="agressividade">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>Agressividade?</FormLabel>
                       <RadioGroup
@@ -557,11 +620,11 @@ const reavaliacao: FC<{}> = () => {
                   </Box>
                 )}
               </FastField>
-              {formikMeta.values.agressividade === "Y" ? (
+              {formikMeta.values.agressividade === 'Y' ? (
                 <FastField name="agressividadeQuem">
                   {() => (
                     <Box
-                      display={"flex"}
+                      display={'flex'}
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -580,7 +643,7 @@ const reavaliacao: FC<{}> = () => {
               ) : null}
               <FastField name="alcoolismo">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>Alcoolismo?</FormLabel>
                       <RadioGroup
@@ -603,11 +666,11 @@ const reavaliacao: FC<{}> = () => {
                   </Box>
                 )}
               </FastField>
-              {formikMeta.values.alcoolismo === "Y" ? (
+              {formikMeta.values.alcoolismo === 'Y' ? (
                 <FastField name="alcoolismoQuem">
                   {() => (
                     <Box
-                      display={"flex"}
+                      display={'flex'}
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -626,7 +689,7 @@ const reavaliacao: FC<{}> = () => {
               ) : null}
               <FastField name="drogas">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>Drogas?</FormLabel>
                       <RadioGroup
@@ -649,11 +712,11 @@ const reavaliacao: FC<{}> = () => {
                   </Box>
                 )}
               </FastField>
-              {formikMeta.values.drogas == "Y" ? (
+              {formikMeta.values.drogas == 'Y' ? (
                 <FastField name="drogasQuem">
                   {() => (
                     <Box
-                      display={"flex"}
+                      display={'flex'}
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -672,7 +735,7 @@ const reavaliacao: FC<{}> = () => {
               ) : null}
               <FastField name="suicidio">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>Suicídio?</FormLabel>
                       <RadioGroup
@@ -695,11 +758,11 @@ const reavaliacao: FC<{}> = () => {
                   </Box>
                 )}
               </FastField>
-              {formikMeta.values.suicidio === "Y" ? (
+              {formikMeta.values.suicidio === 'Y' ? (
                 <FastField name="suicidioQuem">
                   {() => (
                     <Box
-                      display={"flex"}
+                      display={'flex'}
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -732,7 +795,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="drogasUsos">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -741,7 +804,7 @@ const reavaliacao: FC<{}> = () => {
                     <LightTextField
                       fullWidth
                       name="drogasUsos"
-                      label={"Quais substâncias psicoativas já fez uso?"}
+                      label={'Quais substâncias psicoativas já fez uso?'}
                       value={formikMeta.values.drogasUsos}
                       onChange={formikMeta.handleChange}
                     />
@@ -751,7 +814,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="idadeInicioUso">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -760,7 +823,7 @@ const reavaliacao: FC<{}> = () => {
                     <LightTextField
                       fullWidth
                       name="idadeInicioUso"
-                      label={"Com que idade iniciou o uso?"}
+                      label={'Com que idade iniciou o uso?'}
                       value={formikMeta.values.idadeInicioUso}
                       onChange={formikMeta.handleChange}
                     />
@@ -770,7 +833,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="circunstancias">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -779,7 +842,7 @@ const reavaliacao: FC<{}> = () => {
                     <LightTextField
                       fullWidth
                       name="circunstancias"
-                      label={"Em que circunstancias?"}
+                      label={'Em que circunstancias?'}
                       value={formikMeta.values.circunstancias}
                       onChange={formikMeta.handleChange}
                     />
@@ -789,7 +852,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="quantidade">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -798,7 +861,7 @@ const reavaliacao: FC<{}> = () => {
                     <LightTextField
                       fullWidth
                       name="quantidade"
-                      label={"Em que quantidade?"}
+                      label={'Em que quantidade?'}
                       value={formikMeta.values.quantidade}
                       onChange={formikMeta.handleChange}
                     />
@@ -808,7 +871,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="quantidadeAntesInternar">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -817,7 +880,7 @@ const reavaliacao: FC<{}> = () => {
                     <LightTextField
                       fullWidth
                       name="quantidadeAntesInternar"
-                      label={"Em quantidade usava antes da internação?"}
+                      label={'Em quantidade usava antes da internação?'}
                       value={formikMeta.values.quantidadeAntesInternar}
                       onChange={formikMeta.handleChange}
                     />
@@ -826,7 +889,7 @@ const reavaliacao: FC<{}> = () => {
               </FastField>
               <FastField name="respostaPrejuisoDrogas">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>
                         Você acredita que o uso de drogas e/ou álcool trouxe
@@ -852,11 +915,11 @@ const reavaliacao: FC<{}> = () => {
                   </Box>
                 )}
               </FastField>
-              {formikMeta.values.respostaPrejuisoDrogas === "Y" ? (
+              {formikMeta.values.respostaPrejuisoDrogas === 'Y' ? (
                 <FastField name="quaisPrejuisos">
                   {() => (
                     <Box
-                      display={"flex"}
+                      display={'flex'}
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -876,7 +939,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="drogasPreferencia">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -895,7 +958,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="substanciasAssociadaUso">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -914,7 +977,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="efeitoEsperado">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -933,7 +996,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="efeitoInesperado">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -952,7 +1015,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="sintomasAbstinecia">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -970,7 +1033,7 @@ const reavaliacao: FC<{}> = () => {
               </FastField>
               <FastField name="internacaoAtual">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>Atual internação:</FormLabel>
                       <RadioGroup
@@ -995,7 +1058,7 @@ const reavaliacao: FC<{}> = () => {
               </FastField>
               <FastField name="internacaoAnterior">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>Internações anteriores:</FormLabel>
                       <RadioGroup
@@ -1018,11 +1081,11 @@ const reavaliacao: FC<{}> = () => {
                   </Box>
                 )}
               </FastField>
-              {formikMeta.values.internacaoAnterior === "Y" ? (
+              {formikMeta.values.internacaoAnterior === 'Y' ? (
                 <FastField name="numeroInternacoes">
                   {() => (
                     <Box
-                      display={"flex"}
+                      display={'flex'}
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1042,7 +1105,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="lembrancaMarcante">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -1061,7 +1124,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="arrependimento">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -1079,7 +1142,7 @@ const reavaliacao: FC<{}> = () => {
               </FastField>
               <FastField name="cometeuCrime">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>Já cometeu algum crime ?</FormLabel>
                       <RadioGroup
@@ -1102,11 +1165,11 @@ const reavaliacao: FC<{}> = () => {
                   </Box>
                 )}
               </FastField>
-              {formikMeta.values.cometeuCrime === "Y" ? (
+              {formikMeta.values.cometeuCrime === 'Y' ? (
                 <FastField name="motivoCrime">
                   {() => (
                     <Box
-                      display={"flex"}
+                      display={'flex'}
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1126,7 +1189,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="motivoDrogas">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -1145,7 +1208,7 @@ const reavaliacao: FC<{}> = () => {
               </FastField>
               <FastField name="disponibilidadeTratamento">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>Disponibilidade Para Tratamento:</FormLabel>
                       <RadioGroup
@@ -1170,7 +1233,7 @@ const reavaliacao: FC<{}> = () => {
               </FastField>
               <FastField name="nivelAbstinencia">
                 {() => (
-                  <Box display={"flex"} my="1rem">
+                  <Box display={'flex'} my="1rem">
                     <FormControl>
                       <FormLabel>Nível de abstinência:</FormLabel>
                       <RadioGroup
@@ -1181,17 +1244,17 @@ const reavaliacao: FC<{}> = () => {
                         <FormControlLabel
                           value="L"
                           control={<Radio />}
-                          label={"Baixo"}
+                          label={'Baixo'}
                         />
                         <FormControlLabel
                           value="M"
                           control={<Radio />}
-                          label={"Médio"}
+                          label={'Médio'}
                         />
                         <FormControlLabel
                           value="H"
                           control={<Radio />}
-                          label={"Alto"}
+                          label={'Alto'}
                         />
                       </RadioGroup>
                     </FormControl>
@@ -1201,7 +1264,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="esperaInternacao">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -1220,7 +1283,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="expectativaSocial">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -1239,7 +1302,7 @@ const reavaliacao: FC<{}> = () => {
               <FastField name="breveRelato">
                 {() => (
                   <Box
-                    display={"flex"}
+                    display={'flex'}
                     my="1.5rem"
                     flexWrap="wrap"
                     alignItems="center"
@@ -1260,7 +1323,7 @@ const reavaliacao: FC<{}> = () => {
             <br />
             <br />
             <Box
-              display={"flex"}
+              display={'flex'}
               justifyContent="space-between"
               alignItems="center"
             >
@@ -1268,8 +1331,8 @@ const reavaliacao: FC<{}> = () => {
                 variant="outlined"
                 sx={{
                   width: 124,
-                  color: "text.disabled",
-                  borderColor: "text.disabled",
+                  color: 'text.disabled',
+                  borderColor: 'text.disabled',
                 }}
                 fullWidth
                 onClick={() => router.back()}
@@ -1286,10 +1349,10 @@ const reavaliacao: FC<{}> = () => {
               </Button>
             </Box>
           </Form>
-        )}
+        )}}
       </Formik>
     </Card>
   );
 };
 
-export default reavaliacao;
+export default Reavaliacao;
