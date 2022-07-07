@@ -18,14 +18,12 @@ import { useRouter } from 'next/router';
 import * as React from 'react';
 import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IMaskInput } from 'react-imask';
 import * as Yup from 'yup';
 import useTitle from '../../hooks/useTitle';
 import FlexBox from '../FlexBox';
 import LightTextField from '../LightTextField';
 import LerPessoa, { adicionarPessoa, atualizarPessoa } from './LerDados';
-import MaskCPFCNPJ from '../components/masks/maskCPFCNPJ';
-import MaskDt from '../components/masks/maskDt';
+import MaskDt from '../masks/maskDt';
 import { maskCNPJ, maskCPF } from '../masks/maskCPFCNPJ';
 
 interface InformacoesPrincipaisProps {
@@ -322,7 +320,7 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
                 onChange={formik.handleChange}
                 value={formik.values.datanascimento}
                 InputProps={{
-                  inputComponent: MaskDtNascimento as any,
+                  inputComponent: MaskDt as any,
                 }}
               />
             </Grid>
