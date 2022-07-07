@@ -117,6 +117,12 @@ const PessoaInformation: FC = () => {
           {active === convertToSlug(tabList[5].name) && <Networking />}
           {active === convertToSlug(tabList[6].name) && <Questionarios />}
           {active === convertToSlug(tabList[7].name) && <Anexos />}
+          {active === convertToSlug(tabList[8].name) && (
+            <Anamnese idPessoa={id} />
+          )}
+          {active === convertToSlug(tabList[9].name) && (
+            <Reavaliacao idPessoa={id} />
+          )}
         </Grid>
       </Grid>
     </Box>
@@ -162,6 +168,16 @@ const tabList = [
   {
     id: 8,
     name: 'Anexos',
+    Icon: DiamondIcon,
+  },
+  {
+    id: 9,
+    name: 'Ficha de Anamenese',
+    Icon: DiamondIcon,
+  },
+  {
+    id: 10,
+    name: 'Ficha de Reavaliação',
     Icon: DiamondIcon,
   },
 ];
