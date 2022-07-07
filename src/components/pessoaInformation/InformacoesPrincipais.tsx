@@ -7,7 +7,7 @@ import {
   MenuItem,
   Stack,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
@@ -17,14 +17,15 @@ import { useFormik } from 'formik';
 import { useRouter } from 'next/router';
 import * as React from 'react';
 import { FC, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import useTitle from '../../hooks/useTitle';
 import FlexBox from '../FlexBox';
 import LightTextField from '../LightTextField';
-import LerPessoa, { adicionarPessoa, atualizarPessoa } from './LerDados';
-import MaskDt from '../masks/maskDt';
 import { maskCNPJ, maskCPF } from '../masks/maskCPFCNPJ';
+import MaskDt from '../masks/maskDt';
+import LerPessoa, { adicionarPessoa, atualizarPessoa } from './LerDados';
 
 interface InformacoesPrincipaisProps {
   idPessoa: string;
@@ -118,17 +119,21 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
     validationSchema: fieldValidationSchema,
     onSubmit: (values) => {
       if (values.dtinclusao === '' || values.dtinclusao === null) {
-        values.dtinclusao = format(new Date(), 'dd-MM-yyyy HH:MI:ss');
+        values.dtinclusao = format(new Date(), 'dd-MM-yyyy HH:m:ss');
+        values.dtalteracao = format(new Date(), 'dd-MM-yyyy HH:m:ss');
       } else {
         values.dtinclusao = format(
           new Date(parseISO(values.dtinclusao)),
-          'dd-MM-yyyy HH:MI:ss',
+          'dd-MM-yyyy HH:m:ss',
         );
         values.dtalteracao = format(new Date(), 'dd-MM-yyyy');
       }
       !idPessoa
         ? adicionarPessoa(values)
         : atualizarPessoa(values, parseInt(idPessoa));
+      !idPessoa
+        ? toast.success('Adicionado Com Sucesso!')
+        : toast.success('Atualizado Com Sucesso!');
     },
   });
 
@@ -180,7 +185,7 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
           rg_dt_expedicao: row.pessoa.rg_dt_expedicao,
           datanascimento: format(
             new Date(row.pessoa.datanascimento),
-            'dd/MM/yyyy HH:mi:ss',
+            'dd/MM/yyyy HH:m:ss',
           ),
           observacoes: row.pessoa.observacoes,
           sexo: row.pessoa.sexo,
@@ -293,9 +298,9 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
               <LightTextField
                 fullWidth
                 name="cpf_cnpj"
-                label="CPF ou CNPJ"
                 value={formik.values.cpf_cnpj}
                 onChange={formik.handleChange}
+                label="CPF ou CNPJ"
                 helperText={formik.touched.cpf_cnpj && formik.errors.cpf_cnpj}
                 error={Boolean(
                   formik.touched.cpf_cnpj && formik.errors.cpf_cnpj,
