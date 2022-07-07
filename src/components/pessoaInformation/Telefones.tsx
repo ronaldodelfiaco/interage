@@ -53,7 +53,6 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
 
   const loadTable = () => {
-    setTimeout(() => {
       axios
         .get(herokuFiltro)
         .then(({ data }: any) => {
@@ -64,7 +63,6 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
           console.error(2, error);
           setTelefonesPessoa([]);
         });
-    }, 1);
   };
 
   useEffect(() => {
@@ -86,6 +84,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
         .post(heroku, newTelefone)
         .then((response) => {
           console.log(response);
+          loadTable();
         })
         .catch((error) => {
           console.log("falha");
@@ -96,6 +95,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
           .put(heroku + '&id=' + newTelefone.id, newTelefone)
           .then((response) => {
             console.log(response);
+            loadTable();
           })
           .catch((error) => {
             console.error(error);
@@ -123,7 +123,6 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
         });
       }
     }
-    loadTable();
   }, [newTelefone]);
 
   const editarNumero = (id: number) => {
@@ -147,13 +146,13 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
           .delete(heroku + '&id=' + id)
           .then((response) => {
             console.log(response);
+            loadTable();
           })
           .catch((error) => {
             console.error(error);
           });
       }
     });
-    loadTable();
     handleMoreClose();
   };
 

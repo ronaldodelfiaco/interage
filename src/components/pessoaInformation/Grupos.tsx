@@ -85,6 +85,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
           .post(heroku, newGrupo)
           .then((response) => {
             console.log(response);
+            loadTable();
           })
           .catch((error) => {
             console.error(error);
@@ -94,6 +95,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
           .put(heroku + '&id=' + newGrupo.id, newGrupo)
           .then((response) => {
             console.log(response);
+            loadTable();
           })
           .catch((error) => {
             console.error(error);
@@ -106,7 +108,6 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
         });
       }
     }
-    loadTable();
   }, [newGrupo]);
 
   const editarNumero = (id: number) => {
@@ -131,13 +132,13 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
           .delete(heroku + '&id=' + id)
           .then((response) => {
             console.log(response);
+            loadTable();
           })
           .catch((error) => {
             console.error(error);
           });
       }
     });
-    loadTable();
     handleMoreClose();
   };
 

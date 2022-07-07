@@ -75,6 +75,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
           .post(heroku, newEndereco)
           .then((response) => {
             console.log(response);
+            loadTable();
           })
           .catch((error) => {
             console.log(heroku, error, 'erro');
@@ -85,6 +86,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
           .put(heroku + '&id=' + newEndereco.id, newEndereco)
           .then((response) => {
             console.log(response);
+            loadTable();
           })
           .catch((error) => {
             console.error(error);
@@ -97,7 +99,6 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
         });
       }
     }
-    loadTable();
   }, [newEndereco]);
 
   useEffect(() => {
