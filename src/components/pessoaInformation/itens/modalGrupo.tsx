@@ -278,7 +278,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
 
               <FlexBox justifyContent="space-between" alignItems="center">
                 <Button fullWidth type="submit" variant="contained">
-                  Enviar
+                  Salvar
                 </Button>
                 <Box width={40} />
                 <Button

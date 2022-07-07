@@ -94,7 +94,7 @@ const ModalIrmao: FC<ModalIrmaoProps> = ({
               </FlexBox>
               <FlexBox justifyContent="space-between" alignItems="center">
                 <Button fullWidth type="submit" variant="contained">
-                  Enviar
+                  Salvar
                 </Button>
                 <Box width={40} />
                 <Button
