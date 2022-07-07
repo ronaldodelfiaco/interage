@@ -7,7 +7,7 @@ import {
   MenuItem,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
@@ -23,7 +23,7 @@ import * as Yup from 'yup';
 import useTitle from '../../hooks/useTitle';
 import FlexBox from '../FlexBox';
 import LightTextField from '../LightTextField';
-import { maskCNPJ, maskCPF } from '../masks/maskCPFCNPJ';
+import MaskCPFCNPJ, { maskCNPJ, maskCPF } from '../masks/maskCPFCNPJ';
 import MaskDt from '../masks/maskDt';
 import LerPessoa, { adicionarPessoa, atualizarPessoa } from './LerDados';
 
@@ -298,22 +298,14 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
               <LightTextField
                 fullWidth
                 name="cpf_cnpj"
+                label="CPF ou CNPJ"
                 value={formik.values.cpf_cnpj}
                 onChange={formik.handleChange}
-                label="CPF ou CNPJ"
                 helperText={formik.touched.cpf_cnpj && formik.errors.cpf_cnpj}
                 error={Boolean(
                   formik.touched.cpf_cnpj && formik.errors.cpf_cnpj,
                 )}
-                InputProps={
-                  formik.values.tipo === 'F'
-                    ? {
-                        inputComponent: maskCPF as any,
-                      }
-                    : {
-                        inputComponent: maskCNPJ as any,
-                      }
-                }
+                InputProps={{ inputComponent: MaskCPFCNPJ as any }}
               />
             </Grid>
 
