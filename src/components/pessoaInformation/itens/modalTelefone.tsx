@@ -125,9 +125,10 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         onSubmit={(values, actions) => {
           setTimeout(() => {
             if (values.dtinclusao !== '') {
-              values.dtalteracao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
+              values.dtalteracao = format(new Date(), 'dd/MM/yyyy HH:m:ss');
+              values.dtinclusao = format(new Date(values.dtinclusao), 'dd/MM/yyyy HH:m:ss');
             } else {
-              values.dtinclusao = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
+              values.dtinclusao = format(new Date(), 'dd/MM/yyyy HH:m:ss');
             }
             setDadosAtributos(values), setOpen(false);
             actions.setSubmitting(false);
@@ -256,7 +257,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               </FormControl>
               <FlexBox justifyContent="space-between" alignItems="center">
                 <Button fullWidth type="submit" variant="contained">
-                  Enviar
+                  Salvar
                 </Button>
                 <Box width={40} />
                 <Button
