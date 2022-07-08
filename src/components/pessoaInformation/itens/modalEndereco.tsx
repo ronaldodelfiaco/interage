@@ -137,7 +137,9 @@ const modalTelefone: FC<ModalFilhoProps> = ({
       setTimeout(() => {
         if (values.dtinclusao !== '') {
           values.dtalteracao = format(new Date(), 'dd/MM/yyyy HH:m:ss');
+          values.dtinclusao = format(new Date(values.dtinclusao), 'dd/MM/yyyy HH:m:ss');
         } else {
+          values.dtalteracao = format(new Date(), 'dd/MM/yyyy HH:m:ss');
           values.dtinclusao = format(new Date(), 'dd/MM/yyyy HH:m:ss');
         }
         const valoresBanco = {
