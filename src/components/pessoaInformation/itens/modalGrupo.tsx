@@ -1,4 +1,13 @@
-import { Box, Button, Card, FormControl, MenuItem, Modal } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  Checkbox,
+  FormControl,
+  FormLabel,
+  MenuItem,
+  Modal
+} from '@mui/material';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { Form, Formik } from 'formik';
@@ -113,18 +122,20 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         id_grupo: itemDados?.id_grupo,
         dt_final: itemDataFim,
         dt_inicial: itemDataInicio,
+        principal: itemDados.principal,
       }
     : {
         id_pessoa: idPessoa,
         id_grupo: '',
         dt_final: '',
         dt_inicial: '',
+        principal: '',
       };
 
   // const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=grupos`;
   const heroku = `${herokuConfig}executaSQL?id_usuario=${_user?.id}&token=${_user?.token}`;
-  const herokuBody = `sql=select DISTINCT g.id, g.nome 
-                      from grupos g
+  const herokuBody = `sql=select DISTINCT g.id, g.nome, pg.principal
+                      from grupos g,pessoas_grupos pg
                       where
                       g.status and
                       g.id not in (
@@ -140,8 +151,8 @@ const modalTelefone: FC<ModalFilhoProps> = ({
       .post(
         heroku,
         editar
-          ? `sql=select DISTINCT g.id, g.nome 
-        from grupos g`
+          ? `sql=select DISTINCT g.id, g.nome, pg.principal
+          from grupos g, pessoas_grupos pg`
           : herokuBody,
       )
       .then((response) => {
@@ -275,7 +286,14 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                   }}
                 />
               </FlexBox>
-
+              <Checkbox
+                id="principal"
+                name="principal"
+                checked={formikMeta.values.principal}
+                value={formikMeta.values.principal}
+                onChange={formikMeta.handleChange}
+              />
+              <FormLabel id="principal">Principal</FormLabel>
               <FlexBox justifyContent="space-between" alignItems="center">
                 <Button fullWidth type="submit" variant="contained">
                   Salvar

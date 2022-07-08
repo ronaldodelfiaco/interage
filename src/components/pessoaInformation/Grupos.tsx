@@ -20,6 +20,7 @@ type grupo = {
   id_grupo: number;
   dt_final: string;
   dt_inicial: string;
+  principal: boolean;
 };
 
 type view_Table = {
