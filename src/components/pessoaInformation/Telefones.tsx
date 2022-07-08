@@ -1,5 +1,6 @@
 import { Card, Grid, Typography } from '@mui/material';
 import axios from 'axios';
+import { format } from 'date-fns';
 import { FC, MouseEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { herokuConfig } from '../../config';
@@ -53,27 +54,27 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
 
   const loadTable = () => {
-      axios
-        .get(herokuFiltro)
-        .then(({ data }: any) => {
-          // setPessoa(data.body.rows[0]);
-          setTelefonesPessoa(data.body.rows);
-        })
-        .catch((error) => {
-          console.error(2, error);
-          setTelefonesPessoa([]);
-        });
+    axios
+      .get(herokuFiltro)
+      .then(({ data }: any) => {
+        // setPessoa(data.body.rows[0]);
+        setTelefonesPessoa(data.body.rows);
+      })
+      .catch((error) => {
+        console.error(2, error);
+        setTelefonesPessoa([]);
+      });
   };
 
   useEffect(() => {
     loadTable();
   }, [heroku]);
 
-  useEffect(() =>{
-    if(!openModalTelefone && editar){
+  useEffect(() => {
+    if (!openModalTelefone && editar) {
       setEditar(false);
     }
-  }, [openModalTelefone])
+  }, [openModalTelefone]);
 
   //Adiciona novos dados, no vetor de telefone
   useEffect(() => {
@@ -81,15 +82,15 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
       if (!editar) {
         console.log(heroku, newTelefone);
         axios
-        .post(heroku, newTelefone)
-        .then((response) => {
-          console.log(response);
-          loadTable();
-        })
-        .catch((error) => {
-          console.log("falha");
-          console.error(error);
-        });
+          .post(heroku, newTelefone)
+          .then((response) => {
+            console.log(response);
+            loadTable();
+          })
+          .catch((error) => {
+            console.log('falha');
+            console.error(error);
+          });
       } else {
         axios
           .put(heroku + '&id=' + newTelefone.id, newTelefone)
@@ -119,6 +120,39 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
               dtalteracao: '',
               dtinclusao: '',
             });
+          }
+        });
+      }
+      if (newTelefone.principal) {
+        TelefonesPessoa.forEach((Element) => {
+          if (Element.principal) {
+            axios
+              .put(heroku + '&id=' + Element.id, {
+                id: Element.id,
+                id_pessoa: Element.id_pessoa,
+                ddd: Element.ddd,
+                telefone: Element.telefone,
+                ramal: Element.ramal,
+                principal: false,
+                id_tipo_telefone: Element.id_tipo_telefone,
+                contato: Element.contato,
+                ddi: Element.ddi,
+                dtalteracao: format(
+                  new Date(Element.dtalteracao),
+                  'dd/MM/yyyy HH:m:ss',
+                ),
+                dtinclusao: format(
+                  new Date(Element.dtinclusao),
+                  'dd/MM/yyyy HH:m:ss',
+                ),
+              })
+              .then((response) => {
+                console.log(response);
+                loadTable();
+              })
+              .catch((error) => {
+                console.error(error);
+              });
           }
         });
       }
