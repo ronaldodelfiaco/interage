@@ -79,6 +79,39 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   //Adiciona novos dados, no vetor de telefone
   useEffect(() => {
     if (newTelefone !== undefined) {
+      if (newTelefone.principal) {
+        TelefonesPessoa.forEach((Element) => {
+          if (Element.principal) {
+            axios
+              .put(heroku + '&id=' + Element.id, {
+                id: Element.id,
+                id_pessoa: Element.id_pessoa,
+                ddd: Element.ddd,
+                telefone: Element.telefone,
+                ramal: Element.ramal,
+                principal: false,
+                id_tipo_telefone: Element.id_tipo_telefone,
+                contato: Element.contato,
+                ddi: Element.ddi,
+                dtalteracao: format(
+                  new Date(Element.dtalteracao),
+                  'dd/MM/yyyy HH:m:ss',
+                ),
+                dtinclusao: format(
+                  new Date(Element.dtinclusao),
+                  'dd/MM/yyyy HH:m:ss',
+                ),
+              })
+              .then((response) => {
+                console.log(response);
+                loadTable();
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+          }
+        });
+      }
       if (!editar) {
         console.log(heroku, newTelefone);
         axios
@@ -120,39 +153,6 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
               dtalteracao: '',
               dtinclusao: '',
             });
-          }
-        });
-      }
-      if (newTelefone.principal) {
-        TelefonesPessoa.forEach((Element) => {
-          if (Element.principal) {
-            axios
-              .put(heroku + '&id=' + Element.id, {
-                id: Element.id,
-                id_pessoa: Element.id_pessoa,
-                ddd: Element.ddd,
-                telefone: Element.telefone,
-                ramal: Element.ramal,
-                principal: false,
-                id_tipo_telefone: Element.id_tipo_telefone,
-                contato: Element.contato,
-                ddi: Element.ddi,
-                dtalteracao: format(
-                  new Date(Element.dtalteracao),
-                  'dd/MM/yyyy HH:m:ss',
-                ),
-                dtinclusao: format(
-                  new Date(Element.dtinclusao),
-                  'dd/MM/yyyy HH:m:ss',
-                ),
-              })
-              .then((response) => {
-                console.log(response);
-                loadTable();
-              })
-              .catch((error) => {
-                console.error(error);
-              });
           }
         });
       }
