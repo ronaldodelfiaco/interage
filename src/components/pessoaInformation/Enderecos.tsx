@@ -1,5 +1,6 @@
 import { Card, Grid, Typography } from '@mui/material';
 import axios from 'axios';
+import { format } from 'date-fns';
 import { FC, MouseEvent, useEffect, useState } from 'react';
 import { herokuConfig } from '../../config';
 import AddIconButton from '../AddIconButton';
@@ -95,6 +96,31 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
           if (Element.id === newEndereco.id) {
             setEditar(false);
             setItem(0);
+          }
+        });
+      }
+      if (newEndereco.recebe_correspondencia) {
+        EnderecoPessoa.forEach((Element) => {
+          if (Element.recebe_correspondencia) {
+            axios.put(heroku + '&id=' + Element.id, {
+              id: Element.id,
+              id_pessoa: Element.id_pessoa,
+              id_cidade: Element.id_cidade,
+              cep: Element.cep,
+              logradouro: Element.logradouro,
+              bairro: Element.bairro,
+              complemento: Element.complemento,
+              recebe_correspondencia: false,
+              status: Element.status,
+              dtalteracao: format(
+                new Date(Element.dtalteracao),
+                'dd/MM/yyyy HH:m:ss',
+              ),
+              dtinclusao: format(
+                new Date(Element.dtinclusao),
+                'dd/MM/yyyy HH:m:ss',
+              ),
+            });
           }
         });
       }
