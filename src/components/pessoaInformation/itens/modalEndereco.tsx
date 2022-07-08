@@ -6,6 +6,7 @@ import {
   FormControl,
   FormControlLabel,
   FormGroup,
+  FormLabel,
   MenuItem,
   Modal,
 } from '@mui/material';
@@ -20,7 +21,7 @@ import * as Yup from 'yup';
 import { herokuConfig } from '../../../config';
 import FlexBox from '../../FlexBox';
 import LightTextField from '../../LightTextField';
-import MaskCEP from '../../masks/maskCEP'
+import MaskCEP from '../../masks/maskCEP';
 
 interface ModalFilhoProps {
   open: boolean;
@@ -115,7 +116,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         bairro: '',
         complemento: '',
         recebe_correspondencia: false,
-        status: false,
+        status: true,
         dtalteracao: '',
         dtinclusao: '',
         uf: '',
@@ -137,7 +138,10 @@ const modalTelefone: FC<ModalFilhoProps> = ({
       setTimeout(() => {
         if (values.dtinclusao !== '') {
           values.dtalteracao = format(new Date(), 'dd/MM/yyyy HH:m:ss');
-          values.dtinclusao = format(new Date(values.dtinclusao), 'dd/MM/yyyy HH:m:ss');
+          values.dtinclusao = format(
+            new Date(values.dtinclusao),
+            'dd/MM/yyyy HH:m:ss',
+          );
         } else {
           values.dtalteracao = format(new Date(), 'dd/MM/yyyy HH:m:ss');
           values.dtinclusao = format(new Date(), 'dd/MM/yyyy HH:m:ss');
@@ -418,9 +422,10 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             />
           </FlexBox>
 
-          <FormControl>
+          {/* <FormControl>
             <FormGroup onChange={Formik.handleChange} row>
               <FormControlLabel
+                checked={Formik.values.recebe_correspondencia}
                 value={Formik.values.recebe_correspondencia}
                 control={<Checkbox />}
                 label="Recebe Correspondencia"
@@ -433,7 +438,16 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                 name="status"
               />
             </FormGroup>
-          </FormControl>
+          </FormControl> */}
+          <Checkbox
+            checked={Formik.values.recebe_correspondencia}
+            value={Formik.values.recebe_correspondencia}
+            name="recebe_correspondencia"
+            id="recebe_correspondencia"
+          />
+          <FormLabel id="recebe_correspondencia">
+            Recebe correspondencia
+          </FormLabel>
           <FlexBox justifyContent="space-between" alignItems="center">
             <Button fullWidth type="submit" variant="contained">
               Salvar

@@ -1,3 +1,4 @@
+import { Label } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -6,10 +7,12 @@ import {
   FormControl,
   FormControlLabel,
   FormGroup,
+  FormLabel,
   InputLabel,
   MenuItem,
   Modal,
   Select,
+  Typography,
 } from '@mui/material';
 import { format } from 'date-fns';
 import { Form, Formik } from 'formik';
@@ -126,7 +129,10 @@ const modalTelefone: FC<ModalFilhoProps> = ({
           setTimeout(() => {
             if (values.dtinclusao !== '') {
               values.dtalteracao = format(new Date(), 'dd/MM/yyyy HH:m:ss');
-              values.dtinclusao = format(new Date(values.dtinclusao), 'dd/MM/yyyy HH:m:ss');
+              values.dtinclusao = format(
+                new Date(values.dtinclusao),
+                'dd/MM/yyyy HH:m:ss',
+              );
             } else {
               values.dtinclusao = format(new Date(), 'dd/MM/yyyy HH:m:ss');
             }
@@ -245,16 +251,14 @@ const modalTelefone: FC<ModalFilhoProps> = ({
                   </LightTextField>
                 </FormControl>
               </FlexBox>
-              <FormControl>
-                <FormGroup onChange={formikMeta.handleChange} row>
-                  <FormControlLabel
-                    value={formikMeta.values.principal}
-                    control={<Checkbox />}
-                    label="principal"
-                    name="principal"
-                  />
-                </FormGroup>
-              </FormControl>
+              <Checkbox
+                checked={formikMeta.values.principal}
+                value={formikMeta.values.principal}
+                name="principal"
+                id="principal"
+                onChange={formikMeta.handleChange}
+              />
+              <FormLabel id="principal">Principal</FormLabel>
               <FlexBox justifyContent="space-between" alignItems="center">
                 <Button fullWidth type="submit" variant="contained">
                   Salvar
