@@ -129,7 +129,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
         id_grupo: '',
         dt_final: '',
         dt_inicial: '',
-        principal: '',
+        principal: false,
       };
 
   // const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=grupos`;
