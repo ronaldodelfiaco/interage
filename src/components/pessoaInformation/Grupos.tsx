@@ -1,5 +1,6 @@
 import { Card, Grid, Typography } from '@mui/material';
 import axios from 'axios';
+import { format } from 'date-fns';
 import { FC, MouseEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { herokuConfig } from '../../config';
@@ -53,11 +54,11 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
 
   const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
 
-  useEffect(() =>{
-    if(!openModalGrupo && editar){
+  useEffect(() => {
+    if (!openModalGrupo && editar) {
       setEditar(false);
     }
-  }, [openModalGrupo])
+  }, [openModalGrupo]);
 
   const loadTable = () => {
     setTimeout(() => {
@@ -81,6 +82,34 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
   //Adiciona novos dados, no vetor de grupo
   useEffect(() => {
     if (newGrupo !== undefined) {
+      if (newGrupo.principal) {
+        GruposPessoa.forEach((Element) => {
+          if (Element.principal) {
+            axios
+              .put(heroku + '&id=' + Element.id, {
+                id: Element.id,
+                id_pessoa: Element.id_pessoa,
+                id_grupo: Element.id_grupo,
+                dt_final: format(
+                  new Date(Element.dt_final),
+                  'dd/MM/yyyy HH:m:ss',
+                ),
+                dt_inicial: format(
+                  new Date(Element.dt_inicial),
+                  'dd/MM/yyyy HH:m:ss',
+                ),
+                principal: false,
+              })
+              .then((response) => {
+                console.log(response);
+                loadTable();
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+          }
+        });
+      }
       if (!editar) {
         axios
           .post(heroku, newGrupo)
