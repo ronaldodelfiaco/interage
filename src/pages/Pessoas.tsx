@@ -64,7 +64,7 @@ const Pessoas: FC = () => {
 
   const heroku =
     herokuConfig +
-    'genericCRUD?id_usuario=1&token=116mx2wthgh5yvhqcsugyygo&table=view_pessoas';
+    'genericCRUD?id_usuario=1&token=116mx2wthgh5yvhqcsugyygo&table=view_pessoas_grupo';
 
   useEffect(() => {
     axios
@@ -80,7 +80,7 @@ const Pessoas: FC = () => {
   const filterTable = tableData.filter((item: any) =>
     value !== ''
       ? item.grupo.toLowerCase() === value.toLocaleLowerCase()
-      : item.grupo,
+      : item.grupo_principal,
   );
 
   return (
@@ -108,7 +108,7 @@ const Pessoas: FC = () => {
                   <Tab
                     disableRipple
                     label={t('Fornecedores')}
-                    value="Fornecedores"
+                    value="Fornecedor"
                   />
                 </TabListWrapper>
               </TabContext>
