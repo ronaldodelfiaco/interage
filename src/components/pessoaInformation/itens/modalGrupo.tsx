@@ -134,7 +134,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
 
   // const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=grupos`;
   const heroku = `${herokuConfig}executaSQL?id_usuario=${_user?.id}&token=${_user?.token}`;
-  const herokuBody = `sql=select DISTINCT g.id, g.nome, pg.principal
+  const herokuBody = `sql=select DISTINCT g.id, g.nome
                       from grupos g,pessoas_grupos pg
                       where
                       g.status and
@@ -151,8 +151,8 @@ const modalTelefone: FC<ModalFilhoProps> = ({
       .post(
         heroku,
         editar
-          ? `sql=select DISTINCT g.id, g.nome, pg.principal
-          from grupos g, pessoas_grupos pg`
+          ? `sql=select DISTINCT g.id, g.nome
+          from grupos g`
           : herokuBody,
       )
       .then((response) => {
