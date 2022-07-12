@@ -13,7 +13,7 @@ import {
   RadioGroup,
   Typography,
 } from '@mui/material';
-import axios from 'axios';
+import axios, { Axios } from 'axios';
 import { format } from 'date-fns';
 import { FastField, Form, Formik } from 'formik';
 import router from 'next/router';
@@ -30,6 +30,7 @@ import LightTextField from '../components/LightTextField';
 import MaskCPFCNPJ from '../components/masks/maskCPFCNPJ';
 import MaskDt from '../components/masks/maskDt';
 import MoreOptions from '../components/MoreOptions';
+import { adicionarPessoa } from '../components/pessoaInformation/LerDados';
 import { Tiny } from '../components/Typography';
 import { herokuConfig } from '../config';
 import useTitle from '../hooks/useTitle';
@@ -78,7 +79,26 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
   const [editarFilho, setEditarFilho] = useState(false);
   const [editarIrmao, setEditarIrmao] = useState(false);
 
+  const [postgresJson, setPostgres] = useState();
+
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}`;
+
+  useEffect(() => {
+    axios
+      .get(heroku + `&table=ficha_anamnese`, {
+        params: {
+          filter: `id_pessoa=${idPessoa}`,
+        },
+      })
+      .then(({ data }: any) => {
+        setPostgres(data.body.rows[0].anamnese);
+        console.log(1, data.body.rows[0].anamnese);
+      })
+      .catch((error) => {
+        console.error(2, error);
+      });
+    console.log(2, postgresJson);
+  }, [heroku]);
 
   useEffect(() => {
     if (!openModalFilho && editarFilho) {
@@ -310,23 +330,27 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
   };
 
   const testeIgual = (cpf: string) => {
-    const cpfTratada = cpf
-      .replaceAll('.', '')
-      .replaceAll('-', '')
-      .replaceAll('/', '');
-    axios
-      .get(heroku + `&table=view_pessoas`, {
-        params: {
-          filter: `cpf_cnpj='${cpfTratada}'`,
-        },
-      })
-      .then(({ data }: any) => {
-        setInfoPessoa(data.body.rows[0]);
-        console.log(infoPessoa);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    if (typeof idPessoa !== 'undefined') {
+      const cpfTratada = cpf
+        .replaceAll('.', '')
+        .replaceAll('-', '')
+        .replaceAll('/', '');
+      axios
+        .get(heroku + `&table=view_pessoas`, {
+          params: {
+            filter: `cpf_cnpj='${cpfTratada}'`,
+          },
+        })
+        .then(({ data }: any) => {
+          if (typeof data !== 'undefined') {
+            setInfoPessoa(data.body.rows[0]);
+          }
+          console.log(infoPessoa);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
   };
 
   return (
@@ -335,6 +359,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
         initialValues={initialValues}
         validationSchema={fieldValidationSchema}
         onSubmit={(values, actions) => {
+          const hoje = format(new Date(), 'dd-MM-yyyy HH:mm:ss');
           if (idPessoa) {
             setTimeout(() => {
               const dia: number = +values.dataNascimento.split('/')[0];
@@ -352,8 +377,8 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                   .replaceAll('.', '')
                   .replaceAll('-', '')
                   .replaceAll('/', ''),
-                dtInsercao: format(new Date(), 'dd-MM-yyyy HH:mm:ss'),
-                dataNascimento: format(data, 'dd-MM-yyyy HH:mm:ss'),
+                dtInsercao: hoje,
+                dataNascimento: format(data, 'dd/MM/yyyy HH:mm:ss'),
               };
               const reavaliacao = Object.assign(values, adicional);
               const JSONdata = JSON.stringify(reavaliacao);
@@ -370,7 +395,6 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                   anamnese: JSONdata,
                 })
                 .then((Response) => {
-                  console.log(Response);
                   toast.success('Enviado com Sucesso');
                 })
                 .catch((error) => {
@@ -380,410 +404,51 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 });
             }, 1000);
           } else {
-            toast.error('Não foi possivel encontrar a pessoa');
+            // Criar Pessoa
+            const newPessoa = {
+              cpf: values.cpf,
+              nome: values.nome,
+              datanascimento: values.dataNascimento,
+              dtinclusao: hoje,
+              dtalteracao: hoje,
+            };
+            adicionarPessoa(newPessoa);
           }
+          window.scrollTo(top);
         }}
       >
         {(formikMeta) => {
-          formikMeta.values.nome = infoPessoa?.nome;
-          formikMeta.values.dataNascimento = infoPessoa? format(new Date('1959-06-20T03:00:00.000Z'), 'dd/MM/yyyy'): '';
-          formikMeta.values.naturalidade = infoPessoa?.natural;
-          formikMeta.values.estadoCivil = infoPessoa?.estado_civil;
+          typeof infoPessoa !== 'undefined'
+            ? (formikMeta.values.nome = infoPessoa?.nome)
+            : null;
+          typeof infoPessoa !== 'undefined'
+            ? (formikMeta.values.dataNascimento = infoPessoa?.datanascimento
+                ? format(new Date(infoPessoa?.datanascimento), 'dd/MM/yyyy')
+                : '')
+            : null;
+          typeof infoPessoa !== 'undefined'
+            ? (formikMeta.values.estadoCivil = infoPessoa?.estado_civil)
+            : null;
+          typeof infoPessoa !== 'undefined'
+            ? (formikMeta.values.naturalidade = infoPessoa?.natural)
+            : null;
+
+          postgresJson ? (formikMeta.values = postgresJson) : null;
+          console.log(postgresJson?.dataNascimento);
+
           return (
-          <Form>
-            <Box
-              display="flex"
-              my="1.5rem"
-              flexWrap="wrap"
-              alignItems="center"
-              justifyContent="space-between"
+            <Form>
+              <Box
+                display="flex"
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
               >
-              <Typography variant="h5">Identificação</Typography>
-            </Box>
-            <Card sx={{ padding: 3, pb: 4 }}>
-              <FastField name="cpf">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="cpf"
-                      label="cpf ou cnpj"
-                      value={formikMeta.values.cpf}
-                      onChange={formikMeta.handleChange}
-                      onBlur={
-                        (testeIgual(formikMeta.values.cpf),
-                        formikMeta.handleBlur)
-                      }
-                      helperText={
-                        formikMeta.touched.cpf && formikMeta.errors.cpf
-                      }
-                      error={Boolean(
-                        formikMeta.touched.cpf && formikMeta.errors.cpf,
-                      )}
-                      InputProps={{
-                        inputComponent: MaskCPFCNPJ as any,
-                      }}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="nome">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="nome"
-                      label="Nome"
-                      value={formikMeta.values.nome}
-                      onChange={formikMeta.handleChange}
-                      helperText={
-                        formikMeta.touched.nome && formikMeta.errors.nome
-                      }
-                      error={Boolean(
-                        formikMeta.touched.nome && formikMeta.errors.nome,
-                      )}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="dataNascimento">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="dataNascimento"
-                      label="Data de Nascimento"
-                      value={formikMeta.values.dataNascimento}
-                      onChange={formikMeta.handleChange}
-                      InputProps={{
-                        inputComponent: MaskDt as any,
-                      }}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="naturalidade">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="naturalidade"
-                      label="Naturalidade"
-                      value={formikMeta.values.naturalidade}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="estadoCivil">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Estado Civil</FormLabel>
-                      <RadioGroup
-                        row
-                        name="estadoCivil"
-                        onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="Solteiro"
-                          control={<Radio />}
-                          label={'Solteiro (a)'}
-                        />
-                        <FormControlLabel
-                          value="Casado"
-                          control={<Radio />}
-                          label={'Casado (a)'}
-                        />
-                        <FormControlLabel
-                          value="Amasiado"
-                          control={<Radio />}
-                          label={'Amasiado (a)'}
-                        />
-                        <FormControlLabel
-                          value="Viuvo"
-                          control={<Radio />}
-                          label={'Viúvo (a)'}
-                        />
-                        <FormControlLabel
-                          value="Separado"
-                          control={<Radio />}
-                          label={'Separado (a)'}
-                        />
-                        <FormControlLabel
-                          value="Desquitado"
-                          control={<Radio />}
-                          label={'Desquitado (a)'}
-                        />
-                        <FormControlLabel
-                          value="Divorciado"
-                          control={<Radio />}
-                          label={'Divorciado (a)'}
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-            </Card>
-            <Box
-              display="flex"
-              my="1.5rem"
-              flexWrap="wrap"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="h5">Esposo(a)</Typography>
-            </Box>
-            <Card sx={{ padding: 3, pb: 4 }}>
-              <FastField name="nomeEsposa">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="nomeEsposa"
-                      label="Nome da (o) esposa (o)"
-                      value={formikMeta.values.nomeEsposa}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <Grid container spacing={4}>
-                <FastField name="tempoCasado">
-                  {() => (
-                    <Grid item xs={12} sm={6}>
-                      <LightTextField
-                        fullWidth
-                        name="tempoCasado"
-                        label="Tempo de Casado"
-                        value={formikMeta.values.tempoCasado}
-                        onChange={formikMeta.handleChange}
-                      />
-                    </Grid>
-                  )}
-                </FastField>
-                <FastField name="idadeEsposa">
-                  {() => (
-                    <Grid item xs={12} sm={6}>
-                      <LightTextField
-                        fullWidth
-                        name="idadeEsposa"
-                        label="Idade do(a) esposo(a)"
-                        value={formikMeta.values.idadeEsposa}
-                        onChange={formikMeta.handleChange}
-                      />
-                    </Grid>
-                  )}
-                </FastField>
-              </Grid>{' '}
-              <FastField name="profissaoEsposa">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="profissaoEsposa"
-                      label="Profissão do(a) Esposo(a)"
-                      value={formikMeta.values.profissaoEsposa}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="esposaUsuaria">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Usuária (o)</FormLabel>
-                      <FormGroup row onChange={formikMeta.handleChange}>
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="álcool"
-                          value="UsuariaAlcool"
-                          name="esposaUsuaria"
-                        />
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="drogas"
-                          value="UsuariaDrogas"
-                          name="esposaUsuaria"
-                        />
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="tabaco"
-                          value="UsuariaTabaco"
-                          name="esposaUsuaria"
-                        />
-                      </FormGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-            </Card>
-            <Box
-              display="flex"
-              my="1.5rem"
-              flexWrap="wrap"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="h5">Filho</Typography>
-            </Box>
-            <Card sx={{ padding: 3, pb: 4 }}>
-              <Grid container spacing={3} pt={3}>
-                {filhos.map((value, index) => (
-                  <Grid item xs={12} sm={6} key={index}>
-                    <ListCard item={value} handleMore={handleSkillMoreOpen} />
-                    <MoreOptions
-                      id={value.idRelacionamento}
-                      anchorEl={skillEl}
-                      handleMoreClose={handleSkillMoreClose}
-                      editar={editarFilhoInfo}
-                      apagar={apagarFilhoInfo}
-                    />
-                  </Grid>
-                ))}
-
-                <Grid item xs={12} sm={6}>
-                  <Box display={'flex'} alignItems="center">
-                    <AddIconButton onClick={() => setOpenModalFilho(true)} />
-                    <Box ml="1rem">
-                      <Typography variant="h6">Adicionar</Typography>
-                      <Tiny color="secondary.400">novo Filho(a)</Tiny>
-                    </Box>
-                    <ModalFilho
-                      open={openModalFilho}
-                      setOpen={setOpenModalFilho}
-                      setDadosAtributos={setNewFilhoDados}
-                      itemDados={filhos[itemDados]}
-                      editar={editarFilho}
-                    />
-                  </Box>
-                </Grid>
-              </Grid>
-            </Card>
-            <Box
-              display="flex"
-              my="1.5rem"
-              flexWrap="wrap"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="h5">Pais</Typography>
-            </Box>
-            <Card sx={{ padding: 3, pb: 4 }}>
-              <FastField name="estadoCivilPais">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Estado Civil</FormLabel>
-                      <RadioGroup
-                        row
-                        name="estadoCivilPais"
-                        onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="Solteiro"
-                          control={<Radio />}
-                          label={'Solteiro (a)'}
-                        />
-                        <FormControlLabel
-                          value="Casado"
-                          control={<Radio />}
-                          label={'Casado (a)'}
-                        />
-                        <FormControlLabel
-                          value="Amasiado"
-                          control={<Radio />}
-                          label={'Amasiado (a)'}
-                        />
-                        <FormControlLabel
-                          value="Viuvo"
-                          control={<Radio />}
-                          label={'Viúvo (a)'}
-                        />
-                        <FormControlLabel
-                          value="Separado"
-                          control={<Radio />}
-                          label={'Separado (a)'}
-                        />
-                        <FormControlLabel
-                          value="Desquitado"
-                          control={<Radio />}
-                          label={'Desquitado (a)'}
-                        />
-                        <FormControlLabel
-                          value="Divorciado"
-                          control={<Radio />}
-                          label={'Divorciado (a)'}
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="paisVivos">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Pais Vivos</FormLabel>
-                      <FormGroup onChange={formikMeta.handleChange} row>
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="Pai"
-                          value="paiVivo"
-                          name="paisVivos"
-                        />
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="Mãe"
-                          value="maeVivo"
-                          name="paisVivos"
-                        />
-                      </FormGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-
+                <Typography variant="h5">Identificação</Typography>
+              </Box>
               <Card sx={{ padding: 3, pb: 4 }}>
-                <FastField name="nomePai">
+                <FastField name="cpf">
                   {() => (
                     <Box
                       display="flex"
@@ -794,46 +459,211 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                     >
                       <LightTextField
                         fullWidth
-                        name="nomePai"
-                        label="Nome do pai"
-                        value={formikMeta.values.nomePai}
+                        name="cpf"
+                        label="cpf ou cnpj"
+                        value={formikMeta.values.cpf}
+                        onChange={formikMeta.handleChange}
+                        onBlur={
+                          (testeIgual(formikMeta.values.cpf),
+                          formikMeta.handleBlur)
+                        }
+                        helperText={
+                          formikMeta.touched.cpf && formikMeta.errors.cpf
+                        }
+                        error={Boolean(
+                          formikMeta.touched.cpf && formikMeta.errors.cpf,
+                        )}
+                        InputProps={{
+                          inputComponent: MaskCPFCNPJ as any,
+                        }}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="nome">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="nome"
+                        label="Nome"
+                        value={formikMeta.values.nome}
+                        onChange={formikMeta.handleChange}
+                        helperText={
+                          formikMeta.touched.nome && formikMeta.errors.nome
+                        }
+                        error={Boolean(
+                          formikMeta.touched.nome && formikMeta.errors.nome,
+                        )}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="dataNascimento">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="dataNascimento"
+                        label="Data de Nascimento"
+                        value={formikMeta.values.dataNascimento}
+                        onChange={formikMeta.handleChange}
+                        helperText={
+                          formikMeta.touched.dataNascimento &&
+                          formikMeta.errors.dataNascimento
+                        }
+                        error={Boolean(
+                          formikMeta.touched.dataNascimento &&
+                            formikMeta.errors.dataNascimento,
+                        )}
+                        InputProps={{
+                          inputComponent: MaskDt as any,
+                        }}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="naturalidade">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="naturalidade"
+                        label="Naturalidade"
+                        value={formikMeta.values.naturalidade}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="estadoCivil">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Estado Civil</FormLabel>
+                        <RadioGroup
+                          row
+                          name="estadoCivil"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.estadoCivil}
+                        >
+                          <FormControlLabel
+                            value="Solteiro"
+                            control={<Radio />}
+                            label={'Solteiro (a)'}
+                          />
+                          <FormControlLabel
+                            value="Casado"
+                            control={<Radio />}
+                            label={'Casado (a)'}
+                          />
+                          <FormControlLabel
+                            value="Amasiado"
+                            control={<Radio />}
+                            label={'Amasiado (a)'}
+                          />
+                          <FormControlLabel
+                            value="Viuvo"
+                            control={<Radio />}
+                            label={'Viúvo (a)'}
+                          />
+                          <FormControlLabel
+                            value="Separado"
+                            control={<Radio />}
+                            label={'Separado (a)'}
+                          />
+                          <FormControlLabel
+                            value="Desquitado"
+                            control={<Radio />}
+                            label={'Desquitado (a)'}
+                          />
+                          <FormControlLabel
+                            value="Divorciado"
+                            control={<Radio />}
+                            label={'Divorciado (a)'}
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+              </Card>
+              <Box
+                display="flex"
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="h5">Esposo(a)</Typography>
+              </Box>
+              <Card sx={{ padding: 3, pb: 4 }}>
+                <FastField name="nomeEsposa">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="nomeEsposa"
+                        label="Nome da (o) esposa (o)"
+                        value={formikMeta.values.nomeEsposa}
                         onChange={formikMeta.handleChange}
                       />
                     </Box>
                   )}
                 </FastField>
                 <Grid container spacing={4}>
-                  <FastField name="idadePai">
+                  <FastField name="tempoCasado">
                     {() => (
                       <Grid item xs={12} sm={6}>
                         <LightTextField
                           fullWidth
-                          name="idadePai"
-                          label="Idade"
-                          value={formikMeta.values.idadePai}
+                          name="tempoCasado"
+                          label="Tempo de Casado"
+                          value={formikMeta.values.tempoCasado}
                           onChange={formikMeta.handleChange}
                         />
                       </Grid>
                     )}
                   </FastField>
-                  <FastField name="profissaoPai">
+                  <FastField name="idadeEsposa">
                     {() => (
                       <Grid item xs={12} sm={6}>
                         <LightTextField
                           fullWidth
-                          name="profissaoPai"
-                          label="Profissão"
-                          value={formikMeta.values.profissaoPai}
+                          name="idadeEsposa"
+                          label="Idade do(a) esposo(a)"
+                          value={formikMeta.values.idadeEsposa}
                           onChange={formikMeta.handleChange}
                         />
                       </Grid>
                     )}
                   </FastField>
-                </Grid>
-              </Card>
-              <br />
-              <Card sx={{ padding: 3, pb: 4 }}>
-                <FastField name="nomeMae">
+                </Grid>{' '}
+                <FastField name="profissaoEsposa">
                   {() => (
                     <Box
                       display="flex"
@@ -844,728 +674,213 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                     >
                       <LightTextField
                         fullWidth
-                        name="nomeMae"
-                        label="Nome do mãe"
-                        value={formikMeta.values.nomeMae}
+                        name="profissaoEsposa"
+                        label="Profissão do(a) Esposo(a)"
+                        value={formikMeta.values.profissaoEsposa}
                         onChange={formikMeta.handleChange}
                       />
                     </Box>
                   )}
                 </FastField>
-                <Grid container spacing={4}>
-                  <FastField name="idadeMae">
-                    {() => (
-                      <Grid item xs={12} sm={6}>
-                        <LightTextField
-                          fullWidth
-                          name="idadeMae"
-                          label="Idade"
-                          value={formikMeta.values.idadeMae}
-                          onChange={formikMeta.handleChange}
-                        />
-                      </Grid>
-                    )}
-                  </FastField>
-                  <FastField name="idadeMae">
-                    {() => (
-                      <Grid item xs={12} sm={6}>
-                        <LightTextField
-                          fullWidth
-                          name="profissaoMae"
-                          label="Profissão"
-                          value={formikMeta.values.profissaoMae}
-                          onChange={formikMeta.handleChange}
-                        />
-                      </Grid>
-                    )}
-                  </FastField>
-                </Grid>
+                <FastField name="esposaUsuaria">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Usuária (o)</FormLabel>
+                        <FormGroup row onChange={formikMeta.handleChange}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.esposaUsuaria.find(
+                                    (element) => element === 'UsuariaAlcool',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="álcool"
+                            value="UsuariaAlcool"
+                            name="esposaUsuaria"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.esposaUsuaria.find(
+                                    (element) => element === 'UsuariaDrogas',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="drogas"
+                            value="UsuariaDrogas"
+                            name="esposaUsuaria"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.esposaUsuaria.find(
+                                    (element) => element === 'UsuariaTabaco',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="tabaco"
+                            value="UsuariaTabaco"
+                            name="esposaUsuaria"
+                          />
+                        </FormGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
               </Card>
-              <br />
-            </Card>
-            <Box
-              display="flex"
-              my="1.5rem"
-              flexWrap="wrap"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="h5">Endereço</Typography>
-            </Box>
-            <Card sx={{ padding: 3, pb: 4 }}>
-              <FastField name="moraQuem">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="moraQuem"
-                      label="Com quem mora atualmente?"
-                      value={formikMeta.values.moraQuem}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <Grid container spacing={4}>
-                <FastField name="enderecoAtual">
-                  {() => (
-                    <Grid item xs={12} sm={6}>
-                      <LightTextField
-                        fullWidth
-                        name="enderecoAtual"
-                        label="Endereço atual"
-                        value={formikMeta.values.enderecoAtual}
-                        onChange={formikMeta.handleChange}
-                      />
-                    </Grid>
-                  )}
-                </FastField>
-                <FastField name="bairroAtual">
-                  {() => (
-                    <Grid item xs={12} sm={6}>
-                      <LightTextField
-                        fullWidth
-                        name="bairroAtual"
-                        label="Bairro"
-                        value={formikMeta.values.bairroAtual}
-                        onChange={formikMeta.handleChange}
-                      />
-                    </Grid>
-                  )}
-                </FastField>
-              </Grid>
-              <FastField name="cidadeAtual">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="cidadeAtual"
-                      label="Cidade"
-                      value={formikMeta.values.cidadeAtual}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-            </Card>
-            <Box
-              display="flex"
-              my="1.5rem"
-              flexWrap="wrap"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="h5">Profissão</Typography>
-            </Box>
-            <Card sx={{ padding: 3, pb: 4 }}>
-              <FastField name="profissao">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Trabalha atualmente?</FormLabel>
-                      <RadioGroup
-                        row
-                        name="profissao"
-                        onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="N"
-                          control={<Radio />}
-                          label="Não"
-                        />
-                        <FormControlLabel
-                          value="Y"
-                          control={<Radio />}
-                          label="Sim"
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              {formikMeta.values.profissao === 'Y' ? (
-                <FastField name="localFuncao">
-                  {() => (
-                    <Box
-                      display="flex"
-                      my="1.5rem"
-                      flexWrap="wrap"
-                      alignItems="center"
-                      justifyContent="space-between"
-                    >
-                      <LightTextField
-                        fullWidth
-                        name="localFuncao"
-                        label="Local e Função"
-                        value={formikMeta.values.localFuncao}
-                        onChange={formikMeta.handleChange}
-                      />
-                    </Box>
-                  )}
-                </FastField>
-              ) : null}
-              <FastField name="afastado">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>
-                        Está afastado pela Previdência Social?
-                      </FormLabel>
-                      <RadioGroup
-                        row
-                        name="afastado"
-                        onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="N"
-                          control={<Radio />}
-                          label="Não"
-                        />
-                        <FormControlLabel
-                          value="Y"
-                          control={<Radio />}
-                          label="Sim"
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="escolaridade">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="escolaridade"
-                      label="Escolaridade"
-                      value={formikMeta.values.escolaridade}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="motivoAbandono">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="motivoAbandono"
-                      label="Motivo de abandono dos estudos"
-                      value={formikMeta.values.motivoAbandono}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-            </Card>
-            <Box
-              display="flex"
-              my="1.5rem"
-              flexWrap="wrap"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="h5">Irmão</Typography>
-            </Box>
-            <div>
+              <Box
+                display="flex"
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="h5">Filho</Typography>
+              </Box>
               <Card sx={{ padding: 3, pb: 4 }}>
                 <Grid container spacing={3} pt={3}>
-                  {irmaos.map((value, index) => (
+                  {filhos.map((value, index) => (
                     <Grid item xs={12} sm={6} key={index}>
                       <ListCard item={value} handleMore={handleSkillMoreOpen} />
                       <MoreOptions
                         id={value.idRelacionamento}
                         anchorEl={skillEl}
                         handleMoreClose={handleSkillMoreClose}
-                        editar={editarIrmaoInfo}
-                        apagar={apagarIrmaoInfo}
+                        editar={editarFilhoInfo}
+                        apagar={apagarFilhoInfo}
                       />
                     </Grid>
                   ))}
+
                   <Grid item xs={12} sm={6}>
-                    <Box display="flex" alignItems="center">
-                      <AddIconButton onClick={() => setOpenModalIrmao(true)} />
+                    <Box display={'flex'} alignItems="center">
+                      <AddIconButton onClick={() => setOpenModalFilho(true)} />
                       <Box ml="1rem">
                         <Typography variant="h6">Adicionar</Typography>
-                        <Tiny color="secondary.400">novo irmão(a)</Tiny>
+                        <Tiny color="secondary.400">novo Filho(a)</Tiny>
                       </Box>
-                      <ModalIrmao
-                        open={openModalIrmao}
-                        setOpen={setOpenModalIrmao}
-                        setDadosAtributos={setNewIrmaoDados}
-                        itemDados={irmaos[itemDados]}
-                        editar={editarIrmao}
+                      <ModalFilho
+                        open={openModalFilho}
+                        setOpen={setOpenModalFilho}
+                        setDadosAtributos={setNewFilhoDados}
+                        itemDados={filhos[itemDados]}
+                        editar={editarFilho}
                       />
                     </Box>
                   </Grid>
                 </Grid>
               </Card>
-            </div>
-            <Box
-              display="flex"
-              my="1.5rem"
-              flexWrap="wrap"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="h5">Problemática</Typography>
-            </Box>
-            <Card sx={{ padding: 3, pb: 4 }}>
-              <FastField name="drogasAlcool">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <RadioGroup
-                        row
-                        name="drogasAlcool"
-                        onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="Alcool"
-                          control={<Radio />}
-                          label={'Álcool'}
-                        />
-                        <FormControlLabel
-                          value="Drogas"
-                          control={<Radio />}
-                          label={'Drogas'}
-                        />
-                        <FormControlLabel
-                          value="Alcool e Drogas"
-                          control={<Radio />}
-                          label={'Álcool e Drogas'}
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              <Box display="flex" my="1rem">
-                <FormControl>
-                  <FormLabel>Drogas e a idade que usou pela 1ª vez:</FormLabel>
-                  <FormGroup onChange={formikMeta.handleChange}>
-                    <FormControlLabel
-                      control={<Checkbox />}
-                      label="Álcool"
-                      value="usaAlcool"
-                      name="usaQuaisDrogas"
-                    />
-                    <LightTextField
-                      fullWidth
-                      name="idadeAlcool"
-                      label="Idade"
-                      value={formikMeta.values.idadeAlcool}
-                      onChange={formikMeta.handleChange}
-                    />
-                    <FormControlLabel
-                      control={<Checkbox />}
-                      label="Maconha"
-                      value="usaMaconha"
-                      name="usaQuaisDrogas"
-                    />
-                    <LightTextField
-                      fullWidth
-                      name="idadeMaconha"
-                      label="Idade"
-                      value={formikMeta.values.idadeMaconha}
-                      onChange={formikMeta.handleChange}
-                    />
-                    <FormControlLabel
-                      control={<Checkbox />}
-                      label="Cocaína (I)"
-                      value="usaCocainaI"
-                      name="usaQuaisDrogas"
-                    />
-                    <LightTextField
-                      fullWidth
-                      name="idadeCocainaI"
-                      label="Idade"
-                      value={formikMeta.values.idadeCocainaI}
-                      onChange={formikMeta.handleChange}
-                    />
-                    <FormControlLabel
-                      control={<Checkbox />}
-                      label="Cocaína (A)"
-                      value="usaCocainaA"
-                      name="usaQuaisDrogas"
-                    />
-                    <LightTextField
-                      fullWidth
-                      name="idadeCocainaA"
-                      label="Idade"
-                      value={formikMeta.values.idadeCocainaA}
-                      onChange={formikMeta.handleChange}
-                    />
-                    <FormControlLabel
-                      control={<Checkbox />}
-                      label="Crack"
-                      value="usaCrack"
-                      name="usaQuaisDrogas"
-                    />
-                    <LightTextField
-                      fullWidth
-                      name="idadeCrack"
-                      label="Idade"
-                      value={formikMeta.values.idadeCrack}
-                      onChange={formikMeta.handleChange}
-                    />
-                    <FormControlLabel
-                      control={<Checkbox />}
-                      label="Comprimido"
-                      value="usaComprimido"
-                      name="usaQuaisDrogas"
-                    />
-                    <LightTextField
-                      fullWidth
-                      name="idadeComprimido"
-                      label="Idade"
-                      value={formikMeta.values.idadeComprimido}
-                      onChange={formikMeta.handleChange}
-                    />
-                    <FormControlLabel
-                      control={<Checkbox />}
-                      label="LSD"
-                      value="usaLSD"
-                      name="usaQuaisDrogas"
-                    />
-                    <LightTextField
-                      fullWidth
-                      name="idadeLSD"
-                      label="Idade"
-                      value={formikMeta.values.idadeLSD}
-                      onChange={formikMeta.handleChange}
-                    />
-                    <FormControlLabel
-                      control={<Checkbox />}
-                      label="Inalantes"
-                      value="usaInalantes"
-                      name="usaQuaisDrogas"
-                    />
-                    <LightTextField
-                      fullWidth
-                      name="idadeInalantes"
-                      label="Idade"
-                      value={formikMeta.values.idadeInalantes}
-                      onChange={formikMeta.handleChange}
-                    />
-                    <FormControlLabel
-                      control={<Checkbox />}
-                      label="Mesclado"
-                      value="usaMesclado"
-                      name="usaQuaisDrogas"
-                    />
-                    <LightTextField
-                      fullWidth
-                      name="idadeMesclado"
-                      label="Idade"
-                      value={formikMeta.values.idadeMesclado}
-                      onChange={formikMeta.handleChange}
-                    />
-                    <FormControlLabel
-                      control={<Checkbox />}
-                      label="Tabaco"
-                      value="usaTabaco"
-                      name="usaQuaisDrogas"
-                    />
-                    <LightTextField
-                      fullWidth
-                      name="idadeTabaco"
-                      label="Idade"
-                      value={formikMeta.values.idadeTabaco}
-                      onChange={formikMeta.handleChange}
-                    />
-                    <FormControlLabel
-                      control={<Checkbox />}
-                      label="Outras"
-                      value="usaOutras"
-                      name="usaQuaisDrogas"
-                    />
-                    <Grid container spacing={4}>
-                      <Grid item xs={12} sm={6}>
-                        <LightTextField
-                          fullWidth
-                          name="idadeOutras"
-                          label="Idade"
-                          value={formikMeta.values.idadeOutras}
-                          onChange={formikMeta.handleChange}
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <LightTextField
-                          fullWidth
-                          name="quaisOutras"
-                          label="Quais?"
-                          value={formikMeta.values.quaisOutras}
-                          onChange={formikMeta.handleChange}
-                        />
-                      </Grid>
-                    </Grid>
-                  </FormGroup>
-                </FormControl>
+              <Box
+                display="flex"
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="h5">Pais</Typography>
               </Box>
-              <FastField name="motivoInicio">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="motivoInicio"
-                      label="Motivo de ter iniciado"
-                      value={formikMeta.values.motivoInicio}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="tipodroga">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="tipodroga"
-                      label="Tipo de droga usada no momento, Frequência e Quantidade"
-                      value={formikMeta.values.tipodroga}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="observacoes">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="observacoes"
-                      label="Observações"
-                      value={formikMeta.values.observacoes}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="periodoAbstinencia">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="periodoAbstinencia"
-                      label="Período em abstinência na entrevista"
-                      value={formikMeta.values.periodoAbstinencia}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="situacoesUso">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Situações em que faz uso</FormLabel>
-                      <FormGroup onChange={formikMeta.handleChange} row>
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="Sozinho"
-                          name="situacoesUso"
-                          value={'Sozinho'}
-                        />
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="Acompanhado"
-                          name="situacoesUso"
-                          value={'Acompanhado'}
-                        />
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="Fora de casa"
-                          name="situacoesUso"
-                          value={'foraCasa'}
-                        />
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="Dentro de casa"
-                          name="situacoesUso"
-                          value={'dentroCasa'}
-                        />
-                      </FormGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="observacoesB">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="observacoesB"
-                      label="Observações"
-                      value={formikMeta.values.observacoesB}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <Grid container spacing={4}>
-                <FastField name="familiaUsaDrogas">
+              <Card sx={{ padding: 3, pb: 4 }}>
+                <FastField name="estadoCivilPais">
                   {() => (
-                    <Grid item xs={12} sm={6}>
-                      <Box display="flex" my="1rem">
-                        <FormControl>
-                          <FormLabel>
-                            Caso de álcool e/ ou drogas na família?
-                          </FormLabel>
-                          <RadioGroup
-                            row
-                            name="familiaUsaDrogas"
-                            onChange={formikMeta.handleChange}
-                          >
-                            <FormControlLabel
-                              value="N"
-                              control={<Radio />}
-                              label={'Não'}
-                            />
-                            <FormControlLabel
-                              value="Y"
-                              control={<Radio />}
-                              label={'Sim'}
-                            />
-                          </RadioGroup>
-                        </FormControl>
-                      </Box>
-                    </Grid>
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Estado Civil</FormLabel>
+                        <RadioGroup
+                          row
+                          name="estadoCivilPais"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.estadoCivilPais}
+                        >
+                          <FormControlLabel
+                            value="Solteiro"
+                            control={<Radio />}
+                            label={'Solteiro (a)'}
+                          />
+                          <FormControlLabel
+                            value="Casado"
+                            control={<Radio />}
+                            label={'Casado (a)'}
+                          />
+                          <FormControlLabel
+                            value="Amasiado"
+                            control={<Radio />}
+                            label={'Amasiado (a)'}
+                          />
+                          <FormControlLabel
+                            value="Viuvo"
+                            control={<Radio />}
+                            label={'Viúvo (a)'}
+                          />
+                          <FormControlLabel
+                            value="Separado"
+                            control={<Radio />}
+                            label={'Separado (a)'}
+                          />
+                          <FormControlLabel
+                            value="Desquitado"
+                            control={<Radio />}
+                            label={'Desquitado (a)'}
+                          />
+                          <FormControlLabel
+                            value="Divorciado"
+                            control={<Radio />}
+                            label={'Divorciado (a)'}
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
                   )}
                 </FastField>
-                {formikMeta.values.familiaUsaDrogas === 'Y' ? (
-                  <FastField name="familiaGrauParentesco">
-                    {() => (
-                      <Grid item xs={12} sm={6}>
-                        <Box
-                          display="flex"
-                          my="1.5rem"
-                          flexWrap="wrap"
-                          alignItems="center"
-                          justifyContent="space-between"
-                        >
-                          <LightTextField
-                            fullWidth
-                            name="familiaGrauParentesco"
-                            label="Grau de Parentesco"
-                            value={formikMeta.values.familiaGrauParentesco}
-                            onChange={formikMeta.handleChange}
-                          />
-                        </Box>
-                      </Grid>
-                    )}
-                  </FastField>
-                ) : null}
-              </Grid>
-              <Grid container spacing={4}>
-                <FastField name="TemNamorada">
+                <FastField name="paisVivos">
                   {() => (
-                    <Grid item xs={12} sm={6}>
-                      <Box display="flex" my="1rem">
-                        <FormControl>
-                          <FormLabel>Namorada</FormLabel>
-                          <RadioGroup
-                            row
-                            name="TemNamorada"
-                            onChange={formikMeta.handleChange}
-                          >
-                            <FormControlLabel
-                              value="N"
-                              control={<Radio />}
-                              label={'Não'}
-                            />
-                            <FormControlLabel
-                              value="Y"
-                              control={<Radio />}
-                              label={'Sim'}
-                            />
-                          </RadioGroup>
-                        </FormControl>
-                      </Box>
-                    </Grid>
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Pais Vivos</FormLabel>
+                        <FormGroup onChange={formikMeta.handleChange} row>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.paisVivos.find(
+                                    (element) => element === 'paiVivo',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="Pai"
+                            value="paiVivo"
+                            name="paisVivos"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.paisVivos.find(
+                                    (element) => element === 'maeVivo',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="Mãe"
+                            value="maeVivo"
+                            name="paisVivos"
+                          />
+                        </FormGroup>
+                      </FormControl>
+                    </Box>
                   )}
                 </FastField>
-                {formikMeta.values.temNamorada === 'Y' ? (
-                  <FastField name="namoradaNome">
-                    {() => (
-                      <Grid item xs={12} sm={6}>
-                        <Box
-                          display="flex"
-                          my="1.5rem"
-                          flexWrap="wrap"
-                          alignItems="center"
-                          justifyContent="space-between"
-                        >
-                          <LightTextField
-                            fullWidth
-                            name="namoradaNome"
-                            label="Nome da namorada"
-                            value={formikMeta.values.namoradaNome}
-                            onChange={formikMeta.handleChange}
-                          />
-                        </Box>
-                      </Grid>
-                    )}
-                  </FastField>
-                ) : null}
-              </Grid>
-              {formikMeta.values.temNamorada === 'Y' ? (
-                <div>
-                  <FastField name="namoradaTempo">
+
+                <Card sx={{ padding: 3, pb: 4 }}>
+                  <FastField name="nomePai">
                     {() => (
                       <Box
                         display="flex"
@@ -1576,537 +891,997 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                       >
                         <LightTextField
                           fullWidth
-                          name="namoradaTempo"
-                          label="Tempo de namoro"
-                          value={formikMeta.values.namoradaTempo}
+                          name="nomePai"
+                          label="Nome do pai"
+                          value={formikMeta.values.nomePai}
                           onChange={formikMeta.handleChange}
                         />
                       </Box>
                     )}
                   </FastField>
                   <Grid container spacing={4}>
-                    <FastField name="namoradaUsaDrogas">
+                    <FastField name="idadePai">
                       {() => (
                         <Grid item xs={12} sm={6}>
-                          <Box display="flex" my="1rem">
-                            <FormControl>
-                              <FormLabel>Namorada usa droga/álcool?</FormLabel>
-                              <RadioGroup
-                                row
-                                name="namoradaUsaDrogas"
-                                onChange={formikMeta.handleChange}
-                              >
-                                <FormControlLabel
-                                  value="N"
-                                  control={<Radio />}
-                                  label={'Não'}
-                                />
-                                <FormControlLabel
-                                  value="Y"
-                                  control={<Radio />}
-                                  label={'Sim'}
-                                />
-                              </RadioGroup>
-                            </FormControl>
+                          <LightTextField
+                            fullWidth
+                            name="idadePai"
+                            label="Idade"
+                            value={formikMeta.values.idadePai}
+                            onChange={formikMeta.handleChange}
+                          />
+                        </Grid>
+                      )}
+                    </FastField>
+                    <FastField name="profissaoPai">
+                      {() => (
+                        <Grid item xs={12} sm={6}>
+                          <LightTextField
+                            fullWidth
+                            name="profissaoPai"
+                            label="Profissão"
+                            value={formikMeta.values.profissaoPai}
+                            onChange={formikMeta.handleChange}
+                          />
+                        </Grid>
+                      )}
+                    </FastField>
+                  </Grid>
+                </Card>
+                <br />
+                <Card sx={{ padding: 3, pb: 4 }}>
+                  <FastField name="nomeMae">
+                    {() => (
+                      <Box
+                        display="flex"
+                        my="1.5rem"
+                        flexWrap="wrap"
+                        alignItems="center"
+                        justifyContent="space-between"
+                      >
+                        <LightTextField
+                          fullWidth
+                          name="nomeMae"
+                          label="Nome do mãe"
+                          value={formikMeta.values.nomeMae}
+                          onChange={formikMeta.handleChange}
+                        />
+                      </Box>
+                    )}
+                  </FastField>
+                  <Grid container spacing={4}>
+                    <FastField name="idadeMae">
+                      {() => (
+                        <Grid item xs={12} sm={6}>
+                          <LightTextField
+                            fullWidth
+                            name="idadeMae"
+                            label="Idade"
+                            value={formikMeta.values.idadeMae}
+                            onChange={formikMeta.handleChange}
+                          />
+                        </Grid>
+                      )}
+                    </FastField>
+                    <FastField name="idadeMae">
+                      {() => (
+                        <Grid item xs={12} sm={6}>
+                          <LightTextField
+                            fullWidth
+                            name="profissaoMae"
+                            label="Profissão"
+                            value={formikMeta.values.profissaoMae}
+                            onChange={formikMeta.handleChange}
+                          />
+                        </Grid>
+                      )}
+                    </FastField>
+                  </Grid>
+                </Card>
+                <br />
+              </Card>
+              <Box
+                display="flex"
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="h5">Endereço</Typography>
+              </Box>
+              <Card sx={{ padding: 3, pb: 4 }}>
+                <FastField name="moraQuem">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="moraQuem"
+                        label="Com quem mora atualmente?"
+                        value={formikMeta.values.moraQuem}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <Grid container spacing={4}>
+                  <FastField name="enderecoAtual">
+                    {() => (
+                      <Grid item xs={12} sm={6}>
+                        <LightTextField
+                          fullWidth
+                          name="enderecoAtual"
+                          label="Endereço atual"
+                          value={formikMeta.values.enderecoAtual}
+                          onChange={formikMeta.handleChange}
+                        />
+                      </Grid>
+                    )}
+                  </FastField>
+                  <FastField name="bairroAtual">
+                    {() => (
+                      <Grid item xs={12} sm={6}>
+                        <LightTextField
+                          fullWidth
+                          name="bairroAtual"
+                          label="Bairro"
+                          value={formikMeta.values.bairroAtual}
+                          onChange={formikMeta.handleChange}
+                        />
+                      </Grid>
+                    )}
+                  </FastField>
+                </Grid>
+                <FastField name="cidadeAtual">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="cidadeAtual"
+                        label="Cidade"
+                        value={formikMeta.values.cidadeAtual}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+              </Card>
+              <Box
+                display="flex"
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="h5">Profissão</Typography>
+              </Box>
+              <Card sx={{ padding: 3, pb: 4 }}>
+                <FastField name="profissao">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Trabalha atualmente?</FormLabel>
+                        <RadioGroup
+                          row
+                          name="profissao"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.profissao}
+                        >
+                          <FormControlLabel
+                            value="N"
+                            control={<Radio />}
+                            label="Não"
+                          />
+                          <FormControlLabel
+                            value="Y"
+                            control={<Radio />}
+                            label="Sim"
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                {formikMeta.values.profissao === 'Y' ? (
+                  <FastField name="localFuncao">
+                    {() => (
+                      <Box
+                        display="flex"
+                        my="1.5rem"
+                        flexWrap="wrap"
+                        alignItems="center"
+                        justifyContent="space-between"
+                      >
+                        <LightTextField
+                          fullWidth
+                          name="localFuncao"
+                          label="Local e Função"
+                          value={formikMeta.values.localFuncao}
+                          onChange={formikMeta.handleChange}
+                        />
+                      </Box>
+                    )}
+                  </FastField>
+                ) : null}
+                <FastField name="afastado">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>
+                          Está afastado pela Previdência Social?
+                        </FormLabel>
+                        <RadioGroup
+                          row
+                          name="afastado"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.afastado}
+                        >
+                          <FormControlLabel
+                            value="N"
+                            control={<Radio />}
+                            label="Não"
+                          />
+                          <FormControlLabel
+                            value="Y"
+                            control={<Radio />}
+                            label="Sim"
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="escolaridade">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="escolaridade"
+                        label="Escolaridade"
+                        value={formikMeta.values.escolaridade}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="motivoAbandono">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="motivoAbandono"
+                        label="Motivo de abandono dos estudos"
+                        value={formikMeta.values.motivoAbandono}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+              </Card>
+              <Box
+                display="flex"
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="h5">Irmão</Typography>
+              </Box>
+              <div>
+                <Card sx={{ padding: 3, pb: 4 }}>
+                  <Grid container spacing={3} pt={3}>
+                    {irmaos.map((value, index) => (
+                      <Grid item xs={12} sm={6} key={index}>
+                        <ListCard
+                          item={value}
+                          handleMore={handleSkillMoreOpen}
+                        />
+                        <MoreOptions
+                          id={value.idRelacionamento}
+                          anchorEl={skillEl}
+                          handleMoreClose={handleSkillMoreClose}
+                          editar={editarIrmaoInfo}
+                          apagar={apagarIrmaoInfo}
+                        />
+                      </Grid>
+                    ))}
+                    <Grid item xs={12} sm={6}>
+                      <Box display="flex" alignItems="center">
+                        <AddIconButton
+                          onClick={() => setOpenModalIrmao(true)}
+                        />
+                        <Box ml="1rem">
+                          <Typography variant="h6">Adicionar</Typography>
+                          <Tiny color="secondary.400">novo irmão(a)</Tiny>
+                        </Box>
+                        <ModalIrmao
+                          open={openModalIrmao}
+                          setOpen={setOpenModalIrmao}
+                          setDadosAtributos={setNewIrmaoDados}
+                          itemDados={irmaos[itemDados]}
+                          editar={editarIrmao}
+                        />
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </Card>
+              </div>
+              <Box
+                display="flex"
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="h5">Problemática</Typography>
+              </Box>
+              <Card sx={{ padding: 3, pb: 4 }}>
+                <FastField name="drogasAlcool">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <RadioGroup
+                          row
+                          name="drogasAlcool"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.drogasAlcool}
+                        >
+                          <FormControlLabel
+                            value="Alcool"
+                            control={<Radio />}
+                            label={'Álcool'}
+                          />
+                          <FormControlLabel
+                            value="Drogas"
+                            control={<Radio />}
+                            label={'Drogas'}
+                          />
+                          <FormControlLabel
+                            value="Alcool e Drogas"
+                            control={<Radio />}
+                            label={'Álcool e Drogas'}
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                <Box display="flex" my="1rem">
+                  <FormControl>
+                    <FormLabel>
+                      Drogas e a idade que usou pela 1ª vez:
+                    </FormLabel>
+                    <FormGroup onChange={formikMeta.handleChange}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={
+                              formikMeta.values.usaQuaisDrogas.find(
+                                (element) => element === 'usaAlcool',
+                              ) !== undefined
+                            }
+                          />
+                        }
+                        label="Álcool"
+                        value="usaAlcool"
+                        name="usaQuaisDrogas"
+                      />
+                      <LightTextField
+                        fullWidth
+                        name="idadeAlcool"
+                        label="Idade"
+                        value={formikMeta.values.idadeAlcool}
+                        onChange={formikMeta.handleChange}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={
+                              formikMeta.values.usaQuaisDrogas.find(
+                                (element) => element === 'usaMaconha',
+                              ) !== undefined
+                            }
+                          />
+                        }
+                        label="Maconha"
+                        value="usaMaconha"
+                        name="usaQuaisDrogas"
+                      />
+                      <LightTextField
+                        fullWidth
+                        name="idadeMaconha"
+                        label="Idade"
+                        value={formikMeta.values.idadeMaconha}
+                        onChange={formikMeta.handleChange}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={
+                              formikMeta.values.usaQuaisDrogas.find(
+                                (element) => element === 'usaCocainaI',
+                              ) !== undefined
+                            }
+                          />
+                        }
+                        label="Cocaína (I)"
+                        value="usaCocainaI"
+                        name="usaQuaisDrogas"
+                      />
+                      <LightTextField
+                        fullWidth
+                        name="idadeCocainaI"
+                        label="Idade"
+                        value={formikMeta.values.idadeCocainaI}
+                        onChange={formikMeta.handleChange}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={
+                              formikMeta.values.usaQuaisDrogas.find(
+                                (element) => element === 'usaCocainaA',
+                              ) !== undefined
+                            }
+                          />
+                        }
+                        label="Cocaína (A)"
+                        value="usaCocainaA"
+                        name="usaQuaisDrogas"
+                      />
+                      <LightTextField
+                        fullWidth
+                        name="idadeCocainaA"
+                        label="Idade"
+                        value={formikMeta.values.idadeCocainaA}
+                        onChange={formikMeta.handleChange}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={
+                              formikMeta.values.usaQuaisDrogas.find(
+                                (element) => element === 'usaCrack',
+                              ) !== undefined
+                            }
+                          />
+                        }
+                        label="Crack"
+                        value="usaCrack"
+                        name="usaQuaisDrogas"
+                      />
+                      <LightTextField
+                        fullWidth
+                        name="idadeCrack"
+                        label="Idade"
+                        value={formikMeta.values.idadeCrack}
+                        onChange={formikMeta.handleChange}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={
+                              formikMeta.values.usaQuaisDrogas.find(
+                                (element) => element === 'usaComprimido',
+                              ) !== undefined
+                            }
+                          />
+                        }
+                        label="Comprimido"
+                        value="usaComprimido"
+                        name="usaQuaisDrogas"
+                      />
+                      <LightTextField
+                        fullWidth
+                        name="idadeComprimido"
+                        label="Idade"
+                        value={formikMeta.values.idadeComprimido}
+                        onChange={formikMeta.handleChange}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={
+                              formikMeta.values.usaQuaisDrogas.find(
+                                (element) => element === 'usaLSD',
+                              ) !== undefined
+                            }
+                          />
+                        }
+                        label="LSD"
+                        value="usaLSD"
+                        name="usaQuaisDrogas"
+                      />
+                      <LightTextField
+                        fullWidth
+                        name="idadeLSD"
+                        label="Idade"
+                        value={formikMeta.values.idadeLSD}
+                        onChange={formikMeta.handleChange}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={
+                              formikMeta.values.usaQuaisDrogas.find(
+                                (element) => element === 'usaInalantes',
+                              ) !== undefined
+                            }
+                          />
+                        }
+                        label="Inalantes"
+                        value="usaInalantes"
+                        name="usaQuaisDrogas"
+                      />
+                      <LightTextField
+                        fullWidth
+                        name="idadeInalantes"
+                        label="Idade"
+                        value={formikMeta.values.idadeInalantes}
+                        onChange={formikMeta.handleChange}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={
+                              formikMeta.values.usaQuaisDrogas.find(
+                                (element) => element === 'usaMesclado',
+                              ) !== undefined
+                            }
+                          />
+                        }
+                        label="Mesclado"
+                        value="usaMesclado"
+                        name="usaQuaisDrogas"
+                      />
+                      <LightTextField
+                        fullWidth
+                        name="idadeMesclado"
+                        label="Idade"
+                        value={formikMeta.values.idadeMesclado}
+                        onChange={formikMeta.handleChange}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={
+                              formikMeta.values.usaQuaisDrogas.find(
+                                (element) => element === 'usaTabaco',
+                              ) !== undefined
+                            }
+                          />
+                        }
+                        label="Tabaco"
+                        value="usaTabaco"
+                        name="usaQuaisDrogas"
+                      />
+                      <LightTextField
+                        fullWidth
+                        name="idadeTabaco"
+                        label="Idade"
+                        value={formikMeta.values.idadeTabaco}
+                        onChange={formikMeta.handleChange}
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={
+                              formikMeta.values.usaQuaisDrogas.find(
+                                (element) => element === 'usaOutras',
+                              ) !== undefined
+                            }
+                          />
+                        }
+                        label="Outras"
+                        value="usaOutras"
+                        name="usaQuaisDrogas"
+                      />
+                      <Grid container spacing={4}>
+                        <Grid item xs={12} sm={6}>
+                          <LightTextField
+                            fullWidth
+                            name="idadeOutras"
+                            label="Idade"
+                            value={formikMeta.values.idadeOutras}
+                            onChange={formikMeta.handleChange}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <LightTextField
+                            fullWidth
+                            name="quaisOutras"
+                            label="Quais?"
+                            value={formikMeta.values.quaisOutras}
+                            onChange={formikMeta.handleChange}
+                          />
+                        </Grid>
+                      </Grid>
+                    </FormGroup>
+                  </FormControl>
+                </Box>
+                <FastField name="motivoInicio">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="motivoInicio"
+                        label="Motivo de ter iniciado"
+                        value={formikMeta.values.motivoInicio}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="tipodroga">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="tipodroga"
+                        label="Tipo de droga usada no momento, Frequência e Quantidade"
+                        value={formikMeta.values.tipodroga}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="observacoes">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="observacoes"
+                        label="Observações"
+                        value={formikMeta.values.observacoes}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="periodoAbstinencia">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="periodoAbstinencia"
+                        label="Período em abstinência na entrevista"
+                        value={formikMeta.values.periodoAbstinencia}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="situacoesUso">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Situações em que faz uso</FormLabel>
+                        <FormGroup onChange={formikMeta.handleChange} row>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.situacoesUso.find(
+                                    (element) => element === 'Sozinho',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="Sozinho"
+                            name="situacoesUso"
+                            value={'Sozinho'}
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.situacoesUso.find(
+                                    (element) => element === 'Acompanhado',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="Acompanhado"
+                            name="situacoesUso"
+                            value={'Acompanhado'}
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.situacoesUso.find(
+                                    (element) => element === 'foraCasa',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="Fora de casa"
+                            name="situacoesUso"
+                            value={'foraCasa'}
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.situacoesUso.find(
+                                    (element) => element === 'dentroCasa',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="Dentro de casa"
+                            name="situacoesUso"
+                            value={'dentroCasa'}
+                          />
+                        </FormGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="observacoesB">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="observacoesB"
+                        label="Observações"
+                        value={formikMeta.values.observacoesB}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <Grid container spacing={4}>
+                  <FastField name="familiaUsaDrogas">
+                    {() => (
+                      <Grid item xs={12} sm={6}>
+                        <Box display="flex" my="1rem">
+                          <FormControl>
+                            <FormLabel>
+                              Caso de álcool e/ ou drogas na família?
+                            </FormLabel>
+                            <RadioGroup
+                              row
+                              name="familiaUsaDrogas"
+                              onChange={formikMeta.handleChange}
+                              value={formikMeta.values.familiaUsaDrogas}
+                            >
+                              <FormControlLabel
+                                value="N"
+                                control={<Radio />}
+                                label={'Não'}
+                              />
+                              <FormControlLabel
+                                value="Y"
+                                control={<Radio />}
+                                label={'Sim'}
+                              />
+                            </RadioGroup>
+                          </FormControl>
+                        </Box>
+                      </Grid>
+                    )}
+                  </FastField>
+                  {formikMeta.values.familiaUsaDrogas === 'Y' ? (
+                    <FastField name="familiaGrauParentesco">
+                      {() => (
+                        <Grid item xs={12} sm={6}>
+                          <Box
+                            display="flex"
+                            my="1.5rem"
+                            flexWrap="wrap"
+                            alignItems="center"
+                            justifyContent="space-between"
+                          >
+                            <LightTextField
+                              fullWidth
+                              name="familiaGrauParentesco"
+                              label="Grau de Parentesco"
+                              value={formikMeta.values.familiaGrauParentesco}
+                              onChange={formikMeta.handleChange}
+                            />
                           </Box>
                         </Grid>
                       )}
                     </FastField>
-                    {formikMeta.values.namoradaUsaDrogas === 'Y' ? (
-                      <FastField name="namoradaDrogaTipo">
+                  ) : null}
+                </Grid>
+                <Grid container spacing={4}>
+                  <FastField name="TemNamorada">
+                    {() => (
+                      <Grid item xs={12} sm={6}>
+                        <Box display="flex" my="1rem">
+                          <FormControl>
+                            <FormLabel>Namorada</FormLabel>
+                            <RadioGroup
+                              row
+                              name="temNamorada"
+                              onChange={formikMeta.handleChange}
+                              value={formikMeta.values.temNamorada}
+                            >
+                              <FormControlLabel
+                                value="N"
+                                control={<Radio />}
+                                label={'Não'}
+                              />
+                              <FormControlLabel
+                                value="Y"
+                                control={<Radio />}
+                                label={'Sim'}
+                              />
+                            </RadioGroup>
+                          </FormControl>
+                        </Box>
+                      </Grid>
+                    )}
+                  </FastField>
+                  {formikMeta.values.temNamorada === 'Y' ? (
+                    <FastField name="namoradaNome">
+                      {() => (
+                        <Grid item xs={12} sm={6}>
+                          <Box
+                            display="flex"
+                            my="1.5rem"
+                            flexWrap="wrap"
+                            alignItems="center"
+                            justifyContent="space-between"
+                          >
+                            <LightTextField
+                              fullWidth
+                              name="namoradaNome"
+                              label="Nome da namorada"
+                              value={formikMeta.values.namoradaNome}
+                              onChange={formikMeta.handleChange}
+                            />
+                          </Box>
+                        </Grid>
+                      )}
+                    </FastField>
+                  ) : null}
+                </Grid>
+                {formikMeta.values.temNamorada === 'Y' ? (
+                  <div>
+                    <FastField name="namoradaTempo">
+                      {() => (
+                        <Box
+                          display="flex"
+                          my="1.5rem"
+                          flexWrap="wrap"
+                          alignItems="center"
+                          justifyContent="space-between"
+                        >
+                          <LightTextField
+                            fullWidth
+                            name="namoradaTempo"
+                            label="Tempo de namoro"
+                            value={formikMeta.values.namoradaTempo}
+                            onChange={formikMeta.handleChange}
+                          />
+                        </Box>
+                      )}
+                    </FastField>
+                    <Grid container spacing={4}>
+                      <FastField name="namoradaUsaDrogas">
                         {() => (
                           <Grid item xs={12} sm={6}>
-                            <Box
-                              display="flex"
-                              my="1.5rem"
-                              flexWrap="wrap"
-                              alignItems="center"
-                              justifyContent="space-between"
-                            >
-                              <LightTextField
-                                fullWidth
-                                name="namoradaDrogaTipo"
-                                label="Tipo"
-                                value={formikMeta.values.namoradaDrogaTipo}
-                                onChange={formikMeta.handleChange}
-                              />
+                            <Box display="flex" my="1rem">
+                              <FormControl>
+                                <FormLabel>
+                                  Namorada usa droga/álcool?
+                                </FormLabel>
+                                <RadioGroup
+                                  row
+                                  name="namoradaUsaDrogas"
+                                  onChange={formikMeta.handleChange}
+                                  value={formikMeta.values.namoradaUsaDrogas}
+                                >
+                                  <FormControlLabel
+                                    value="N"
+                                    control={<Radio />}
+                                    label={'Não'}
+                                  />
+                                  <FormControlLabel
+                                    value="Y"
+                                    control={<Radio />}
+                                    label={'Sim'}
+                                  />
+                                </RadioGroup>
+                              </FormControl>
                             </Box>
                           </Grid>
                         )}
                       </FastField>
-                    ) : null}
-                  </Grid>
-                </div>
-              ) : null}
-            </Card>
-            <Box
-              display="flex"
-              my="1.5rem"
-              flexWrap="wrap"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="h5">Histórico</Typography>
-            </Box>
-            <Card sx={{ padding: 3, pb: 4 }}>
-              <FastField name="comoSeSenteNoUso">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="comoSeSenteNoUso"
-                      label="Como se sente quando usa?"
-                      value={formikMeta.values.comoSeSenteNoUso}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="mudancasComportamento">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="mudancasComportamento"
-                      label="Houve mudanças de comportamento com uso de substâncias? Quais?"
-                      value={formikMeta.values.mudancasComportamento}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="prejuisoUso">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="prejuisoUso"
-                      label="Você percebe algum prejuízo com relação ao seu uso? (Físicos, psíquicos, sociais, ocupacionais etc.)"
-                      value={formikMeta.values.prejuisoUso}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="comoFinanciaUso">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="comoFinanciaUso"
-                      label="Como você financia o seu consumo?"
-                      value={formikMeta.values.comoFinanciaUso}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="lugaresUso">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="lugaresUso"
-                      label="Em quais lugares faz o uso de substâncias?"
-                      value={formikMeta.values.lugaresUso}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="percebeuProblemaUso">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="percebeuProblemaUso"
-                      label="Quando começou a perceber que seu uso de substância estava lhe causando problemas?"
-                      value={formikMeta.values.percebeuProblemaUso}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="tempoSemUso">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="tempoSemUso"
-                      label="Já ficou algum período sem fazer uso? Quanto tempo?"
-                      value={formikMeta.values.tempoSemUso}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="comoEstaVida">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="comoEstaVida"
-                      label="Como está sua vida hoje?"
-                      value={formikMeta.values.comoEstaVida}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-            </Card>
-            <Box
-              display="flex"
-              my="1.5rem"
-              flexWrap="wrap"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="h5">Situação Familiar</Typography>
-            </Box>
-            <Card sx={{ padding: 3, pb: 4 }}>
-              <FastField name="relacionamentoFamiliar">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="relacionamentoFamiliar"
-                      label="Como é o relacionamento familiar?"
-                      value={formikMeta.values.relacionamentoFamiliar}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="comQuemMora">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="comQuemMora"
-                      label="Com quem mora?"
-                      value={formikMeta.values.comQuemMora}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="apoioFamiliarTratamento">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="apoioFamiliarTratamento"
-                      label="Conta com apoio familiar para fazer tratamento? Quem?"
-                      value={formikMeta.values.apoioFamiliarTratamento}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <Typography>Relacionamento Familiar Atual</Typography>
-              <FastField name="relacionamentoPai">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="relacionamentoPai"
-                      label="Pai"
-                      value={formikMeta.values.relacionamentoPai}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="relacionamentoMae">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="relacionamentoMae"
-                      label="Mãe"
-                      value={formikMeta.values.relacionamentoMae}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="relacionamentoIrmao">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="relacionamentoIrmao"
-                      label="Irmãos"
-                      value={formikMeta.values.relacionamentoIrmao}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="relacionamentoEsposo">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="relacionamentoEsposo"
-                      label="Esposa (o)"
-                      value={formikMeta.values.relacionamentoEsposo}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="relacionamentoFilhos">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="relacionamentoFilhos"
-                      label="Filhos (as)"
-                      value={formikMeta.values.relacionamentoFilhos}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="relacionamentoSocial">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="relacionamentoSocial"
-                      label="Relacionamento Social Atual"
-                      value={formikMeta.values.relacionamentoSocial}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-            </Card>
-            <Box
-              display="flex"
-              my="1.5rem"
-              flexWrap="wrap"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="h5">Saúde</Typography>
-            </Box>
-            <Card sx={{ padding: 3, pb: 4 }}>
-              <FastField name="periodoSono">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="periodoSono"
-                      label="Período de Sono"
-                      value={formikMeta.values.periodoSono}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="temPesadelos">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Possui Pesadelos</FormLabel>
-                      <RadioGroup
-                        row
-                        name="temPesadelos"
-                        onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="N"
-                          control={<Radio />}
-                          label={'Não'}
-                        />
-                        <FormControlLabel
-                          value="Y"
-                          control={<Radio />}
-                          label={'Sim'}
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="observacaoGeral">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="observacaoGeral"
-                      label="Observações gerais"
-                      value={formikMeta.values.observacaoGeral}
-                      multiline
-                      minRows={5}
-                      maxRows={8}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="alimentecao">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="alimentecao"
-                      label="Alimentação"
-                      value={formikMeta.values.alimentecao}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="temAlucinacao">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Alucinação – Com drogas</FormLabel>
-                      <RadioGroup
-                        row
-                        name="temAlucinacao"
-                        onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="N"
-                          control={<Radio />}
-                          label={'Não'}
-                        />
-                        <FormControlLabel
-                          value="Y"
-                          control={<Radio />}
-                          label={'Sim'}
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              {formikMeta.values.temAlucinacao === 'Y' ? (
-                <FastField name="qtdTipoAlucinacaoDroga">
+                      {formikMeta.values.namoradaUsaDrogas === 'Y' ? (
+                        <FastField name="namoradaDrogaTipo">
+                          {() => (
+                            <Grid item xs={12} sm={6}>
+                              <Box
+                                display="flex"
+                                my="1.5rem"
+                                flexWrap="wrap"
+                                alignItems="center"
+                                justifyContent="space-between"
+                              >
+                                <LightTextField
+                                  fullWidth
+                                  name="namoradaDrogaTipo"
+                                  label="Tipo"
+                                  value={formikMeta.values.namoradaDrogaTipo}
+                                  onChange={formikMeta.handleChange}
+                                />
+                              </Box>
+                            </Grid>
+                          )}
+                        </FastField>
+                      ) : null}
+                    </Grid>
+                  </div>
+                ) : null}
+              </Card>
+              <Box
+                display="flex"
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="h5">Histórico</Typography>
+              </Box>
+              <Card sx={{ padding: 3, pb: 4 }}>
+                <FastField name="comoSeSenteNoUso">
                   {() => (
                     <Box
                       display="flex"
@@ -2117,43 +1892,455 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                     >
                       <LightTextField
                         fullWidth
-                        name="qtdTipoAlucinacaoDroga"
-                        label="Quantidade e tipo de droga"
-                        value={formikMeta.values.qtdTipoAlucinacaoDroga}
+                        name="comoSeSenteNoUso"
+                        label="Como se sente quando usa?"
+                        value={formikMeta.values.comoSeSenteNoUso}
                         onChange={formikMeta.handleChange}
                       />
                     </Box>
                   )}
                 </FastField>
-              ) : null}
-              <FastField name="alucinacaoSemDrogas">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Sem drogas</FormLabel>
-                      <RadioGroup
-                        row
-                        name="alucinacaoSemDrogas"
+                <FastField name="mudancasComportamento">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="mudancasComportamento"
+                        label="Houve mudanças de comportamento com uso de substâncias? Quais?"
+                        value={formikMeta.values.mudancasComportamento}
                         onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="N"
-                          control={<Radio />}
-                          label={'Não'}
-                        />
-                        <FormControlLabel
-                          value="Y"
-                          control={<Radio />}
-                          label={'Sim'}
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              {formikMeta.values.alucinacaoSemDrogas === 'Y' ? (
-                <div>
-                  <FastField name="qtdTipoAlucinacao">
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="prejuisoUso">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="prejuisoUso"
+                        label="Você percebe algum prejuízo com relação ao seu uso? (Físicos, psíquicos, sociais, ocupacionais etc.)"
+                        value={formikMeta.values.prejuisoUso}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="comoFinanciaUso">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="comoFinanciaUso"
+                        label="Como você financia o seu consumo?"
+                        value={formikMeta.values.comoFinanciaUso}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="lugaresUso">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="lugaresUso"
+                        label="Em quais lugares faz o uso de substâncias?"
+                        value={formikMeta.values.lugaresUso}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="percebeuProblemaUso">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="percebeuProblemaUso"
+                        label="Quando começou a perceber que seu uso de substância estava lhe causando problemas?"
+                        value={formikMeta.values.percebeuProblemaUso}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="tempoSemUso">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="tempoSemUso"
+                        label="Já ficou algum período sem fazer uso? Quanto tempo?"
+                        value={formikMeta.values.tempoSemUso}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="comoEstaVida">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="comoEstaVida"
+                        label="Como está sua vida hoje?"
+                        value={formikMeta.values.comoEstaVida}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+              </Card>
+              <Box
+                display="flex"
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="h5">Situação Familiar</Typography>
+              </Box>
+              <Card sx={{ padding: 3, pb: 4 }}>
+                <FastField name="relacionamentoFamiliar">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="relacionamentoFamiliar"
+                        label="Como é o relacionamento familiar?"
+                        value={formikMeta.values.relacionamentoFamiliar}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="comQuemMora">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="comQuemMora"
+                        label="Com quem mora?"
+                        value={formikMeta.values.comQuemMora}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="apoioFamiliarTratamento">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="apoioFamiliarTratamento"
+                        label="Conta com apoio familiar para fazer tratamento? Quem?"
+                        value={formikMeta.values.apoioFamiliarTratamento}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <Typography>Relacionamento Familiar Atual</Typography>
+                <FastField name="relacionamentoPai">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="relacionamentoPai"
+                        label="Pai"
+                        value={formikMeta.values.relacionamentoPai}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="relacionamentoMae">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="relacionamentoMae"
+                        label="Mãe"
+                        value={formikMeta.values.relacionamentoMae}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="relacionamentoIrmao">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="relacionamentoIrmao"
+                        label="Irmãos"
+                        value={formikMeta.values.relacionamentoIrmao}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="relacionamentoEsposo">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="relacionamentoEsposo"
+                        label="Esposa (o)"
+                        value={formikMeta.values.relacionamentoEsposo}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="relacionamentoFilhos">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="relacionamentoFilhos"
+                        label="Filhos (as)"
+                        value={formikMeta.values.relacionamentoFilhos}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="relacionamentoSocial">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="relacionamentoSocial"
+                        label="Relacionamento Social Atual"
+                        value={formikMeta.values.relacionamentoSocial}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+              </Card>
+              <Box
+                display="flex"
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="h5">Saúde</Typography>
+              </Box>
+              <Card sx={{ padding: 3, pb: 4 }}>
+                <FastField name="periodoSono">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="periodoSono"
+                        label="Período de Sono"
+                        value={formikMeta.values.periodoSono}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="temPesadelos">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Possui Pesadelos</FormLabel>
+                        <RadioGroup
+                          row
+                          name="temPesadelos"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.temPesadelos}
+                        >
+                          <FormControlLabel
+                            value="N"
+                            control={<Radio />}
+                            label={'Não'}
+                          />
+                          <FormControlLabel
+                            value="Y"
+                            control={<Radio />}
+                            label={'Sim'}
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="observacaoGeral">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="observacaoGeral"
+                        label="Observações gerais"
+                        value={formikMeta.values.observacaoGeral}
+                        multiline
+                        minRows={5}
+                        maxRows={8}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="alimentecao">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="alimentecao"
+                        label="Alimentação"
+                        value={formikMeta.values.alimentecao}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="temAlucinacao">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Alucinação – Com drogas</FormLabel>
+                        <RadioGroup
+                          row
+                          name="temAlucinacao"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.temAlucinacao}
+                        >
+                          <FormControlLabel
+                            value="N"
+                            control={<Radio />}
+                            label={'Não'}
+                          />
+                          <FormControlLabel
+                            value="Y"
+                            control={<Radio />}
+                            label={'Sim'}
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                {formikMeta.values.temAlucinacao === 'Y' ? (
+                  <FastField name="qtdTipoAlucinacaoDroga">
                     {() => (
                       <Box
                         display="flex"
@@ -2164,135 +2351,138 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                       >
                         <LightTextField
                           fullWidth
-                          name="qtdTipoAlucinacao"
+                          name="qtdTipoAlucinacaoDroga"
                           label="Quantidade e tipo de droga"
-                          value={formikMeta.values.qtdTipoAlucinacao}
+                          value={formikMeta.values.qtdTipoAlucinacaoDroga}
                           onChange={formikMeta.handleChange}
                         />
                       </Box>
                     )}
                   </FastField>
-                  <FastField name="tipoAlucinacao">
-                    {() => (
-                      <Box display="flex" my="1rem">
-                        <FormControl>
-                          <FormLabel>Tipo Alucinação</FormLabel>
-                          <RadioGroup
-                            row
-                            name="tipoAlucinacao"
+                ) : null}
+                <FastField name="alucinacaoSemDrogas">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Sem drogas</FormLabel>
+                        <RadioGroup
+                          row
+                          name="alucinacaoSemDrogas"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.alucinacaoSemDrogas}
+                        >
+                          <FormControlLabel
+                            value="N"
+                            control={<Radio />}
+                            label={'Não'}
+                          />
+                          <FormControlLabel
+                            value="Y"
+                            control={<Radio />}
+                            label={'Sim'}
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                {formikMeta.values.alucinacaoSemDrogas === 'Y' ? (
+                  <div>
+                    <FastField name="qtdTipoAlucinacao">
+                      {() => (
+                        <Box
+                          display="flex"
+                          my="1.5rem"
+                          flexWrap="wrap"
+                          alignItems="center"
+                          justifyContent="space-between"
+                        >
+                          <LightTextField
+                            fullWidth
+                            name="qtdTipoAlucinacao"
+                            label="Quantidade e tipo de droga"
+                            value={formikMeta.values.qtdTipoAlucinacao}
                             onChange={formikMeta.handleChange}
-                          >
-                            <FormControlLabel
-                              value="V"
-                              control={<Radio />}
-                              label={'Visual'}
-                            />
-                            <FormControlLabel
-                              value="A"
-                              control={<Radio />}
-                              label={'Auditiva'}
-                            />
-                          </RadioGroup>
-                        </FormControl>
-                      </Box>
-                    )}
-                  </FastField>
-                  <FastField name="descricaoAlucinacao">
-                    {() => (
-                      <Box
-                        display="flex"
-                        my="1.5rem"
-                        flexWrap="wrap"
-                        alignItems="center"
-                        justifyContent="space-between"
-                      >
-                        <LightTextField
-                          fullWidth
-                          name="descricaoAlucinacao"
-                          label="Descrever quando (mês/ano) e como"
-                          value={formikMeta.values.descricaoAlucinacao}
-                          onChange={formikMeta.handleChange}
-                        />
-                      </Box>
-                    )}
-                  </FastField>
-                </div>
-              ) : null}
-              <Typography>Desmaio / Convulsão</Typography>
-              <FastField name="desmaioComDrogas">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Com drogas</FormLabel>
-                      <RadioGroup
-                        row
-                        name="desmaioComDrogas"
-                        onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="N"
-                          control={<Radio />}
-                          label="Não"
-                        />
-                        <FormControlLabel
-                          value="Y"
-                          control={<Radio />}
-                          label="Sim"
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              {formikMeta.values.desmaioComDrogas === 'Y' ? (
-                <FastField name="qndTipoDrogaDesmaio">
+                          />
+                        </Box>
+                      )}
+                    </FastField>
+                    <FastField name="tipoAlucinacao">
+                      {() => (
+                        <Box display="flex" my="1rem">
+                          <FormControl>
+                            <FormLabel>Tipo Alucinação</FormLabel>
+                            <RadioGroup
+                              row
+                              name="tipoAlucinacao"
+                              onChange={formikMeta.handleChange}
+                              value={formikMeta.values.tipoAlucinacao}
+                            >
+                              <FormControlLabel
+                                value="V"
+                                control={<Radio />}
+                                label={'Visual'}
+                              />
+                              <FormControlLabel
+                                value="A"
+                                control={<Radio />}
+                                label={'Auditiva'}
+                              />
+                            </RadioGroup>
+                          </FormControl>
+                        </Box>
+                      )}
+                    </FastField>
+                    <FastField name="descricaoAlucinacao">
+                      {() => (
+                        <Box
+                          display="flex"
+                          my="1.5rem"
+                          flexWrap="wrap"
+                          alignItems="center"
+                          justifyContent="space-between"
+                        >
+                          <LightTextField
+                            fullWidth
+                            name="descricaoAlucinacao"
+                            label="Descrever quando (mês/ano) e como"
+                            value={formikMeta.values.descricaoAlucinacao}
+                            onChange={formikMeta.handleChange}
+                          />
+                        </Box>
+                      )}
+                    </FastField>
+                  </div>
+                ) : null}
+                <Typography>Desmaio / Convulsão</Typography>
+                <FastField name="desmaioComDrogas">
                   {() => (
-                    <Box
-                      display="flex"
-                      my="1.5rem"
-                      flexWrap="wrap"
-                      alignItems="center"
-                      justifyContent="space-between"
-                    >
-                      <LightTextField
-                        fullWidth
-                        name="qndTipoDrogaDesmaio"
-                        label="Quantidade e tipo de droga"
-                        value={formikMeta.values.qndTipoDrogaDesmaio}
-                        onChange={formikMeta.handleChange}
-                      />
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Com drogas</FormLabel>
+                        <RadioGroup
+                          row
+                          name="desmaioComDrogas"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.desmaioComDrogas}
+                        >
+                          <FormControlLabel
+                            value="N"
+                            control={<Radio />}
+                            label="Não"
+                          />
+                          <FormControlLabel
+                            value="Y"
+                            control={<Radio />}
+                            label="Sim"
+                          />
+                        </RadioGroup>
+                      </FormControl>
                     </Box>
                   )}
                 </FastField>
-              ) : null}
-              <FastField name="desmaioSemDrogas">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Sem drogas</FormLabel>
-                      <RadioGroup
-                        row
-                        name="desmaioSemDrogas"
-                        onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="N"
-                          control={<Radio />}
-                          label="Não"
-                        />
-                        <FormControlLabel
-                          value="Y"
-                          control={<Radio />}
-                          label="Sim"
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              {formikMeta.values.desmaioSemDrogas === 'Y' ? (
-                <div>
-                  <FastField name="qndDesmaio">
+                {formikMeta.values.desmaioComDrogas === 'Y' ? (
+                  <FastField name="qndTipoDrogaDesmaio">
                     {() => (
                       <Box
                         display="flex"
@@ -2303,15 +2493,111 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                       >
                         <LightTextField
                           fullWidth
-                          name="qndDesmaio"
+                          name="qndTipoDrogaDesmaio"
                           label="Quantidade e tipo de droga"
-                          value={formikMeta.values.qndDesmaio}
+                          value={formikMeta.values.qndTipoDrogaDesmaio}
                           onChange={formikMeta.handleChange}
                         />
                       </Box>
                     )}
                   </FastField>
-                  <FastField name="desmaioDescricao">
+                ) : null}
+                <FastField name="desmaioSemDrogas">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Sem drogas</FormLabel>
+                        <RadioGroup
+                          row
+                          name="desmaioSemDrogas"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.desmaioSemDrogas}
+                        >
+                          <FormControlLabel
+                            value="N"
+                            control={<Radio />}
+                            label="Não"
+                          />
+                          <FormControlLabel
+                            value="Y"
+                            control={<Radio />}
+                            label="Sim"
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                {formikMeta.values.desmaioSemDrogas === 'Y' ? (
+                  <div>
+                    <FastField name="qndDesmaio">
+                      {() => (
+                        <Box
+                          display="flex"
+                          my="1.5rem"
+                          flexWrap="wrap"
+                          alignItems="center"
+                          justifyContent="space-between"
+                        >
+                          <LightTextField
+                            fullWidth
+                            name="qndDesmaio"
+                            label="Quantidade e tipo de droga"
+                            value={formikMeta.values.qndDesmaio}
+                            onChange={formikMeta.handleChange}
+                          />
+                        </Box>
+                      )}
+                    </FastField>
+                    <FastField name="desmaioDescricao">
+                      {() => (
+                        <Box
+                          display="flex"
+                          my="1.5rem"
+                          flexWrap="wrap"
+                          alignItems="center"
+                          justifyContent="space-between"
+                        >
+                          <LightTextField
+                            fullWidth
+                            name="desmaioDescricao"
+                            label="Descrever quando (mês/ano) e como"
+                            value={formikMeta.values.desmaioDescricao}
+                            onChange={formikMeta.handleChange}
+                          />
+                        </Box>
+                      )}
+                    </FastField>
+                  </div>
+                ) : null}
+                <FastField name="temOverdose">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Princípio de Overdose</FormLabel>
+                        <RadioGroup
+                          row
+                          name="temOverdose"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.temOverdose}
+                        >
+                          <FormControlLabel
+                            value="N"
+                            control={<Radio />}
+                            label="Não"
+                          />
+                          <FormControlLabel
+                            value="Y"
+                            control={<Radio />}
+                            label="Sim"
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                {formikMeta.values.temOverdose === 'Y' ? (
+                  <FastField name="qtdTipoDrogaOverdose">
                     {() => (
                       <Box
                         display="flex"
@@ -2322,43 +2608,153 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                       >
                         <LightTextField
                           fullWidth
-                          name="desmaioDescricao"
-                          label="Descrever quando (mês/ano) e como"
-                          value={formikMeta.values.desmaioDescricao}
+                          name="qtdTipoDrogaOverdose"
+                          label="Quantidade e tipo de droga"
+                          value={formikMeta.values.qtdTipoDrogaOverdose}
                           onChange={formikMeta.handleChange}
                         />
                       </Box>
                     )}
                   </FastField>
-                </div>
-              ) : null}
-              <FastField name="temOverdose">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Princípio de Overdose</FormLabel>
-                      <RadioGroup
-                        row
-                        name="temOverdose"
-                        onChange={formikMeta.handleChange}
+                ) : null}
+                <FastField name="tomaRemedio">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Toma medicação</FormLabel>
+                        <RadioGroup
+                          row
+                          name="tomaRemedio"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.tomaRemedio}
+                        >
+                          <FormControlLabel
+                            value="N"
+                            control={<Radio />}
+                            label="Não"
+                          />
+                          <FormControlLabel
+                            value="Y"
+                            control={<Radio />}
+                            label="Sim"
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                {formikMeta.values.tomaRemedio === 'Y' ? (
+                  <FastField name="sobreRemedio">
+                    {() => (
+                      <Box
+                        display="flex"
+                        my="1.5rem"
+                        flexWrap="wrap"
+                        alignItems="center"
+                        justifyContent="space-between"
                       >
-                        <FormControlLabel
-                          value="N"
-                          control={<Radio />}
-                          label="Não"
+                        <LightTextField
+                          fullWidth
+                          name="sobreRemedio"
+                          // label="Qual, desde quando, quantidade, frequência?"
+                          label="Qual, desde quando, quantidade, frequência?"
+                          value={formikMeta.values.sobreRemedio}
+                          onChange={formikMeta.handleChange}
                         />
-                        <FormControlLabel
-                          value="Y"
-                          control={<Radio />}
-                          label="Sim"
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              {formikMeta.values.temOverdose === 'Y' ? (
-                <FastField name="qtdTipoDrogaOverdose">
+                      </Box>
+                    )}
+                  </FastField>
+                ) : null}
+                <FastField name="sintomasAnteriores">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>
+                          Sintomas anteriores (doenças infantis, doenças mais
+                          sérias ou crônicas
+                        </FormLabel>
+                        <FormGroup onChange={formikMeta.handleChange} row>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.sintomasAnteriores.find(
+                                    (element) =>
+                                      element === 'sintomasAnterioresCaxumba',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="Caxumba"
+                            value="sintomasAnterioresCaxumba"
+                            name="sintomasAnteriores"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.sintomasAnteriores.find(
+                                    (element) =>
+                                      element === 'sintomasAnterioresCatapora',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="Catapora"
+                            value="sintomasAnterioresCatapora"
+                            name="sintomasAnteriores"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.sintomasAnteriores.find(
+                                    (element) =>
+                                      element === 'sintomasAnterioresMeningite',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="Meningite"
+                            value="sintomasAnterioresMeningite"
+                            name="sintomasAnteriores"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.sintomasAnteriores.find(
+                                    (element) =>
+                                      element === 'sintomasAnterioresSarampo',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="Sarampo"
+                            value="sintomasAnterioresSarampo"
+                            name="sintomasAnteriores"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={
+                                  formikMeta.values.sintomasAnteriores.find(
+                                    (element) =>
+                                      element === 'sintomasAnterioresOutros',
+                                  ) !== undefined
+                                }
+                              />
+                            }
+                            label="Outros"
+                            value="sintomasAnterioresOutros"
+                            name="sintomasAnteriores"
+                          />
+                        </FormGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="outroSintomasAnteriores">
                   {() => (
                     <Box
                       display="flex"
@@ -2369,42 +2765,15 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                     >
                       <LightTextField
                         fullWidth
-                        name="qtdTipoDrogaOverdose"
-                        label="Quantidade e tipo de droga"
-                        value={formikMeta.values.qtdTipoDrogaOverdose}
+                        name="outroSintomasAnteriores"
+                        label="Outros"
+                        value={formikMeta.values.outroSintomasAnteriores}
                         onChange={formikMeta.handleChange}
                       />
                     </Box>
                   )}
                 </FastField>
-              ) : null}
-              <FastField name="tomaRemedio">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Toma medicação</FormLabel>
-                      <RadioGroup
-                        row
-                        name="tomaRemedio"
-                        onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="N"
-                          control={<Radio />}
-                          label="Não"
-                        />
-                        <FormControlLabel
-                          value="Y"
-                          control={<Radio />}
-                          label="Sim"
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              {formikMeta.values.tomaRemedio === 'Y' ? (
-                <FastField name="sobreRemedio">
+                <FastField name="acidentes">
                   {() => (
                     <Box
                       display="flex"
@@ -2415,286 +2784,15 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                     >
                       <LightTextField
                         fullWidth
-                        name="sobreRemedio"
-                        // label="Qual, desde quando, quantidade, frequência?"
-                        label="Qual, desde quando, quantidade, frequência?"
-                        value={formikMeta.values.sobreRemedio}
+                        name="acidentes"
+                        label="Acidentes"
+                        value={formikMeta.values.acidentes}
                         onChange={formikMeta.handleChange}
                       />
                     </Box>
                   )}
                 </FastField>
-              ) : null}
-              <FastField name="sintomasAnteriores">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>
-                        Sintomas anteriores (doenças infantis, doenças mais
-                        sérias ou crônicas
-                      </FormLabel>
-                      <FormGroup onChange={formikMeta.handleChange} row>
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="Caxumba"
-                          value="sintomasAnterioresCaxumba"
-                          name="sintomasAnteriores"
-                        />
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="Catapora"
-                          value="sintomasAnterioresCatapora"
-                          name="sintomasAnteriores"
-                        />
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="Meningite"
-                          value="sintomasAnterioresMeningite"
-                          name="sintomasAnteriores"
-                        />
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="Sarampo"
-                          value="sintomasAnterioresSarampo"
-                          name="sintomasAnteriores"
-                        />
-                        <FormControlLabel
-                          control={<Checkbox />}
-                          label="Outros"
-                          value="sintomasAnterioresOutros"
-                          name="sintomasAnteriores"
-                        />
-                      </FormGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="outroSintomasAnteriores">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="outroSintomasAnteriores"
-                      label="Outros"
-                      value={formikMeta.values.outroSintomasAnteriores}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="acidentes">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="acidentes"
-                      label="Acidentes"
-                      value={formikMeta.values.acidentes}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="cirurgias">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="cirurgias"
-                      label="Cirurgias"
-                      value={formikMeta.values.cirurgias}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="tratamentosAnteriores">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="tratamentosAnteriores"
-                      label="Tratamentos anteriores (internações, onde, data, abordagem terapêutica, terapias etc.). Quantidade"
-                      value={formikMeta.values.tratamentosAnteriores}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="consideraDependente">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Considera-se um (a) dependente?</FormLabel>
-                      <RadioGroup
-                        row
-                        name="consideraDependente"
-                        onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="N"
-                          control={<Radio />}
-                          label="Não"
-                        />
-                        <FormControlLabel
-                          value="Y"
-                          control={<Radio />}
-                          label="Sim"
-                        />
-                        <FormControlLabel
-                          value="NS"
-                          control={<Radio />}
-                          label={'Não sei'}
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="consideraDependenteJustificativa">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="consideraDependenteJustificativa"
-                      label="Justificar"
-                      value={formikMeta.values.consideraDependenteJustificativa}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="motivoProcuraInstituicao">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="motivoProcuraInstituicao"
-                      label="Motivo que o (a) levou a procurar a Instituição"
-                      value={formikMeta.values.motivoProcuraInstituicao}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="expectaviaTratamento">
-                {() => (
-                  <Box
-                    display="flex"
-                    my="1.5rem"
-                    flexWrap="wrap"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <LightTextField
-                      fullWidth
-                      name="expectaviaTratamento"
-                      label="Expectativas sobre o tratamento"
-                      value={formikMeta.values.expectaviaTratamento}
-                      onChange={formikMeta.handleChange}
-                    />
-                  </Box>
-                )}
-              </FastField>
-            </Card>
-            <Box
-              display="flex"
-              my="1.5rem"
-              flexWrap="wrap"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="h5">Problemas Legais</Typography>
-            </Box>
-            <Card sx={{ padding: 3, pb: 4 }}>
-              <FastField name="problemaJustica">
-                {() => (
-                  <Box display="flex" my="1rem">
-                    <FormControl>
-                      <FormLabel>Problemas com a justiça?</FormLabel>
-                      <RadioGroup
-                        row
-                        name="problemaJustica"
-                        onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="N"
-                          control={<Radio />}
-                          label="Não"
-                        />
-                        <FormControlLabel
-                          value="Y"
-                          control={<Radio />}
-                          label="Sim"
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              <FastField name="temProcesso">
-                {() => (
-                  <Box display="flex">
-                    <FormControl>
-                      <FormLabel>Tem processo?</FormLabel>
-                      <RadioGroup
-                        row
-                        name="temProcesso"
-                        onChange={formikMeta.handleChange}
-                      >
-                        <FormControlLabel
-                          value="N"
-                          control={<Radio />}
-                          label="Não"
-                        />
-                        <FormControlLabel
-                          value="Y"
-                          control={<Radio />}
-                          label="Sim"
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
-                )}
-              </FastField>
-              {formikMeta.values.temProcesso === 'Y' ? (
-                <FastField name="porqueProblemaJustica">
+                <FastField name="cirurgias">
                   {() => (
                     <Box
                       display="flex"
@@ -2705,46 +2803,239 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                     >
                       <LightTextField
                         fullWidth
-                        name="porqueProblemaJustica"
-                        label="Quantos, quando (mês/ano), motivo, artigo assinado?"
-                        value={formikMeta.values.porqueProblemaJustica}
+                        name="cirurgias"
+                        label="Cirurgias"
+                        value={formikMeta.values.cirurgias}
                         onChange={formikMeta.handleChange}
                       />
                     </Box>
                   )}
                 </FastField>
-              ) : null}
-            </Card>
-            <br />
-            <br />
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Button
-                variant="outlined"
-                sx={{
-                  width: 124,
-                  color: 'text.disabled',
-                  borderColor: 'text.disabled',
-                }}
-                fullWidth
-                onClick={() => router.back()}
+                <FastField name="tratamentosAnteriores">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="tratamentosAnteriores"
+                        label="Tratamentos anteriores (internações, onde, data, abordagem terapêutica, terapias etc.). Quantidade"
+                        value={formikMeta.values.tratamentosAnteriores}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="consideraDependente">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Considera-se um (a) dependente?</FormLabel>
+                        <RadioGroup
+                          row
+                          name="consideraDependente"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.consideraDependente}
+                        >
+                          <FormControlLabel
+                            value="N"
+                            control={<Radio />}
+                            label="Não"
+                          />
+                          <FormControlLabel
+                            value="Y"
+                            control={<Radio />}
+                            label="Sim"
+                          />
+                          <FormControlLabel
+                            value="NS"
+                            control={<Radio />}
+                            label={'Não sei'}
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="consideraDependenteJustificativa">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="consideraDependenteJustificativa"
+                        label="Justificar"
+                        value={
+                          formikMeta.values.consideraDependenteJustificativa
+                        }
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="motivoProcuraInstituicao">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="motivoProcuraInstituicao"
+                        label="Motivo que o (a) levou a procurar a Instituição"
+                        value={formikMeta.values.motivoProcuraInstituicao}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="expectaviaTratamento">
+                  {() => (
+                    <Box
+                      display="flex"
+                      my="1.5rem"
+                      flexWrap="wrap"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <LightTextField
+                        fullWidth
+                        name="expectaviaTratamento"
+                        label="Expectativas sobre o tratamento"
+                        value={formikMeta.values.expectaviaTratamento}
+                        onChange={formikMeta.handleChange}
+                      />
+                    </Box>
+                  )}
+                </FastField>
+              </Card>
+              <Box
+                display="flex"
+                my="1.5rem"
+                flexWrap="wrap"
+                alignItems="center"
+                justifyContent="space-between"
               >
-                Cancelar
-              </Button>
-              <Button
-                fullWidth
-                type="submit"
-                variant="contained"
-                sx={{ width: 124 }}
+                <Typography variant="h5">Problemas Legais</Typography>
+              </Box>
+              <Card sx={{ padding: 3, pb: 4 }}>
+                <FastField name="problemaJustica">
+                  {() => (
+                    <Box display="flex" my="1rem">
+                      <FormControl>
+                        <FormLabel>Problemas com a justiça?</FormLabel>
+                        <RadioGroup
+                          row
+                          name="problemaJustica"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.problemaJustica}
+                        >
+                          <FormControlLabel
+                            value="N"
+                            control={<Radio />}
+                            label="Não"
+                          />
+                          <FormControlLabel
+                            value="Y"
+                            control={<Radio />}
+                            label="Sim"
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                <FastField name="temProcesso">
+                  {() => (
+                    <Box display="flex">
+                      <FormControl>
+                        <FormLabel>Tem processo?</FormLabel>
+                        <RadioGroup
+                          row
+                          name="temProcesso"
+                          onChange={formikMeta.handleChange}
+                          value={formikMeta.values.temProcesso}
+                        >
+                          <FormControlLabel
+                            value="N"
+                            control={<Radio />}
+                            label="Não"
+                          />
+                          <FormControlLabel
+                            value="Y"
+                            control={<Radio />}
+                            label="Sim"
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Box>
+                  )}
+                </FastField>
+                {formikMeta.values.temProcesso === 'Y' ? (
+                  <FastField name="porqueProblemaJustica">
+                    {() => (
+                      <Box
+                        display="flex"
+                        my="1.5rem"
+                        flexWrap="wrap"
+                        alignItems="center"
+                        justifyContent="space-between"
+                      >
+                        <LightTextField
+                          fullWidth
+                          name="porqueProblemaJustica"
+                          label="Quantos, quando (mês/ano), motivo, artigo assinado?"
+                          value={formikMeta.values.porqueProblemaJustica}
+                          onChange={formikMeta.handleChange}
+                        />
+                      </Box>
+                    )}
+                  </FastField>
+                ) : null}
+              </Card>
+              <br />
+              <br />
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
               >
-                Salvar
-              </Button>
-            </Box>
-          </Form>
-        )}}
+                <Button
+                  variant="outlined"
+                  sx={{
+                    width: 124,
+                    color: 'text.disabled',
+                    borderColor: 'text.disabled',
+                  }}
+                  fullWidth
+                  onClick={() => router.back()}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  fullWidth
+                  type="submit"
+                  variant="contained"
+                  sx={{ width: 124 }}
+                >
+                  Salvar
+                </Button>
+              </Box>
+            </Form>
+          );
+        }}
       </Formik>
     </Card>
   );
