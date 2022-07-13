@@ -7,6 +7,7 @@ import {
   TableBody,
   TableCell,
   TableHead,
+  TablePagination,
   TableRow,
   useTheme,
 } from '@mui/material';
@@ -91,6 +92,7 @@ const DataPessoas: FC<DataTableProps> = ({ data = [] }) => {
     state,
     setGlobalFilter,
     selectedFlatRows,
+    setPageSize,
   }: any = useTable(
     {
       columns,
@@ -104,9 +106,19 @@ const DataPessoas: FC<DataTableProps> = ({ data = [] }) => {
       hooks.visibleColumns.push((columns) => [...columns]);
     },
   );
+
+
   // handle pagination
-  const handleChange = (_event: any, currentPageNo: number) => {
-    gotoPage(currentPageNo - 1);
+  const handleChangePage = (event: unknown, newPage: number) => {
+    gotoPage(newPage);
+    console.log(pageOptions);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setPageSize(parseInt(event.target.value, 10));
+    gotoPage(0);
   };
 
   const ids = selectedFlatRows.map((item: any) => item.original.id);
@@ -207,12 +219,17 @@ const DataPessoas: FC<DataTableProps> = ({ data = [] }) => {
         </Table>
       )}
       {/* </ScrollBar> */}
-
       <Stack alignItems="center" marginY="2rem">
-        <StyledPagination
-          shape="rounded"
-          onChange={handleChange}
-          count={pageOptions.length}
+        <TablePagination
+          count={tableData.length}
+          rowsPerPage={state.pageSize}
+          page={state.pageIndex}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage={'N° de celulas'}
+          labelDisplayedRows={() => {
+            return `Total: ${tableData.length} | Pagina: ${state.pageIndex + 1} de ${pageOptions.length}`;
+          }}
         />
       </Stack>
     </Box>
