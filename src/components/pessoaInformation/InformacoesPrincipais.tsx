@@ -128,6 +128,10 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
         );
         values.dtalteracao = format(new Date(), 'dd-MM-yyyy');
       }
+      values.cpf_cnpj = values.cpf_cnpj
+        .replaceAll('.', '')
+        .replaceAll('-', '')
+        .replaceAll('/', '');
       !idPessoa
         ? adicionarPessoa(values)
         : atualizarPessoa(values, parseInt(idPessoa));
