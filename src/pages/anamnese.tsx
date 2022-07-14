@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Card,
   Checkbox,
@@ -8,21 +7,21 @@ import {
   FormGroup,
   FormLabel,
   Grid,
-  Hidden,
+  MenuItem,
   Radio,
   RadioGroup,
   Typography,
 } from '@mui/material';
-import axios, { Axios } from 'axios';
+import axios from 'axios';
 import { format } from 'date-fns';
 import { FastField, Form, Formik } from 'formik';
 import router from 'next/router';
-import * as React from 'react';
 import { FC, MouseEvent, useEffect, useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import * as Yup from 'yup';
 // import { IMaskInput } from 'react-imask';
 import AddIconButton from '../components/AddIconButton';
+import FlexBox from '../components/FlexBox';
 import ListCard from '../components/itens/ListCard';
 import ModalFilho from '../components/itens/ModalFilho';
 import ModalIrmao from '../components/itens/ModalIrmao';
@@ -34,6 +33,52 @@ import { adicionarPessoa } from '../components/pessoaInformation/LerDados';
 import { Tiny } from '../components/Typography';
 import { herokuConfig } from '../config';
 import useTitle from '../hooks/useTitle';
+
+type infoPessoa = {
+  id_pronome_tratamento: number;
+  natural_id_cidade: number;
+  idade: number;
+  dt_expedicao_rg: string;
+  id_pessoas_grupos: number;
+  datanascimento: string;
+  grupo_principal: boolean;
+  id_escolaridade: number;
+  id_atividade: number;
+  id_pessoas_enderecos: number;
+  cnh_validade: string;
+  status: boolean;
+  id: number;
+  cep: string;
+  dtinclusao: string;
+  dtalteracao: string;
+  ddd: number;
+  telefone: number;
+  grupo: string;
+  pronome: string;
+  atividade: string;
+  logradouro: string;
+  bairro: string;
+  cidade: string;
+  uf_cidade: string;
+  complemento: string;
+  tipo: string;
+  nome: string;
+  apelido_fantasia: string;
+  email: string;
+  website: string;
+  cpf_cnpj: string;
+  rg_ie: string;
+  orgaoemissor: string;
+  rg_uf: string;
+  rg_via: string;
+  observacoes: string;
+  sexo: string;
+  nacionalidade: string;
+  estado_civil: string;
+  cnh: string;
+  cnh_categoria: string;
+  natural: string;
+};
 
 type filho = {
   idPessoa: number;
@@ -49,6 +94,11 @@ type irmao = {
   idade: number;
 };
 
+type escolariedade = {
+  id: number;
+  nome: string;
+};
+
 interface AnamneseProps {
   idPessoa: string;
 }
@@ -61,7 +111,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
 
-  const [infoPessoa, setInfoPessoa] = useState();
+  const [infoPessoa, setInfoPessoa] = useState<infoPessoa>();
   const [itemDados, setItem] = useState<number>(0);
 
   const [openModalFilho, setOpenModalFilho] = useState(false);
@@ -81,7 +131,15 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
 
   const [postgresJson, setPostgres] = useState();
 
+  const [escolaridadeInfo, setEscolariedadeInfo] = useState<escolariedade[]>(
+    [],
+  );
+
+  const [cpfPessoa, setCPFPessoa] = useState('');
+
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}`;
+  const herokuSQL = `${herokuConfig}executaSQL?id_usuario=${_user?.id}&token=${_user?.token}`;
+  const herokuEscolariedade = `sql=select DISTINCT e.id, e.nome from public.escolaridade e`;
 
   useEffect(() => {
     axios
@@ -92,13 +150,36 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
       })
       .then(({ data }: any) => {
         setPostgres(data.body.rows[0].anamnese);
-        console.log(1, data.body.rows[0].anamnese);
+        console.log(data);
       })
       .catch((error) => {
-        console.error(2, error);
+        setPostgres(undefined);
       });
-    console.log(2, postgresJson);
+    axios
+      .get(heroku + `&table=pessoas`, {
+        params: {
+          filter: `id=${idPessoa}`,
+        },
+      })
+      .then(({ data }: any) => {
+        setCPFPessoa(data.body.rows[0].cpf_cnpj);
+      })
+      .catch((error) => {
+        console.log(2, error);
+      });
   }, [heroku]);
+
+  useEffect(() => {
+    axios
+      .post(herokuSQL, herokuEscolariedade)
+      .then((response) => {
+        setEscolariedadeInfo(response.data.body.table);
+      })
+      .catch((error) => {
+        console.error(error);
+        setEscolariedadeInfo([]);
+      });
+  }, [herokuSQL]);
 
   useEffect(() => {
     if (!openModalFilho && editarFilho) {
@@ -198,7 +279,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
     profissao: '',
     localFuncao: '',
     afastado: '',
-    escolaridade: '',
+    escolaridade: -1,
     motivoAbandono: '',
     drogasAlcool: '',
     usaQuaisDrogas: [],
@@ -283,6 +364,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
       .required('Campo obrigatório!'),
     cpf: Yup.string().min(14, 'CPF muito curto').required('Campo obrigatório!'),
     dataNascimento: Yup.string().required('Campo obrigatório!'),
+    naturalidade: Yup.string().required('Campo obrigatório!'),
+    estadoCivil: Yup.string().optional(),
+    escolaridade: Yup.string().optional(),
+    enderecoAtual: Yup.string().optional(),
+    bairroAtual: Yup.string().optional(),
+    cidadeAtual: Yup.string().optional(),
   });
 
   const editarFilhoInfo = (id: number) => {
@@ -330,27 +417,26 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
   };
 
   const testeIgual = (cpf: string) => {
-    if (typeof idPessoa !== 'undefined') {
-      const cpfTratada = cpf
-        .replaceAll('.', '')
-        .replaceAll('-', '')
-        .replaceAll('/', '');
-      axios
-        .get(heroku + `&table=view_pessoas`, {
-          params: {
-            filter: `cpf_cnpj='${cpfTratada}'`,
-          },
-        })
-        .then(({ data }: any) => {
-          if (typeof data !== 'undefined') {
-            setInfoPessoa(data.body.rows[0]);
-          }
-          console.log(infoPessoa);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
+    console.log(cpf);
+    const cpfTratada = cpf
+      .replaceAll('.', '')
+      .replaceAll('-', '')
+      .replaceAll('/', '');
+    console.log(cpfTratada);
+    axios
+      .get(heroku + `&table=view_pessoas`, {
+        params: {
+          filter: `cpf_cnpj='${cpfTratada}'`,
+        },
+      })
+      .then(({ data }: any) => {
+        if (typeof data !== 'undefined') {
+          setInfoPessoa(data.body.rows[0]);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
@@ -414,31 +500,60 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
             };
             adicionarPessoa(newPessoa);
           }
-          window.scrollTo(top);
+          window.scrollTo(0, 0);
         }}
       >
         {(formikMeta) => {
-          typeof infoPessoa !== 'undefined'
-            ? (formikMeta.values.nome = infoPessoa?.nome)
-            : null;
-          typeof infoPessoa !== 'undefined'
-            ? (formikMeta.values.dataNascimento = infoPessoa?.datanascimento
-                ? format(new Date(infoPessoa?.datanascimento), 'dd/MM/yyyy')
-                : '')
-            : null;
-          typeof infoPessoa !== 'undefined'
-            ? (formikMeta.values.estadoCivil = infoPessoa?.estado_civil)
-            : null;
-          typeof infoPessoa !== 'undefined'
-            ? (formikMeta.values.naturalidade = infoPessoa?.natural)
-            : null;
+          useEffect(() => {
+            infoPessoa ? (formikMeta.values.nome = infoPessoa.nome) : null;
+            infoPessoa
+              ? (formikMeta.values.dataNascimento = format(
+                  new Date(infoPessoa?.datanascimento),
+                  'dd/MM/yyyy',
+                ))
+              : null;
+            infoPessoa
+              ? formikMeta.setFieldValue('estadoCivil', infoPessoa.estado_civil)
+              : null;
+            infoPessoa
+              ? formikMeta.setFieldValue('naturalidade', infoPessoa.natural)
+              : null;
+            infoPessoa
+              ? formikMeta.setFieldValue(
+                  'escolaridade',
+                  infoPessoa.id_escolaridade,
+                )
+              : null;
+            infoPessoa
+              ? formikMeta.setFieldValue('enderecoAtual', infoPessoa.logradouro)
+              : null;
+            infoPessoa
+              ? formikMeta.setFieldValue('bairroAtual', infoPessoa.bairro)
+              : null;
+            infoPessoa
+              ? formikMeta.setFieldValue('cidadeAtual', infoPessoa.cidade)
+              : null;
+          }, [infoPessoa]);
 
-          postgresJson ? (formikMeta.values = postgresJson) : null;
-          console.log(postgresJson?.dataNascimento);
+          useEffect(
+            function () {
+              if (typeof postgresJson !== 'undefined') {
+                postgresJson ? (formikMeta.setValues(postgresJson)) : null;
+              } else if (
+                typeof postgresJson === 'undefined' &&
+                typeof idPessoa !== 'undefined' &&
+                cpfPessoa !== ''
+              ) {
+                formikMeta.setFieldValue('cpf', cpfPessoa, true);
+                testeIgual(formikMeta.values.cpf);
+              }
+            },
+            [cpfPessoa, postgresJson],
+          );
 
           return (
             <Form>
-              <Box
+              <FlexBox
                 display="flex"
                 my="1.5rem"
                 flexWrap="wrap"
@@ -446,12 +561,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 justifyContent="space-between"
               >
                 <Typography variant="h5">Identificação</Typography>
-              </Box>
+              </FlexBox>
               <Card sx={{ padding: 3, pb: 4 }}>
                 <FastField name="cpf">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -477,13 +591,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           inputComponent: MaskCPFCNPJ as any,
                         }}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="nome">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -495,20 +608,20 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         label="Nome"
                         value={formikMeta.values.nome}
                         onChange={formikMeta.handleChange}
-                        helperText={
-                          formikMeta.touched.nome && formikMeta.errors.nome
-                        }
+                        onBlur={formikMeta.handleBlur}
                         error={Boolean(
                           formikMeta.touched.nome && formikMeta.errors.nome,
                         )}
+                        helperText={
+                          formikMeta.touched.nome && formikMeta.errors.nome
+                        }
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="dataNascimento">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -532,13 +645,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           inputComponent: MaskDt as any,
                         }}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="naturalidade">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -550,13 +662,21 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         label="Naturalidade"
                         value={formikMeta.values.naturalidade}
                         onChange={formikMeta.handleChange}
+                        // helperText={
+                        //   formikMeta.touched.naturalidade &&
+                        //   formikMeta.errors.naturalidade
+                        // }
+                        // error={Boolean(
+                        //   formikMeta.touched.naturalidade &&
+                        //     formikMeta.errors.naturalidade,
+                        // )}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="estadoCivil">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Estado Civil</FormLabel>
                         <RadioGroup
@@ -566,47 +686,47 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           value={formikMeta.values.estadoCivil}
                         >
                           <FormControlLabel
-                            value="Solteiro"
+                            value="S"
                             control={<Radio />}
                             label={'Solteiro (a)'}
                           />
                           <FormControlLabel
-                            value="Casado"
+                            value="C"
                             control={<Radio />}
                             label={'Casado (a)'}
                           />
                           <FormControlLabel
-                            value="Amasiado"
+                            value="A"
                             control={<Radio />}
                             label={'Amasiado (a)'}
                           />
                           <FormControlLabel
-                            value="Viuvo"
+                            value="V"
                             control={<Radio />}
                             label={'Viúvo (a)'}
                           />
                           <FormControlLabel
-                            value="Separado"
+                            value="s"
                             control={<Radio />}
                             label={'Separado (a)'}
                           />
                           <FormControlLabel
-                            value="Desquitado"
+                            value="D"
                             control={<Radio />}
                             label={'Desquitado (a)'}
                           />
                           <FormControlLabel
-                            value="Divorciado"
+                            value="d"
                             control={<Radio />}
                             label={'Divorciado (a)'}
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
               </Card>
-              <Box
+              <FlexBox
                 display="flex"
                 my="1.5rem"
                 flexWrap="wrap"
@@ -614,12 +734,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 justifyContent="space-between"
               >
                 <Typography variant="h5">Esposo(a)</Typography>
-              </Box>
+              </FlexBox>
               <Card sx={{ padding: 3, pb: 4 }}>
                 <FastField name="nomeEsposa">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -632,7 +751,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.nomeEsposa}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <Grid container spacing={4}>
@@ -665,8 +784,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 </Grid>{' '}
                 <FastField name="profissaoEsposa">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -679,12 +797,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.profissaoEsposa}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="esposaUsuaria">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Usuária (o)</FormLabel>
                         <FormGroup row onChange={formikMeta.handleChange}>
@@ -732,11 +850,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </FormGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
               </Card>
-              <Box
+              <FlexBox
                 display="flex"
                 my="1.5rem"
                 flexWrap="wrap"
@@ -744,7 +862,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 justifyContent="space-between"
               >
                 <Typography variant="h5">Filho</Typography>
-              </Box>
+              </FlexBox>
               <Card sx={{ padding: 3, pb: 4 }}>
                 <Grid container spacing={3} pt={3}>
                   {filhos.map((value, index) => (
@@ -761,12 +879,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                   ))}
 
                   <Grid item xs={12} sm={6}>
-                    <Box display={'flex'} alignItems="center">
+                    <FlexBox alignItems="center">
                       <AddIconButton onClick={() => setOpenModalFilho(true)} />
-                      <Box ml="1rem">
+                      <FlexBox ml="1rem">
                         <Typography variant="h6">Adicionar</Typography>
                         <Tiny color="secondary.400">novo Filho(a)</Tiny>
-                      </Box>
+                      </FlexBox>
                       <ModalFilho
                         open={openModalFilho}
                         setOpen={setOpenModalFilho}
@@ -774,11 +892,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         itemDados={filhos[itemDados]}
                         editar={editarFilho}
                       />
-                    </Box>
+                    </FlexBox>
                   </Grid>
                 </Grid>
               </Card>
-              <Box
+              <FlexBox
                 display="flex"
                 my="1.5rem"
                 flexWrap="wrap"
@@ -786,11 +904,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 justifyContent="space-between"
               >
                 <Typography variant="h5">Pais</Typography>
-              </Box>
+              </FlexBox>
               <Card sx={{ padding: 3, pb: 4 }}>
                 <FastField name="estadoCivilPais">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Estado Civil</FormLabel>
                         <RadioGroup
@@ -800,48 +918,48 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           value={formikMeta.values.estadoCivilPais}
                         >
                           <FormControlLabel
-                            value="Solteiro"
+                            value="S"
                             control={<Radio />}
                             label={'Solteiro (a)'}
                           />
                           <FormControlLabel
-                            value="Casado"
+                            value="C"
                             control={<Radio />}
                             label={'Casado (a)'}
                           />
                           <FormControlLabel
-                            value="Amasiado"
+                            value="A"
                             control={<Radio />}
                             label={'Amasiado (a)'}
                           />
                           <FormControlLabel
-                            value="Viuvo"
+                            value="V"
                             control={<Radio />}
                             label={'Viúvo (a)'}
                           />
                           <FormControlLabel
-                            value="Separado"
+                            value="s"
                             control={<Radio />}
                             label={'Separado (a)'}
                           />
                           <FormControlLabel
-                            value="Desquitado"
+                            value="D"
                             control={<Radio />}
                             label={'Desquitado (a)'}
                           />
                           <FormControlLabel
-                            value="Divorciado"
+                            value="d"
                             control={<Radio />}
                             label={'Divorciado (a)'}
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="paisVivos">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Pais Vivos</FormLabel>
                         <FormGroup onChange={formikMeta.handleChange} row>
@@ -875,14 +993,14 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </FormGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
 
                 <Card sx={{ padding: 3, pb: 4 }}>
                   <FastField name="nomePai">
                     {() => (
-                      <Box
+                      <FlexBox
                         display="flex"
                         my="1.5rem"
                         flexWrap="wrap"
@@ -896,7 +1014,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           value={formikMeta.values.nomePai}
                           onChange={formikMeta.handleChange}
                         />
-                      </Box>
+                      </FlexBox>
                     )}
                   </FastField>
                   <Grid container spacing={4}>
@@ -932,7 +1050,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 <Card sx={{ padding: 3, pb: 4 }}>
                   <FastField name="nomeMae">
                     {() => (
-                      <Box
+                      <FlexBox
                         display="flex"
                         my="1.5rem"
                         flexWrap="wrap"
@@ -946,7 +1064,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           value={formikMeta.values.nomeMae}
                           onChange={formikMeta.handleChange}
                         />
-                      </Box>
+                      </FlexBox>
                     )}
                   </FastField>
                   <Grid container spacing={4}>
@@ -980,7 +1098,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 </Card>
                 <br />
               </Card>
-              <Box
+              <FlexBox
                 display="flex"
                 my="1.5rem"
                 flexWrap="wrap"
@@ -988,12 +1106,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 justifyContent="space-between"
               >
                 <Typography variant="h5">Endereço</Typography>
-              </Box>
+              </FlexBox>
               <Card sx={{ padding: 3, pb: 4 }}>
                 <FastField name="moraQuem">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1006,58 +1123,70 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.moraQuem}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <Grid container spacing={4}>
-                  <FastField name="enderecoAtual">
-                    {() => (
-                      <Grid item xs={12} sm={6}>
-                        <LightTextField
-                          fullWidth
-                          name="enderecoAtual"
-                          label="Endereço atual"
-                          value={formikMeta.values.enderecoAtual}
-                          onChange={formikMeta.handleChange}
-                        />
-                      </Grid>
-                    )}
-                  </FastField>
-                  <FastField name="bairroAtual">
-                    {() => (
-                      <Grid item xs={12} sm={6}>
-                        <LightTextField
-                          fullWidth
-                          name="bairroAtual"
-                          label="Bairro"
-                          value={formikMeta.values.bairroAtual}
-                          onChange={formikMeta.handleChange}
-                        />
-                      </Grid>
-                    )}
-                  </FastField>
+                  <Grid item xs={12} sm={6}>
+                    <LightTextField
+                      fullWidth
+                      name="enderecoAtual"
+                      label="Endereço atual"
+                      value={formikMeta.values.enderecoAtual}
+                      onChange={formikMeta.handleChange}
+                      error={Boolean(
+                        formikMeta.touched.enderecoAtual &&
+                          formikMeta.errors.enderecoAtual,
+                      )}
+                      helperText={
+                        formikMeta.touched.enderecoAtual &&
+                        formikMeta.errors.enderecoAtual
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <LightTextField
+                      fullWidth
+                      name="bairroAtual"
+                      label="Bairro"
+                      value={formikMeta.values.bairroAtual}
+                      onChange={formikMeta.handleChange}
+                      error={Boolean(
+                        formikMeta.touched.bairroAtual &&
+                          formikMeta.errors.bairroAtual,
+                      )}
+                      helperText={
+                        formikMeta.touched.bairroAtual &&
+                        formikMeta.errors.bairroAtual
+                      }
+                    />
+                  </Grid>
                 </Grid>
-                <FastField name="cidadeAtual">
-                  {() => (
-                    <Box
-                      display="flex"
-                      my="1.5rem"
-                      flexWrap="wrap"
-                      alignItems="center"
-                      justifyContent="space-between"
-                    >
-                      <LightTextField
-                        fullWidth
-                        name="cidadeAtual"
-                        label="Cidade"
-                        value={formikMeta.values.cidadeAtual}
-                        onChange={formikMeta.handleChange}
-                      />
-                    </Box>
-                  )}
-                </FastField>
+                <FlexBox
+                  my="1.5rem"
+                  flexWrap="wrap"
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <LightTextField
+                    fullWidth
+                    name="cidadeAtual"
+                    label="Cidade"
+                    value={formikMeta.values.cidadeAtual}
+                    onChange={formikMeta.handleChange}
+                    onBlur={formikMeta.handleBlur}
+                    error={Boolean(
+                      formikMeta.touched.cidadeAtual &&
+                        formikMeta.errors.cidadeAtual,
+                    )}
+                    helperText={
+                      formikMeta.touched.cidadeAtual &&
+                      formikMeta.errors.cidadeAtual
+                    }
+                  />
+                </FlexBox>
               </Card>
-              <Box
+              <FlexBox
                 display="flex"
                 my="1.5rem"
                 flexWrap="wrap"
@@ -1065,11 +1194,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 justifyContent="space-between"
               >
                 <Typography variant="h5">Profissão</Typography>
-              </Box>
+              </FlexBox>
               <Card sx={{ padding: 3, pb: 4 }}>
                 <FastField name="profissao">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Trabalha atualmente?</FormLabel>
                         <RadioGroup
@@ -1090,13 +1219,13 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 {formikMeta.values.profissao === 'Y' ? (
                   <FastField name="localFuncao">
                     {() => (
-                      <Box
+                      <FlexBox
                         display="flex"
                         my="1.5rem"
                         flexWrap="wrap"
@@ -1110,13 +1239,13 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           value={formikMeta.values.localFuncao}
                           onChange={formikMeta.handleChange}
                         />
-                      </Box>
+                      </FlexBox>
                     )}
                   </FastField>
                 ) : null}
                 <FastField name="afastado">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>
                           Está afastado pela Previdência Social?
@@ -1139,32 +1268,39 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
-                <FastField name="escolaridade">
-                  {() => (
-                    <Box
-                      display="flex"
-                      my="1.5rem"
-                      flexWrap="wrap"
-                      alignItems="center"
-                      justifyContent="space-between"
+                <FlexBox
+                  my="1.5rem"
+                  flexWrap="wrap"
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <FormControl fullWidth>
+                    <LightTextField
+                      select
+                      value={formikMeta.values.escolaridade}
+                      id="escolaridade"
+                      onChange={formikMeta.handleChange}
+                      name="escolaridade"
+                      label="Escolaridade"
+                      error={Boolean(
+                        formikMeta.touched.escolaridade &&
+                          formikMeta.errors.escolaridade,
+                      )}
                     >
-                      <LightTextField
-                        fullWidth
-                        name="escolaridade"
-                        label="Escolaridade"
-                        value={formikMeta.values.escolaridade}
-                        onChange={formikMeta.handleChange}
-                      />
-                    </Box>
-                  )}
-                </FastField>
+                      {escolaridadeInfo.map((option) => (
+                        <MenuItem value={option.id} key={option.id}>
+                          {option.nome}
+                        </MenuItem>
+                      ))}
+                    </LightTextField>
+                  </FormControl>
+                </FlexBox>
                 <FastField name="motivoAbandono">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1177,11 +1313,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.motivoAbandono}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
               </Card>
-              <Box
+              <FlexBox
                 display="flex"
                 my="1.5rem"
                 flexWrap="wrap"
@@ -1189,7 +1325,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 justifyContent="space-between"
               >
                 <Typography variant="h5">Irmão</Typography>
-              </Box>
+              </FlexBox>
               <div>
                 <Card sx={{ padding: 3, pb: 4 }}>
                   <Grid container spacing={3} pt={3}>
@@ -1209,14 +1345,14 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                       </Grid>
                     ))}
                     <Grid item xs={12} sm={6}>
-                      <Box display="flex" alignItems="center">
+                      <FlexBox alignItems="center">
                         <AddIconButton
                           onClick={() => setOpenModalIrmao(true)}
                         />
-                        <Box ml="1rem">
+                        <FlexBox ml="1rem">
                           <Typography variant="h6">Adicionar</Typography>
                           <Tiny color="secondary.400">novo irmão(a)</Tiny>
-                        </Box>
+                        </FlexBox>
                         <ModalIrmao
                           open={openModalIrmao}
                           setOpen={setOpenModalIrmao}
@@ -1224,12 +1360,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           itemDados={irmaos[itemDados]}
                           editar={editarIrmao}
                         />
-                      </Box>
+                      </FlexBox>
                     </Grid>
                   </Grid>
                 </Card>
               </div>
-              <Box
+              <FlexBox
                 display="flex"
                 my="1.5rem"
                 flexWrap="wrap"
@@ -1237,11 +1373,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 justifyContent="space-between"
               >
                 <Typography variant="h5">Problemática</Typography>
-              </Box>
+              </FlexBox>
               <Card sx={{ padding: 3, pb: 4 }}>
                 <FastField name="drogasAlcool">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <RadioGroup
                           row
@@ -1266,10 +1402,10 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
-                <Box display="flex" my="1rem">
+                <FlexBox my="1rem">
                   <FormControl>
                     <FormLabel>
                       Drogas e a idade que usou pela 1ª vez:
@@ -1521,11 +1657,10 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                       </Grid>
                     </FormGroup>
                   </FormControl>
-                </Box>
+                </FlexBox>
                 <FastField name="motivoInicio">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1538,13 +1673,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.motivoInicio}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="tipodroga">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1557,13 +1691,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.tipodroga}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="observacoes">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1576,13 +1709,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.observacoes}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="periodoAbstinencia">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1595,12 +1727,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.periodoAbstinencia}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="situacoesUso">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Situações em que faz uso</FormLabel>
                         <FormGroup onChange={formikMeta.handleChange} row>
@@ -1662,13 +1794,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </FormGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="observacoesB">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1681,14 +1812,14 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.observacoesB}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <Grid container spacing={4}>
                   <FastField name="familiaUsaDrogas">
                     {() => (
                       <Grid item xs={12} sm={6}>
-                        <Box display="flex" my="1rem">
+                        <FlexBox my="1rem">
                           <FormControl>
                             <FormLabel>
                               Caso de álcool e/ ou drogas na família?
@@ -1711,7 +1842,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                               />
                             </RadioGroup>
                           </FormControl>
-                        </Box>
+                        </FlexBox>
                       </Grid>
                     )}
                   </FastField>
@@ -1719,7 +1850,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                     <FastField name="familiaGrauParentesco">
                       {() => (
                         <Grid item xs={12} sm={6}>
-                          <Box
+                          <FlexBox
                             display="flex"
                             my="1.5rem"
                             flexWrap="wrap"
@@ -1733,7 +1864,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                               value={formikMeta.values.familiaGrauParentesco}
                               onChange={formikMeta.handleChange}
                             />
-                          </Box>
+                          </FlexBox>
                         </Grid>
                       )}
                     </FastField>
@@ -1743,7 +1874,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                   <FastField name="TemNamorada">
                     {() => (
                       <Grid item xs={12} sm={6}>
-                        <Box display="flex" my="1rem">
+                        <FlexBox my="1rem">
                           <FormControl>
                             <FormLabel>Namorada</FormLabel>
                             <RadioGroup
@@ -1764,7 +1895,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                               />
                             </RadioGroup>
                           </FormControl>
-                        </Box>
+                        </FlexBox>
                       </Grid>
                     )}
                   </FastField>
@@ -1772,7 +1903,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                     <FastField name="namoradaNome">
                       {() => (
                         <Grid item xs={12} sm={6}>
-                          <Box
+                          <FlexBox
                             display="flex"
                             my="1.5rem"
                             flexWrap="wrap"
@@ -1786,7 +1917,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                               value={formikMeta.values.namoradaNome}
                               onChange={formikMeta.handleChange}
                             />
-                          </Box>
+                          </FlexBox>
                         </Grid>
                       )}
                     </FastField>
@@ -1796,7 +1927,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                   <div>
                     <FastField name="namoradaTempo">
                       {() => (
-                        <Box
+                        <FlexBox
                           display="flex"
                           my="1.5rem"
                           flexWrap="wrap"
@@ -1810,14 +1941,14 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                             value={formikMeta.values.namoradaTempo}
                             onChange={formikMeta.handleChange}
                           />
-                        </Box>
+                        </FlexBox>
                       )}
                     </FastField>
                     <Grid container spacing={4}>
                       <FastField name="namoradaUsaDrogas">
                         {() => (
                           <Grid item xs={12} sm={6}>
-                            <Box display="flex" my="1rem">
+                            <FlexBox my="1rem">
                               <FormControl>
                                 <FormLabel>
                                   Namorada usa droga/álcool?
@@ -1840,7 +1971,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                                   />
                                 </RadioGroup>
                               </FormControl>
-                            </Box>
+                            </FlexBox>
                           </Grid>
                         )}
                       </FastField>
@@ -1848,7 +1979,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         <FastField name="namoradaDrogaTipo">
                           {() => (
                             <Grid item xs={12} sm={6}>
-                              <Box
+                              <FlexBox
                                 display="flex"
                                 my="1.5rem"
                                 flexWrap="wrap"
@@ -1862,7 +1993,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                                   value={formikMeta.values.namoradaDrogaTipo}
                                   onChange={formikMeta.handleChange}
                                 />
-                              </Box>
+                              </FlexBox>
                             </Grid>
                           )}
                         </FastField>
@@ -1871,7 +2002,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                   </div>
                 ) : null}
               </Card>
-              <Box
+              <FlexBox
                 display="flex"
                 my="1.5rem"
                 flexWrap="wrap"
@@ -1879,12 +2010,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 justifyContent="space-between"
               >
                 <Typography variant="h5">Histórico</Typography>
-              </Box>
+              </FlexBox>
               <Card sx={{ padding: 3, pb: 4 }}>
                 <FastField name="comoSeSenteNoUso">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1897,13 +2027,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.comoSeSenteNoUso}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="mudancasComportamento">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1916,13 +2045,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.mudancasComportamento}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="prejuisoUso">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1935,13 +2063,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.prejuisoUso}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="comoFinanciaUso">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1954,13 +2081,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.comoFinanciaUso}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="lugaresUso">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1973,13 +2099,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.lugaresUso}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="percebeuProblemaUso">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -1992,13 +2117,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.percebeuProblemaUso}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="tempoSemUso">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2011,13 +2135,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.tempoSemUso}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="comoEstaVida">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2030,11 +2153,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.comoEstaVida}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
               </Card>
-              <Box
+              <FlexBox
                 display="flex"
                 my="1.5rem"
                 flexWrap="wrap"
@@ -2042,12 +2165,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 justifyContent="space-between"
               >
                 <Typography variant="h5">Situação Familiar</Typography>
-              </Box>
+              </FlexBox>
               <Card sx={{ padding: 3, pb: 4 }}>
                 <FastField name="relacionamentoFamiliar">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2060,13 +2182,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.relacionamentoFamiliar}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="comQuemMora">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2079,13 +2200,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.comQuemMora}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="apoioFamiliarTratamento">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2098,14 +2218,13 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.apoioFamiliarTratamento}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <Typography>Relacionamento Familiar Atual</Typography>
                 <FastField name="relacionamentoPai">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2118,13 +2237,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.relacionamentoPai}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="relacionamentoMae">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2137,13 +2255,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.relacionamentoMae}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="relacionamentoIrmao">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2156,13 +2273,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.relacionamentoIrmao}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="relacionamentoEsposo">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2175,13 +2291,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.relacionamentoEsposo}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="relacionamentoFilhos">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2194,13 +2309,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.relacionamentoFilhos}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="relacionamentoSocial">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2213,11 +2327,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.relacionamentoSocial}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
               </Card>
-              <Box
+              <FlexBox
                 display="flex"
                 my="1.5rem"
                 flexWrap="wrap"
@@ -2225,12 +2339,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 justifyContent="space-between"
               >
                 <Typography variant="h5">Saúde</Typography>
-              </Box>
+              </FlexBox>
               <Card sx={{ padding: 3, pb: 4 }}>
                 <FastField name="periodoSono">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2243,12 +2356,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.periodoSono}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="temPesadelos">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Possui Pesadelos</FormLabel>
                         <RadioGroup
@@ -2269,13 +2382,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="observacaoGeral">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2291,13 +2403,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         maxRows={8}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="alimentecao">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2310,12 +2421,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.alimentecao}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="temAlucinacao">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Alucinação – Com drogas</FormLabel>
                         <RadioGroup
@@ -2336,13 +2447,13 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 {formikMeta.values.temAlucinacao === 'Y' ? (
                   <FastField name="qtdTipoAlucinacaoDroga">
                     {() => (
-                      <Box
+                      <FlexBox
                         display="flex"
                         my="1.5rem"
                         flexWrap="wrap"
@@ -2356,13 +2467,13 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           value={formikMeta.values.qtdTipoAlucinacaoDroga}
                           onChange={formikMeta.handleChange}
                         />
-                      </Box>
+                      </FlexBox>
                     )}
                   </FastField>
                 ) : null}
                 <FastField name="alucinacaoSemDrogas">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Sem drogas</FormLabel>
                         <RadioGroup
@@ -2383,14 +2494,14 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 {formikMeta.values.alucinacaoSemDrogas === 'Y' ? (
                   <div>
                     <FastField name="qtdTipoAlucinacao">
                       {() => (
-                        <Box
+                        <FlexBox
                           display="flex"
                           my="1.5rem"
                           flexWrap="wrap"
@@ -2404,12 +2515,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                             value={formikMeta.values.qtdTipoAlucinacao}
                             onChange={formikMeta.handleChange}
                           />
-                        </Box>
+                        </FlexBox>
                       )}
                     </FastField>
                     <FastField name="tipoAlucinacao">
                       {() => (
-                        <Box display="flex" my="1rem">
+                        <FlexBox my="1rem">
                           <FormControl>
                             <FormLabel>Tipo Alucinação</FormLabel>
                             <RadioGroup
@@ -2430,12 +2541,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                               />
                             </RadioGroup>
                           </FormControl>
-                        </Box>
+                        </FlexBox>
                       )}
                     </FastField>
                     <FastField name="descricaoAlucinacao">
                       {() => (
-                        <Box
+                        <FlexBox
                           display="flex"
                           my="1.5rem"
                           flexWrap="wrap"
@@ -2449,7 +2560,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                             value={formikMeta.values.descricaoAlucinacao}
                             onChange={formikMeta.handleChange}
                           />
-                        </Box>
+                        </FlexBox>
                       )}
                     </FastField>
                   </div>
@@ -2457,7 +2568,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 <Typography>Desmaio / Convulsão</Typography>
                 <FastField name="desmaioComDrogas">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Com drogas</FormLabel>
                         <RadioGroup
@@ -2478,13 +2589,13 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 {formikMeta.values.desmaioComDrogas === 'Y' ? (
                   <FastField name="qndTipoDrogaDesmaio">
                     {() => (
-                      <Box
+                      <FlexBox
                         display="flex"
                         my="1.5rem"
                         flexWrap="wrap"
@@ -2498,13 +2609,13 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           value={formikMeta.values.qndTipoDrogaDesmaio}
                           onChange={formikMeta.handleChange}
                         />
-                      </Box>
+                      </FlexBox>
                     )}
                   </FastField>
                 ) : null}
                 <FastField name="desmaioSemDrogas">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Sem drogas</FormLabel>
                         <RadioGroup
@@ -2525,14 +2636,14 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 {formikMeta.values.desmaioSemDrogas === 'Y' ? (
                   <div>
                     <FastField name="qndDesmaio">
                       {() => (
-                        <Box
+                        <FlexBox
                           display="flex"
                           my="1.5rem"
                           flexWrap="wrap"
@@ -2546,12 +2657,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                             value={formikMeta.values.qndDesmaio}
                             onChange={formikMeta.handleChange}
                           />
-                        </Box>
+                        </FlexBox>
                       )}
                     </FastField>
                     <FastField name="desmaioDescricao">
                       {() => (
-                        <Box
+                        <FlexBox
                           display="flex"
                           my="1.5rem"
                           flexWrap="wrap"
@@ -2565,14 +2676,14 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                             value={formikMeta.values.desmaioDescricao}
                             onChange={formikMeta.handleChange}
                           />
-                        </Box>
+                        </FlexBox>
                       )}
                     </FastField>
                   </div>
                 ) : null}
                 <FastField name="temOverdose">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Princípio de Overdose</FormLabel>
                         <RadioGroup
@@ -2593,13 +2704,13 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 {formikMeta.values.temOverdose === 'Y' ? (
                   <FastField name="qtdTipoDrogaOverdose">
                     {() => (
-                      <Box
+                      <FlexBox
                         display="flex"
                         my="1.5rem"
                         flexWrap="wrap"
@@ -2613,13 +2724,13 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           value={formikMeta.values.qtdTipoDrogaOverdose}
                           onChange={formikMeta.handleChange}
                         />
-                      </Box>
+                      </FlexBox>
                     )}
                   </FastField>
                 ) : null}
                 <FastField name="tomaRemedio">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Toma medicação</FormLabel>
                         <RadioGroup
@@ -2640,13 +2751,13 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 {formikMeta.values.tomaRemedio === 'Y' ? (
                   <FastField name="sobreRemedio">
                     {() => (
-                      <Box
+                      <FlexBox
                         display="flex"
                         my="1.5rem"
                         flexWrap="wrap"
@@ -2661,13 +2772,13 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           value={formikMeta.values.sobreRemedio}
                           onChange={formikMeta.handleChange}
                         />
-                      </Box>
+                      </FlexBox>
                     )}
                   </FastField>
                 ) : null}
                 <FastField name="sintomasAnteriores">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>
                           Sintomas anteriores (doenças infantis, doenças mais
@@ -2751,13 +2862,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </FormGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="outroSintomasAnteriores">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2770,13 +2880,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.outroSintomasAnteriores}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="acidentes">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2789,13 +2898,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.acidentes}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="cirurgias">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2808,13 +2916,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.cirurgias}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="tratamentosAnteriores">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2827,12 +2934,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.tratamentosAnteriores}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="consideraDependente">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Considera-se um (a) dependente?</FormLabel>
                         <RadioGroup
@@ -2858,13 +2965,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="consideraDependenteJustificativa">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2879,13 +2985,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         }
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="motivoProcuraInstituicao">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2898,13 +3003,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.motivoProcuraInstituicao}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="expectaviaTratamento">
                   {() => (
-                    <Box
-                      display="flex"
+                    <FlexBox
                       my="1.5rem"
                       flexWrap="wrap"
                       alignItems="center"
@@ -2917,11 +3021,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                         value={formikMeta.values.expectaviaTratamento}
                         onChange={formikMeta.handleChange}
                       />
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
               </Card>
-              <Box
+              <FlexBox
                 display="flex"
                 my="1.5rem"
                 flexWrap="wrap"
@@ -2929,11 +3033,11 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 justifyContent="space-between"
               >
                 <Typography variant="h5">Problemas Legais</Typography>
-              </Box>
+              </FlexBox>
               <Card sx={{ padding: 3, pb: 4 }}>
                 <FastField name="problemaJustica">
                   {() => (
-                    <Box display="flex" my="1rem">
+                    <FlexBox my="1rem">
                       <FormControl>
                         <FormLabel>Problemas com a justiça?</FormLabel>
                         <RadioGroup
@@ -2954,12 +3058,12 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 <FastField name="temProcesso">
                   {() => (
-                    <Box display="flex">
+                    <FlexBox>
                       <FormControl>
                         <FormLabel>Tem processo?</FormLabel>
                         <RadioGroup
@@ -2980,13 +3084,13 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           />
                         </RadioGroup>
                       </FormControl>
-                    </Box>
+                    </FlexBox>
                   )}
                 </FastField>
                 {formikMeta.values.temProcesso === 'Y' ? (
                   <FastField name="porqueProblemaJustica">
                     {() => (
-                      <Box
+                      <FlexBox
                         display="flex"
                         my="1.5rem"
                         flexWrap="wrap"
@@ -3000,14 +3104,14 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                           value={formikMeta.values.porqueProblemaJustica}
                           onChange={formikMeta.handleChange}
                         />
-                      </Box>
+                      </FlexBox>
                     )}
                   </FastField>
                 ) : null}
               </Card>
               <br />
               <br />
-              <Box
+              <FlexBox
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
@@ -3032,7 +3136,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                 >
                   Salvar
                 </Button>
-              </Box>
+              </FlexBox>
             </Form>
           );
         }}
