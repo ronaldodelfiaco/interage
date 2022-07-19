@@ -418,26 +418,10 @@ const modalTelefone: FC<ModalFilhoProps> = ({
             />
           </FlexBox>
 
-          {/* <FormControl>
-            <FormGroup onChange={Formik.handleChange} row>
-              <FormControlLabel
-                checked={Formik.values.recebe_correspondencia}
-                value={Formik.values.recebe_correspondencia}
-                control={<Checkbox />}
-                label="Recebe Correspondencia"
-                name="recebe_correspondencia"
-              />
-              <FormControlLabel
-                value={Formik.values.status}
-                control={<Checkbox />}
-                label="status"
-                name="status"
-              />
-            </FormGroup>
-          </FormControl> */}
           <Checkbox
             checked={Formik.values.recebe_correspondencia}
             value={Formik.values.recebe_correspondencia}
+            onChange={Formik.handleChange}
             name="recebe_correspondencia"
             id="recebe_correspondencia"
           />
