@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Card,
   Checkbox,
@@ -10,7 +11,7 @@ import {
   MenuItem,
   Radio,
   RadioGroup,
-  Typography,
+  Typography
 } from '@mui/material';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -247,11 +248,18 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
     }
   }, [newIrmaoDados]);
 
-  const [skillEl, setSkillEl] = useState<null | HTMLElement>(null);
-  const handleSkillMoreOpen = (event: MouseEvent<HTMLButtonElement>) => {
-    setSkillEl(event.currentTarget);
+  const [idEdit, setIdEdit] = useState(0);
+  const [filhoEl, setfilhoEl] = useState<null | HTMLElement>(null);
+  const handlefilhoMoreOpen = (event: MouseEvent<HTMLButtonElement>) => {
+    setfilhoEl(event.currentTarget);
   };
-  const handleSkillMoreClose = () => setSkillEl(null);
+  const handlefilhoMoreClose = () => setfilhoEl(null);
+
+  const [irmaoEl, setirmaoEl] = useState<null | HTMLElement>(null);
+  const handleirmaoMoreOpen = (event: MouseEvent<HTMLButtonElement>) => {
+    setirmaoEl(event.currentTarget);
+  };
+  const handleirmaoMoreClose = () => setirmaoEl(null);
 
   const initialValues = {
     cpf: '',
@@ -372,57 +380,33 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
     cidadeAtual: Yup.string().optional(),
   });
 
-  const editarFilhoInfo = (id: number) => {
-    filhos.forEach((Element) => {
-      if (Element.idRelacionamento === id) {
-        const index = filhos.indexOf(Element);
-        setItem(index);
-      }
-    });
-    setEditarFilho(true);
-    setOpenModalFilho(true);
-    handleSkillMoreClose();
+  const editarFilhoInfo = () => {
+    setItem(idEdit);
+    setEditarFilho(true), setOpenModalFilho(true);
+    handlefilhoMoreClose();
   };
 
-  const editarIrmaoInfo = (id: number) => {
-    irmaos.forEach((Element) => {
-      if (Element.idRelacionamento === id) {
-        const index = irmaos.indexOf(Element);
-        setItem(index);
-      }
-    });
-    setEditarIrmao(true);
-    setOpenModalIrmao(true);
-    handleSkillMoreClose();
+  const editarIrmaoInfo = () => {
+    setItem(idEdit);
+    setEditarIrmao(true), setOpenModalIrmao(true);
+    handleirmaoMoreClose();
   };
 
-  const apagarFilhoInfo = (id: number) => {
-    filhos.forEach((Element) => {
-      if (Element.idRelacionamento === id) {
-        const index = filhos.indexOf(Element);
-        filhos.splice(index, 1);
-      }
-    });
-    handleSkillMoreClose();
+  const apagarFilhoInfo = () => {
+    filhos.splice(idEdit, 1);
+    handlefilhoMoreClose();
   };
 
-  const apagarIrmaoInfo = (id: number) => {
-    irmaos.forEach((Element) => {
-      if (Element.idRelacionamento === id) {
-        const index = irmaos.indexOf(Element);
-        irmaos.splice(index, 1);
-      }
-    });
-    handleSkillMoreClose();
+  const apagarIrmaoInfo = () => {
+    irmaos.splice(idEdit, 1);
+    handleirmaoMoreClose();
   };
 
   const testeIgual = (cpf: string) => {
-    console.log(cpf);
     const cpfTratada = cpf
       .replaceAll('.', '')
       .replaceAll('-', '')
       .replaceAll('/', '');
-    console.log(cpfTratada);
     axios
       .get(heroku + `&table=view_pessoas`, {
         params: {
@@ -538,7 +522,7 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
           useEffect(
             function () {
               if (typeof postgresJson !== 'undefined') {
-                postgresJson ? (formikMeta.setValues(postgresJson)) : null;
+                postgresJson ? formikMeta.setValues(postgresJson) : null;
               } else if (
                 typeof postgresJson === 'undefined' &&
                 typeof idPessoa !== 'undefined' &&
@@ -866,25 +850,30 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
               <Card sx={{ padding: 3, pb: 4 }}>
                 <Grid container spacing={3} pt={3}>
                   {filhos.map((value, index) => (
-                    <Grid item xs={12} sm={6} key={index}>
-                      <ListCard item={value} handleMore={handleSkillMoreOpen} />
-                      <MoreOptions
-                        id={value.idRelacionamento}
-                        anchorEl={skillEl}
-                        handleMoreClose={handleSkillMoreClose}
-                        editar={editarFilhoInfo}
-                        apagar={apagarFilhoInfo}
+                    <Grid item xs={12} sm={6} key={value.idRelacionamento}>
+                      <ListCard
+                        setID={setIdEdit}
+                        index={index}
+                        item={value}
+                        handleMore={handlefilhoMoreOpen}
                       />
                     </Grid>
                   ))}
+                  <MoreOptions
+                    id={idEdit}
+                    anchorEl={filhoEl}
+                    handleMoreClose={handlefilhoMoreClose}
+                    editar={editarFilhoInfo}
+                    apagar={apagarFilhoInfo}
+                  />
 
                   <Grid item xs={12} sm={6}>
                     <FlexBox alignItems="center">
                       <AddIconButton onClick={() => setOpenModalFilho(true)} />
-                      <FlexBox ml="1rem">
+                      <Box ml="1rem">
                         <Typography variant="h6">Adicionar</Typography>
                         <Tiny color="secondary.400">novo Filho(a)</Tiny>
-                      </FlexBox>
+                      </Box>
                       <ModalFilho
                         open={openModalFilho}
                         setOpen={setOpenModalFilho}
@@ -1332,18 +1321,21 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                     {irmaos.map((value, index) => (
                       <Grid item xs={12} sm={6} key={index}>
                         <ListCard
+                          setID={setIdEdit}
+                          index={index}
                           item={value}
-                          handleMore={handleSkillMoreOpen}
-                        />
-                        <MoreOptions
-                          id={value.idRelacionamento}
-                          anchorEl={skillEl}
-                          handleMoreClose={handleSkillMoreClose}
-                          editar={editarIrmaoInfo}
-                          apagar={apagarIrmaoInfo}
+                          handleMore={handleirmaoMoreOpen}
                         />
                       </Grid>
                     ))}
+                    <MoreOptions
+                      id={idEdit}
+                      anchorEl={irmaoEl}
+                      handleMoreClose={handleirmaoMoreClose}
+                      editar={editarIrmaoInfo}
+                      apagar={apagarIrmaoInfo}
+                    />
+
                     <Grid item xs={12} sm={6}>
                       <FlexBox alignItems="center">
                         <AddIconButton

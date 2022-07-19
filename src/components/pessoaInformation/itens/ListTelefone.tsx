@@ -15,9 +15,11 @@ interface ListCardProps {
     id_tipo_telefone: number;
   };
   handleMore: (event: MouseEvent<HTMLButtonElement>) => void;
+  setID: (index: number) => void;
+  index: number;
 }
 
-const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
+const ListCard: FC<ListCardProps> = ({ item, handleMore, setID, index }) => {
   const tipoTelefone = [
     {
       nome: 'Celular',
@@ -91,8 +93,12 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
           </Tiny>
         </Box>
       </FlexBox>
-      <IconButton onClick={handleMore}>
-        <MoreHoriz sx={{ color: 'secondary.400' }} />
+      <IconButton
+        onClick={(event) => {
+          handleMore(event);
+          setID(index);
+        }}
+      >        <MoreHoriz sx={{ color: 'secondary.400' }} />
       </IconButton>
     </FlexBox>
   );

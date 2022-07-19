@@ -28,9 +28,11 @@ interface ListCardProps {
     status: boolean;
   };
   handleMore: (event: MouseEvent<HTMLButtonElement>) => void;
+  setID: (index: number) => void;
+  index: number;
 }
 
-const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
+const ListCard: FC<ListCardProps> = ({ item, handleMore, setID, index }) => {
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
@@ -77,8 +79,12 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
           ) : null}
         </Box>
       </FlexBox>
-      <IconButton onClick={handleMore}>
-        <MoreHoriz sx={{ color: 'secondary.400' }} />
+      <IconButton
+        onClick={(event) => {
+          handleMore(event);
+          setID(index);
+        }}
+      >        <MoreHoriz sx={{ color: 'secondary.400' }} />
       </IconButton>
     </FlexBox>
   );

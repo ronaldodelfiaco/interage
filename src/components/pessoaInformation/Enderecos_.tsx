@@ -50,6 +50,7 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_enderecos`;
 
   const [editar, setEditar] = useState(false);
+  const [idEdit, setIdEdit] = useState(0);
 
   const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
   const loadTable = () => {
@@ -103,32 +104,23 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
     loadTable();
   }, [newEnderecoPessoa]);
 
-  function editarEndereco(id: number) {
-    EnderecoPessoa.forEach((Element) => {
-      if (Element.id === id) {
-        setItem(id);
-      }
-    });
-    setEditar(true);
-    setOpenModalEndereco(true);
+  function editarEndereco() {
+    setItem(idEdit);
+    setEditar(true), setOpenModalEndereco(true);
     handleMoreClose();
   }
 
-  const apagarEndereco = (id: number) => {
-    EnderecoPessoa.forEach((Element) => {
-      if (Element.id === id) {
-        // const index = EnderecoPessoa.indexOf(Element);
-        // EnderecoPessoa.splice(index, 1);
-        axios
-          .delete(heroku + '&id=' + id)
-          .then((response) => {
-            console.log(response);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      }
-    });
+  const apagarEndereco = () => {
+    // const index = EnderecoPessoa.indexOf(Element);
+    // EnderecoPessoa.splice(index, 1);
+    axios
+      .delete(heroku + '&id=' + EnderecoPessoa[idEdit])
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
     loadTable();
     handleMoreClose();
   };
@@ -137,18 +129,23 @@ const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
       <H3>Endereço</H3>
       <Grid container spacing={4} pt="1.5rem">
-        {EnderecoPessoa.map((item) => (
-          <Grid item xs={12} sm={6} key={item?.id}>
-            <ListEndereco item={item} handleMore={handleMoreOpen} />
-            <MoreOptions
-              id={item.id}
-              anchorEl={moreEl}
-              handleMoreClose={handleMoreClose}
-              editar={editarEndereco}
-              apagar={apagarEndereco}
+        {EnderecoPessoa.map((item, index) => (
+          <Grid item xs={12} sm={6} key={index}>
+            <ListEndereco
+              setID={setIdEdit}
+              index={index}
+              item={item}
+              handleMore={handleMoreOpen}
             />
           </Grid>
         ))}
+        <MoreOptions
+          id={idEdit}
+          anchorEl={moreEl}
+          handleMoreClose={handleMoreClose}
+          editar={editarEndereco}
+          apagar={apagarEndereco}
+        />
 
         <Grid item xs={12} sm={6}>
           <FlexBox alignItems={'center'}>

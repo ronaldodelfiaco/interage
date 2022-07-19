@@ -50,6 +50,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_telefones`;
 
   const [editar, setEditar] = useState(false);
+  const [idEdit, setIdEdit] = useState(0);
 
   const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
 
@@ -159,34 +160,24 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
     }
   }, [newTelefone]);
 
-  const editarNumero = (id: number) => {
-    TelefonesPessoa.forEach((Element) => {
-      if (Element.id === id) {
-        const index = TelefonesPessoa.indexOf(Element);
-        setItemDados(TelefonesPessoa[index]);
-        setOpenModalTelefone(true);
-        setEditar(true);
-      }
-    });
+  const editarNumero = () => {
+    setItemDados(TelefonesPessoa[idEdit]);
+    setOpenModalTelefone(true), setEditar(true);
     handleMoreClose();
   };
 
-  const apagarNumero = (id: number) => {
-    TelefonesPessoa.forEach((Element) => {
-      if (Element.id === id) {
-        // const index = TelefonesPessoa.indexOf(Element);
-        // TelefonesPessoa.splice(index, 1);
-        axios
-          .delete(heroku + '&id=' + id)
-          .then((response) => {
-            console.log(response);
-            loadTable();
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      }
-    });
+  const apagarNumero = () => {
+    // const index = TelefonesPessoa.indexOf(Element);
+    // TelefonesPessoa.splice(index, 1);
+    axios
+      .delete(heroku + '&id=' + TelefonesPessoa[idEdit].id)
+      .then((response) => {
+        console.log(response);
+        loadTable();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
     handleMoreClose();
   };
 
@@ -194,18 +185,23 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
       <H3>Telefones</H3>
       <Grid container spacing={4} pt="1.5rem">
-        {TelefonesPessoa.map((item) => (
-          <Grid item xs={12} sm={6} key={item?.id}>
-            <ListTelefone item={item} handleMore={handleMoreOpen} />
-            <MoreOptions
-              id={item.id}
-              anchorEl={moreEl}
-              handleMoreClose={handleMoreClose}
-              editar={editarNumero}
-              apagar={apagarNumero}
+        {TelefonesPessoa.map((item, index) => (
+          <Grid item xs={12} sm={6} key={index}>
+            <ListTelefone
+              setID={setIdEdit}
+              index={index}
+              item={item}
+              handleMore={handleMoreOpen}
             />
           </Grid>
         ))}
+        <MoreOptions
+          id={idEdit}
+          anchorEl={moreEl}
+          handleMoreClose={handleMoreClose}
+          editar={editarNumero}
+          apagar={apagarNumero}
+        />
 
         <Grid item xs={12} sm={6}>
           <FlexBox alignItems={'center'}>

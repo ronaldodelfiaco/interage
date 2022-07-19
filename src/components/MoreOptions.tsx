@@ -1,5 +1,5 @@
 import { Menu, MenuItem } from '@mui/material';
-import React, { FC, useEffect, useState } from 'react';
+import { FC } from 'react';
 import DeleteIcon from '../icons/DeleteIcon';
 import PencilIcon from '../icons/PencilIcon';
 import { Small } from './Typography';
@@ -9,10 +9,10 @@ import { Small } from './Typography';
 interface MoreOptionsProps {
   // open: boolean;
   anchorEl: HTMLElement | null;
-  id?: number;
+  id: number;
   handleMoreClose: () => void;
-  apagar: (id: any) => void;
-  editar: (id: any) => void;
+  apagar: () => void;
+  editar: () => void;
 }
 
 const MoreOptions: FC<MoreOptionsProps> = ({
@@ -32,7 +32,7 @@ const MoreOptions: FC<MoreOptionsProps> = ({
     >
       <MenuItem
         onClick={() => {
-          editar(index);
+          editar();
         }}
         sx={{ '&:hover': { color: 'primary.main' } }}
       >
@@ -41,7 +41,7 @@ const MoreOptions: FC<MoreOptionsProps> = ({
       </MenuItem>
       <MenuItem
         onClick={() => {
-          apagar(index);
+          apagar();
         }}
         sx={{ '&:hover': { color: 'primary.main' } }}
       >

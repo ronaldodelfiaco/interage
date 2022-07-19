@@ -361,7 +361,7 @@ const modalTelefone: FC<ModalFilhoProps> = ({
               fullWidth
               onChange={Formik.handleChange}
               name={'cep'}
-              helperText={Formik.touched.cep && Formik.errors.cep}
+              // helperText={Formik.touched.cep && Formik.errors.cep}
               error={Boolean(Formik.touched.cep && Formik.errors.cep)}
               InputProps={{
                 inputComponent: maskCEP as any,

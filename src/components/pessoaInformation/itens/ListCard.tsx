@@ -12,9 +12,11 @@ interface ListCardProps {
     position: string;
   };
   handleMore: (event: MouseEvent<HTMLButtonElement>) => void;
+  setID: (index: number) => void;
+  index: number;
 }
 
-const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
+const ListCard: FC<ListCardProps> = ({ item, handleMore, setID, index }) => {
   return (
     <FlexBox justifyContent="space-between" alignItems="center">
       <FlexBox alignItems="center">
@@ -26,8 +28,12 @@ const ListCard: FC<ListCardProps> = ({ item, handleMore }) => {
           <Tiny>{item.position}</Tiny>
         </Box>
       </FlexBox>
-      <IconButton onClick={handleMore}>
-        <MoreHoriz sx={{ color: 'secondary.400' }} />
+      <IconButton
+        onClick={(event) => {
+          handleMore(event);
+          setID(index);
+        }}
+      >        <MoreHoriz sx={{ color: 'secondary.400' }} />
       </IconButton>
     </FlexBox>
   );

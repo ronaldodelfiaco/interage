@@ -52,6 +52,8 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
 
   const [editar, setEditar] = useState(false);
 
+  const [idEdit, setIdEdit] = useState(0);
+
   const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
 
   useEffect(() => {
@@ -140,35 +142,24 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
     }
   }, [newGrupo]);
 
-  const editarNumero = (id: number) => {
-    GruposPessoa.forEach((Element) => {
-      if (Element.id === id) {
-        const index = GruposPessoa.indexOf(Element);
-        setItemDados(GruposPessoa[index]);
-        setOpenModalGrupo(true);
-        setEditar(true);
-      }
-    });
+  const editarNumero = () => {
+    setItemDados(GruposPessoa[idEdit]);
+    setOpenModalGrupo(true), setEditar(true);
     handleMoreClose();
   };
 
-  const apagarNumero = (id: number) => {
-    // Achar o indice do vetor
-    GruposPessoa.forEach((Element) => {
-      if (Element.id === id) {
-        // const index = GruposPessoa.indexOf(Element);
-        // GruposPessoa.splice(index, 1);
-        axios
-          .delete(heroku + '&id=' + id)
-          .then((response) => {
-            console.log(response);
-            loadTable();
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      }
-    });
+  const apagarNumero = () => {
+    // const index = GruposPessoa.indexOf(Element);
+    // GruposPessoa.splice(index, 1);
+    axios
+      .delete(heroku + '&id=' + GruposPessoa[idEdit].id)
+      .then((response) => {
+        console.log(response);
+        loadTable();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
     handleMoreClose();
   };
 
@@ -176,18 +167,23 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
       <H3>Grupos</H3>
       <Grid container spacing={4} pt="1.5rem">
-        {GruposPessoa.map((item) => (
-          <Grid item xs={12} sm={6} key={item?.id}>
-            <ListGrupo item={item} handleMore={handleMoreOpen} />
-            <MoreOptions
-              id={item?.id}
-              anchorEl={moreEl}
-              handleMoreClose={handleMoreClose}
-              editar={editarNumero}
-              apagar={apagarNumero}
+        {GruposPessoa.map((item, index) => (
+          <Grid item xs={12} sm={6} key={index}>
+            <ListGrupo
+              setID={setIdEdit}
+              index={index}
+              item={item}
+              handleMore={handleMoreOpen}
             />
           </Grid>
         ))}
+        <MoreOptions
+          id={idEdit}
+          anchorEl={moreEl}
+          handleMoreClose={handleMoreClose}
+          editar={editarNumero}
+          apagar={apagarNumero}
+        />
 
         <Grid item xs={12} sm={6}>
           <FlexBox alignItems={'center'}>
