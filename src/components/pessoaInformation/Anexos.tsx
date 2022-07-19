@@ -13,6 +13,7 @@ import NewItemCard from './itens/NewItemCard';
 
 const Anexos: FC = () => {
   const { t } = useTranslation();
+  const [idEdit, setIdEdit] = useState(0);
   const [skill, setSkill] = useState('Select a skill');
 
   const [skillEl, setSkillEl] = useState<null | HTMLElement>(null);
@@ -29,21 +30,43 @@ const Anexos: FC = () => {
   };
   const handleStackMoreClose = () => setStackEl(null);
 
+  const editarskill = () => {
+    handleStackMoreClose();
+  };
+  const editarStack = () => {
+    handleStackMoreClose();
+  };
+
+  const apagarskill = () => {
+    handleStackMoreClose();
+  };
+  const apagarStack = () => {
+    handleStackMoreClose();
+  };
+
   return (
     <>
       <Card sx={{ padding: 3, pb: 4 }}>
         <H3>{t('Skills')}</H3>
 
         <Grid container spacing={3} pt={3}>
-          {designSkills.map((item) => (
+          {designSkills.map((item, index) => (
             <Grid item xs={12} sm={6} key={item.id}>
-              <ListCard item={item} handleMore={handleSkillMoreOpen} />
+              <ListCard
+                setID={setIdEdit}
+                index={index}
+                item={item}
+                handleMore={handleSkillMoreOpen}
+              />
             </Grid>
           ))}
 
           <MoreOptions
+            id={idEdit}
             anchorEl={skillEl}
             handleMoreClose={handleSkillMoreClose}
+            editar={editarskill}
+            apagar={apagarskill}
           />
 
           <Grid item xs={12} sm={6}>
@@ -55,15 +78,23 @@ const Anexos: FC = () => {
 
         <H3>{t('Stacks')}</H3>
         <Grid container spacing={4} pt={3}>
-          {stackSkills.map((item) => (
+          {stackSkills.map((item, index) => (
             <Grid item xs={12} sm={6} key={item.id}>
-              <ListCard item={item} handleMore={handleStackMoreOpen} />
+              <ListCard
+                setID={setIdEdit}
+                index={index}
+                item={item}
+                handleMore={handleStackMoreOpen}
+              />
             </Grid>
           ))}
 
           <MoreOptions
+            id={idEdit}
             anchorEl={stackEl}
             handleMoreClose={handleStackMoreClose}
+            editar={editarStack}
+            apagar={apagarStack}
           />
 
           <Grid item xs={12} sm={6}>
