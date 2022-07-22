@@ -42,7 +42,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
   const [newGrupo, setNewGrupo] = useState<grupo>();
   const [openModalGrupo, setOpenModalGrupo] = useState(false);
 
-  const [itemDados, setItemDados] = useState<grupo>();
+  const [itemDados, setItem] = useState(0);
   let user = localStorage.getItem('user');
 
   user = user === null ? '...' : user;
@@ -135,7 +135,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
         GruposPessoa.forEach((Element) => {
           if (Element.id === newGrupo.id) {
             setEditar(false);
-            setItemDados(undefined);
+            setItem(0);
           }
         });
       }
@@ -143,7 +143,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
   }, [newGrupo]);
 
   const editarNumero = () => {
-    setItemDados(GruposPessoa[idEdit]);
+    setItem(idEdit);
     setOpenModalGrupo(true), setEditar(true);
     handleMoreClose();
   };
@@ -192,12 +192,13 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
               <Typography variant="h6">Adicionar</Typography>
               <Tiny color="secondary.400">novo grupo</Tiny>
             </Grid>
+
             <ModalGrupo
               editar={editar}
               open={openModalGrupo}
               setOpen={setOpenModalGrupo}
               setDadosAtributos={setNewGrupo}
-              itemDados={itemDados}
+              itemDados={GruposPessoa[itemDados]}
               // setItemDados={setItemDados}
             />
           </FlexBox>

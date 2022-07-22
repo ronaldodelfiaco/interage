@@ -41,7 +41,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   const [newTelefone, setNewTelefone] = useState<telefone>();
   const [openModalTelefone, setOpenModalTelefone] = useState(false);
 
-  const [itemDados, setItemDados] = useState<telefone>();
+  const [itemDados, setItemDados] = useState(0);
 
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
@@ -141,19 +141,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
             // TelefonesPessoa.splice(index, 1, newTelefone);
             // TelefonesPessoa.splice(newTelefone.id, 1, newTelefone);
             setEditar(false);
-            setItemDados({
-              id: -1,
-              id_pessoa: '',
-              ddd: '',
-              telefone: '',
-              ramal: '',
-              principal: false,
-              id_tipo_telefone: 0,
-              contato: '',
-              ddi: '',
-              dtalteracao: '',
-              dtinclusao: '',
-            });
+            setItemDados(0);
           }
         });
       }
@@ -161,7 +149,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   }, [newTelefone]);
 
   const editarNumero = () => {
-    setItemDados(TelefonesPessoa[idEdit]);
+    setItemDados(idEdit);
     setOpenModalTelefone(true), setEditar(true);
     handleMoreClose();
   };
@@ -214,7 +202,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
               open={openModalTelefone}
               setOpen={setOpenModalTelefone}
               setDadosAtributos={setNewTelefone}
-              itemDados={itemDados}
+              itemDados={TelefonesPessoa[itemDados]}
               editar={editar}
             />
           </FlexBox>
