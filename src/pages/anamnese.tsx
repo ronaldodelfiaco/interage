@@ -11,7 +11,7 @@ import {
   MenuItem,
   Radio,
   RadioGroup,
-  Typography
+  Typography,
 } from '@mui/material';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -23,6 +23,7 @@ import * as Yup from 'yup';
 // import { IMaskInput } from 'react-imask';
 import AddIconButton from '../components/AddIconButton';
 import FlexBox from '../components/FlexBox';
+import GenericVectorUI from '../components/GenericVectorUI';
 import ListCard from '../components/itens/ListCard';
 import ModalFilho from '../components/itens/ModalFilho';
 import ModalIrmao from '../components/itens/ModalIrmao';
@@ -82,17 +83,17 @@ type infoPessoa = {
 };
 
 type filho = {
-  idPessoa: number;
-  idRelacionamento: number;
   nome: String;
   idade: number;
+  idPessoa: number;
+  idRelacionamento: number;
 };
 
 type irmao = {
-  idPessoa: number;
-  idRelacionamento: number;
   nome: String;
   idade: number;
+  idPessoa: number;
+  idRelacionamento: number;
 };
 
 type escolariedade = {
@@ -207,10 +208,10 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
         setFilhos((prevFilhos) => [
           ...prevFilhos,
           {
-            idPessoa: 0,
-            idRelacionamento: 3,
             nome: newFilhoDados.nome,
             idade: newFilhoDados.idade,
+            idPessoa: 0,
+            idRelacionamento: 3,
           },
         ]);
       } else {
@@ -230,10 +231,10 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
         setIrmaos((prevIrmaos) => [
           ...prevIrmaos,
           {
-            idPessoa: 0,
-            idRelacionamento: 3,
             nome: newIrmaoDados.nome,
             idade: newIrmaoDados.idade,
+            idPessoa: 0,
+            idRelacionamento: 3,
           },
         ]);
       } else {
@@ -847,8 +848,8 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
               >
                 <Typography variant="h5">Filho</Typography>
               </FlexBox>
-              <Card sx={{ padding: 3, pb: 4 }}>
-                <Grid container spacing={3} pt={3}>
+              {/* <Card sx={{ padding: 3, pb: 4 }}>
+                 <Grid container spacing={3} pt={3}>
                   {filhos.map((value, index) => (
                     <Grid item xs={12} sm={6} key={value.idRelacionamento}>
                       <ListCard
@@ -873,18 +874,26 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                       <Box ml="1rem">
                         <Typography variant="h6">Adicionar</Typography>
                         <Tiny color="secondary.400">novo Filho(a)</Tiny>
-                      </Box>
-                      <ModalFilho
-                        open={openModalFilho}
-                        setOpen={setOpenModalFilho}
-                        setDadosAtributos={setNewFilhoDados}
-                        itemDados={filhos[itemDados]}
-                        editar={editarFilho}
-                      />
-                    </FlexBox>
-                  </Grid>
-                </Grid>
-              </Card>
+                      </Box> */}
+
+              <GenericVectorUI
+                Array={filhos}
+                setItem={setItem}
+                setEdit={setEditarFilho}
+                setOpenModal={setOpenModalFilho}
+              />
+
+              <ModalFilho
+                open={openModalFilho}
+                setOpen={setOpenModalFilho}
+                setDadosAtributos={setNewFilhoDados}
+                itemDados={filhos[itemDados]}
+                editar={editarFilho}
+              />
+              {/* </FlexBox> 
+                </Grid> 
+                </Grid> 
+                </Card> */}
               <FlexBox
                 display="flex"
                 my="1.5rem"
@@ -1315,48 +1324,51 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
               >
                 <Typography variant="h5">Irmão</Typography>
               </FlexBox>
-              <div>
-                <Card sx={{ padding: 3, pb: 4 }}>
-                  <Grid container spacing={3} pt={3}>
-                    {irmaos.map((value, index) => (
-                      <Grid item xs={12} sm={6} key={index}>
-                        <ListCard
-                          setID={setIdEdit}
-                          index={index}
-                          item={value}
-                          handleMore={handleirmaoMoreOpen}
-                        />
-                      </Grid>
-                    ))}
-                    <MoreOptions
-                      id={idEdit}
-                      anchorEl={irmaoEl}
-                      handleMoreClose={handleirmaoMoreClose}
-                      editar={editarIrmaoInfo}
-                      apagar={apagarIrmaoInfo}
-                    />
-
-                    <Grid item xs={12} sm={6}>
-                      <FlexBox alignItems="center">
-                        <AddIconButton
-                          onClick={() => setOpenModalIrmao(true)}
-                        />
-                        <FlexBox ml="1rem">
-                          <Typography variant="h6">Adicionar</Typography>
-                          <Tiny color="secondary.400">novo irmão(a)</Tiny>
-                        </FlexBox>
-                        <ModalIrmao
-                          open={openModalIrmao}
-                          setOpen={setOpenModalIrmao}
-                          setDadosAtributos={setNewIrmaoDados}
-                          itemDados={irmaos[itemDados]}
-                          editar={editarIrmao}
-                        />
-                      </FlexBox>
+              {/* <Card sx={{ padding: 3, pb: 4 }}>
+                <Grid container spacing={3} pt={3}>
+                  {irmaos.map((value, index) => (
+                    <Grid item xs={12} sm={6} key={index}>
+                      <ListCard
+                        setID={setIdEdit}
+                        index={index}
+                        item={value}
+                        handleMore={handleirmaoMoreOpen}
+                      />
                     </Grid>
+                  ))}
+                  <MoreOptions
+                    id={idEdit}
+                    anchorEl={irmaoEl}
+                    handleMoreClose={handleirmaoMoreClose}
+                    editar={editarIrmaoInfo}
+                    apagar={apagarIrmaoInfo}
+                  />
+
+                  <Grid item xs={12} sm={6}>
+                    <FlexBox alignItems="center">
+                      <AddIconButton onClick={() => setOpenModalIrmao(true)} />
+                      <FlexBox ml="1rem">
+                        <Typography variant="h6">Adicionar</Typography>
+                        <Tiny color="secondary.400">novo irmão(a)</Tiny>
+                      </FlexBox> */}
+              <GenericVectorUI
+                Array={irmaos}
+                setEdit={setEditarIrmao}
+                setItem={setItem}
+                setOpenModal={setOpenModalIrmao}
+              />
+
+              <ModalIrmao
+                open={openModalIrmao}
+                setOpen={setOpenModalIrmao}
+                setDadosAtributos={setNewIrmaoDados}
+                itemDados={irmaos[itemDados]}
+                editar={editarIrmao}
+              />
+              {/* </FlexBox>
                   </Grid>
-                </Card>
-              </div>
+                </Grid>
+              </Card> */}
               <FlexBox
                 display="flex"
                 my="1.5rem"
