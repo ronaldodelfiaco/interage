@@ -22,7 +22,7 @@ import { Dispatch, FC } from 'react';
 import FlexBox from '../../FlexBox';
 import LightTextField from '../../LightTextField';
 
-interface ModalFilhoProps {
+interface ModalTelefoneProps {
   open: boolean;
   setOpen: Dispatch<React.SetStateAction<boolean>>;
   setDadosAtributos: Dispatch<React.SetStateAction<any>>;
@@ -32,7 +32,7 @@ interface ModalFilhoProps {
   itemDados: any;
 }
 
-const modalTelefone: FC<ModalFilhoProps> = ({
+const modalTelefone: FC<ModalTelefoneProps> = ({
   open,
   setOpen,
   setDadosAtributos,

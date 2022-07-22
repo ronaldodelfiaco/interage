@@ -63,7 +63,7 @@ type view_Table = {
   disponivel: boolean;
 };
 
-interface ModalFilhoProps {
+interface ModalGrupoProps {
   open: boolean;
   setOpen: Dispatch<React.SetStateAction<boolean>>;
   setDadosAtributos: Dispatch<React.SetStateAction<any>>;
@@ -74,7 +74,7 @@ interface ModalFilhoProps {
   editar: boolean;
 }
 // Adicionar YUP
-const modalTelefone: FC<ModalFilhoProps> = ({
+const modalTelefone: FC<ModalGrupoProps> = ({
   editar,
   open,
   setOpen,

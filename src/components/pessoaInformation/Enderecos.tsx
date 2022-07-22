@@ -10,7 +10,7 @@ import { H3, Tiny } from '../Typography';
 import ListEndereco from './itens/ListEndereco';
 import ModalEndereco from './itens/modalEndereco';
 
-interface TelefonesProps {
+interface EnderecoProps {
   idPessoa: string;
 }
 
@@ -28,7 +28,7 @@ type Endereco = {
   dtinclusao: string;
 };
 
-const Endereco: FC<TelefonesProps> = ({ idPessoa }) => {
+const Endereco: FC<EnderecoProps> = ({ idPessoa }) => {
   const [EnderecoPessoa, setEnderecoPessoa] = useState<Endereco[]>([]);
   const [newEndereco, setNewEndereco] = useState<Endereco>();
   const [moreEl, setMoreEl] = useState<null | HTMLElement>(null);
