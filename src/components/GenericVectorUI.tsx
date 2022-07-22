@@ -83,7 +83,7 @@ const GenericVectorUI: FC<GenericVectorUProps> = ({
           anchorEl={genericEl}
           handleMoreClose={handleGenericMoreClose}
           editar={Edit}
-          apagar={!heroku? Erase: EraseHeroku}
+          apagar={!heroku ? Erase : EraseHeroku}
         />
         <Grid item xs={12} sm={6}>
           <FlexBox alignItems="center">
