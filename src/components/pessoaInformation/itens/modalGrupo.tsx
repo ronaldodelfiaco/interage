@@ -57,12 +57,6 @@ type Grupos = {
   state: boolean;
 };
 
-type view_Table = {
-  id_pessoa: number;
-  id_grupo: number;
-  disponivel: boolean;
-};
-
 interface ModalGrupoProps {
   open: boolean;
   setOpen: Dispatch<React.SetStateAction<boolean>>;
