@@ -1,6 +1,11 @@
+import { Box, Grid, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import GenericVectorUI from '../components/GenericVectorUI';
+import AddIconButton from '../components/AddIconButton';
+import FlexBox from '../components/FlexBox';
+import ExemploVectorUI from '../components/VectorUI';
 import GenericModal from '../components/itens/GenericModal';
+import ListGeneric from '../components/ListGeneric';
+import { Tiny } from '../components/Typography';
 
 function VetorExemplo() {
   // Logica do Modal
@@ -43,12 +48,22 @@ function VetorExemplo() {
     <>
       <h1> Eventos </h1>
       {/* Gerencia informação do vetor */}
-      <GenericVectorUI
+      <ExemploVectorUI
         Array={Array}
         setItem={setItem}
         setEdit={setEdit}
         setOpenModal={setOpenModal}
+        ListCard={ListGeneric}
       />
+      <Grid item xs={12} sm={6}>
+        <FlexBox alignItems="center">
+          <AddIconButton onClick={() => setOpenModal(true)} />
+          <Box ml="1rem">
+            <Typography variant="h6">Adicionar</Typography>
+            <Tiny color="secondary.400">novo tipo</Tiny>
+          </Box>
+        </FlexBox>
+      </Grid>
       <GenericModal
         open={openModal}
         setOpen={setOpenModal}
@@ -58,6 +73,6 @@ function VetorExemplo() {
       />
     </>
   );
-};
+}
 
 export default VetorExemplo;
