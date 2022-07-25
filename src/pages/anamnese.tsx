@@ -23,7 +23,7 @@ import * as Yup from 'yup';
 // import { IMaskInput } from 'react-imask';
 import AddIconButton from '../components/AddIconButton';
 import FlexBox from '../components/FlexBox';
-import GenericVectorUI from '../components/GenericVectorUI';
+import VectorUI from '../components/VectorUI';
 import ListCard from '../components/itens/ListCard';
 import ModalFilho from '../components/itens/ModalFilho';
 import ModalIrmao from '../components/itens/ModalIrmao';
@@ -867,31 +867,35 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                     editar={editarFilhoInfo}
                     apagar={apagarFilhoInfo}
                   />
+*/}
+              <Card sx={{ padding: 3, pb: 4 }}>
+                <VectorUI
+                  Array={filhos}
+                  setItem={setItem}
+                  setEdit={setEditarFilho}
+                  setOpenModal={setOpenModalFilho}
+                  ListCard={ListCard}
+                />
 
-                  <Grid item xs={12} sm={6}>
-                    <FlexBox alignItems="center">
-                      <AddIconButton onClick={() => setOpenModalFilho(true)} />
-                      <Box ml="1rem">
-                        <Typography variant="h6">Adicionar</Typography>
-                        <Tiny color="secondary.400">novo Filho(a)</Tiny>
-                      </Box> */}
+                <Grid item xs={12} sm={6}>
+                  <FlexBox alignItems="center">
+                    <AddIconButton onClick={() => setOpenModalFilho(true)} />
+                    <Box ml="1rem">
+                      <Typography variant="h6">Adicionar</Typography>
+                      <Tiny color="secondary.400">novo Filho(a)</Tiny>
+                    </Box>
 
-              <GenericVectorUI
-                Array={filhos}
-                setItem={setItem}
-                setEdit={setEditarFilho}
-                setOpenModal={setOpenModalFilho}
-              />
-
-              <ModalFilho
-                open={openModalFilho}
-                setOpen={setOpenModalFilho}
-                setDadosAtributos={setNewFilhoDados}
-                itemDados={filhos[itemDados]}
-                editar={editarFilho}
-              />
-              {/* </FlexBox> 
-                </Grid> 
+                    <ModalFilho
+                      open={openModalFilho}
+                      setOpen={setOpenModalFilho}
+                      setDadosAtributos={setNewFilhoDados}
+                      itemDados={filhos[itemDados]}
+                      editar={editarFilho}
+                    />
+                  </FlexBox>
+                </Grid>
+              </Card>
+              {/*</Grid> 
                 </Grid> 
                 </Card> */}
               <FlexBox
@@ -1343,30 +1347,35 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                     editar={editarIrmaoInfo}
                     apagar={apagarIrmaoInfo}
                   />
-
+*/}
+              <Card sx={{ padding: 3, pb: 4 }}>
+                <Grid container spacing={3} pt={3}>
+                  <VectorUI
+                    Array={irmaos}
+                    setEdit={setEditarIrmao}
+                    setItem={setItem}
+                    setOpenModal={setOpenModalIrmao}
+                    ListCard={ListCard}
+                  />
                   <Grid item xs={12} sm={6}>
                     <FlexBox alignItems="center">
                       <AddIconButton onClick={() => setOpenModalIrmao(true)} />
                       <FlexBox ml="1rem">
                         <Typography variant="h6">Adicionar</Typography>
                         <Tiny color="secondary.400">novo irmão(a)</Tiny>
-                      </FlexBox> */}
-              <GenericVectorUI
-                Array={irmaos}
-                setEdit={setEditarIrmao}
-                setItem={setItem}
-                setOpenModal={setOpenModalIrmao}
-              />
-
-              <ModalIrmao
-                open={openModalIrmao}
-                setOpen={setOpenModalIrmao}
-                setDadosAtributos={setNewIrmaoDados}
-                itemDados={irmaos[itemDados]}
-                editar={editarIrmao}
-              />
-              {/* </FlexBox>
+                      </FlexBox>
+                      <ModalIrmao
+                        open={openModalIrmao}
+                        setOpen={setOpenModalIrmao}
+                        setDadosAtributos={setNewIrmaoDados}
+                        itemDados={irmaos[itemDados]}
+                        editar={editarIrmao}
+                      />
+                    </FlexBox>
                   </Grid>
+                </Grid>
+              </Card>
+              {/*</Grid>
                 </Grid>
               </Card> */}
               <FlexBox

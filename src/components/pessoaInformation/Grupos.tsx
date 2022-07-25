@@ -9,6 +9,7 @@ import FlexBox from '../FlexBox';
 import MoreOptions from '../MoreOptions';
 import ModalGrupo from '../pessoaInformation/itens/modalGrupo';
 import { H3, Tiny } from '../Typography';
+import VectorUI from '../VectorUI';
 import ListGrupo from './itens/ListGrupo';
 
 interface GruposProps {
@@ -167,7 +168,7 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
       <H3>Grupos</H3>
       <Grid container spacing={4} pt="1.5rem">
-        {GruposPessoa.map((item, index) => (
+        {/* {GruposPessoa.map((item, index) => (
           <Grid item xs={12} sm={6} key={index}>
             <ListGrupo
               setID={setIdEdit}
@@ -183,8 +184,15 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
           handleMoreClose={handleMoreClose}
           editar={editarNumero}
           apagar={apagarNumero}
+        /> */}
+        <VectorUI
+          Array={GruposPessoa}
+          setItem={setItem}
+          setEdit={setEditar}
+          setOpenModal={setOpenModalGrupo}
+          heroku={heroku}
+          ListCard={ListGrupo}
         />
-
         <Grid item xs={12} sm={6}>
           <FlexBox alignItems={'center'}>
             <AddIconButton onClick={() => setOpenModalGrupo(true)} />

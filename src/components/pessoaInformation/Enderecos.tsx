@@ -5,8 +5,8 @@ import { FC, MouseEvent, useEffect, useState } from 'react';
 import { herokuConfig } from '../../config';
 import AddIconButton from '../AddIconButton';
 import FlexBox from '../FlexBox';
-import MoreOptions from '../MoreOptions';
 import { H3, Tiny } from '../Typography';
+import VectorUI from '../VectorUI';
 import ListEndereco from './itens/ListEndereco';
 import ModalEndereco from './itens/modalEndereco';
 
@@ -156,8 +156,8 @@ const Endereco: FC<EnderecoProps> = ({ idPessoa }) => {
   return (
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
       <H3>Endereço</H3>
-      <Grid container spacing={4} pt="1.5rem">
-        {EnderecoPessoa.map((item, index) => (
+       <Grid container spacing={4} pt="1.5rem">
+        {/*{EnderecoPessoa.map((item, index) => (
           <Grid item xs={12} sm={6} key={index}>
             <ListEndereco
               setID={setIdEdit}
@@ -173,24 +173,31 @@ const Endereco: FC<EnderecoProps> = ({ idPessoa }) => {
           handleMoreClose={handleMoreClose}
           editar={editarEndereco}
           apagar={apagarEndereco}
-        />
-
-        <Grid item xs={12} sm={6}>
-          <FlexBox alignItems={'center'}>
-            <AddIconButton onClick={() => setOpenModalEndereco(true)} />
-            <Grid ml="1rem">
-              <Typography variant="h6">Adicionar</Typography>
-              <Tiny color="secondary.400">novo Endereco</Tiny>
-            </Grid>
-            <ModalEndereco
-              open={openModalEndereco}
-              setOpen={setOpenModalEndereco}
-              setDadosAtributos={setNewEndereco}
-              itemDados={EnderecoPessoa[itemDados]}
-              editar={editar}
-            />
-          </FlexBox>
-        </Grid>
+        /> */}
+      <VectorUI
+        Array={EnderecoPessoa}
+        setItem={setItem}
+        setEdit={setEditar}
+        setOpenModal={setOpenModalEndereco}
+        heroku={heroku}
+        ListCard={ListEndereco}
+      />
+      <Grid item xs={12} sm={6}>
+        <FlexBox alignItems={'center'}>
+          <AddIconButton onClick={() => setOpenModalEndereco(true)} />
+          <Grid ml="1rem">
+            <Typography variant="h6">Adicionar</Typography>
+            <Tiny color="secondary.400">novo Endereco</Tiny>
+          </Grid>
+          <ModalEndereco
+            open={openModalEndereco}
+            setOpen={setOpenModalEndereco}
+            setDadosAtributos={setNewEndereco}
+            itemDados={EnderecoPessoa[itemDados]}
+            editar={editar}
+          />
+        </FlexBox>
+      </Grid>
       </Grid>
     </Card>
   );

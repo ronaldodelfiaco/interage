@@ -9,6 +9,7 @@ import FlexBox from '../FlexBox';
 import MoreOptions from '../MoreOptions';
 import ModalTelefone from '../pessoaInformation/itens/modalTelefone';
 import { H3, Tiny } from '../Typography';
+import VectorUI from '../VectorUI';
 import ListTelefone from './itens/ListTelefone';
 
 interface TelefonesProps {
@@ -173,7 +174,7 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
       <H3>Telefones</H3>
       <Grid container spacing={4} pt="1.5rem">
-        {TelefonesPessoa.map((item, index) => (
+        {/* {TelefonesPessoa.map((item, index) => (
           <Grid item xs={12} sm={6} key={index}>
             <ListTelefone
               setID={setIdEdit}
@@ -189,6 +190,14 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
           handleMoreClose={handleMoreClose}
           editar={editarNumero}
           apagar={apagarNumero}
+        /> */}
+        <VectorUI
+          Array={TelefonesPessoa}
+          setItem={setItemDados}
+          setEdit={setEditar}
+          setOpenModal={setOpenModalTelefone}
+          heroku={heroku}
+          ListCard={ListTelefone}
         />
 
         <Grid item xs={12} sm={6}>
