@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Card,
   Checkbox,
@@ -11,28 +10,27 @@ import {
   MenuItem,
   Radio,
   RadioGroup,
-  Typography,
+  Typography
 } from '@mui/material';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { FastField, Form, Formik } from 'formik';
 import router from 'next/router';
-import { FC, MouseEvent, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import * as Yup from 'yup';
 // import { IMaskInput } from 'react-imask';
 import AddIconButton from '../components/AddIconButton';
 import FlexBox from '../components/FlexBox';
-import VectorUI from '../components/VectorUI';
 import ListCard from '../components/itens/ListCard';
 import ModalFilho from '../components/itens/ModalFilho';
 import ModalIrmao from '../components/itens/ModalIrmao';
 import LightTextField from '../components/LightTextField';
 import MaskCPFCNPJ from '../components/masks/maskCPFCNPJ';
 import MaskDt from '../components/masks/maskDt';
-import MoreOptions from '../components/MoreOptions';
 import { adicionarPessoa } from '../components/pessoaInformation/LerDados';
 import { Tiny } from '../components/Typography';
+import VectorUI from '../components/VectorUI';
 import { herokuConfig } from '../config';
 import useTitle from '../hooks/useTitle';
 
@@ -249,19 +247,6 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
     }
   }, [newIrmaoDados]);
 
-  const [idEdit, setIdEdit] = useState(0);
-  const [filhoEl, setfilhoEl] = useState<null | HTMLElement>(null);
-  const handlefilhoMoreOpen = (event: MouseEvent<HTMLButtonElement>) => {
-    setfilhoEl(event.currentTarget);
-  };
-  const handlefilhoMoreClose = () => setfilhoEl(null);
-
-  const [irmaoEl, setirmaoEl] = useState<null | HTMLElement>(null);
-  const handleirmaoMoreOpen = (event: MouseEvent<HTMLButtonElement>) => {
-    setirmaoEl(event.currentTarget);
-  };
-  const handleirmaoMoreClose = () => setirmaoEl(null);
-
   const initialValues = {
     cpf: '',
     nome: '',
@@ -380,28 +365,6 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
     bairroAtual: Yup.string().optional(),
     cidadeAtual: Yup.string().optional(),
   });
-
-  const editarFilhoInfo = () => {
-    setItem(idEdit);
-    setEditarFilho(true), setOpenModalFilho(true);
-    handlefilhoMoreClose();
-  };
-
-  const editarIrmaoInfo = () => {
-    setItem(idEdit);
-    setEditarIrmao(true), setOpenModalIrmao(true);
-    handleirmaoMoreClose();
-  };
-
-  const apagarFilhoInfo = () => {
-    filhos.splice(idEdit, 1);
-    handlefilhoMoreClose();
-  };
-
-  const apagarIrmaoInfo = () => {
-    irmaos.splice(idEdit, 1);
-    handleirmaoMoreClose();
-  };
 
   const testeIgual = (cpf: string) => {
     const cpfTratada = cpf
@@ -848,56 +811,35 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
               >
                 <Typography variant="h5">Filho</Typography>
               </FlexBox>
-              {/* <Card sx={{ padding: 3, pb: 4 }}>
-                 <Grid container spacing={3} pt={3}>
-                  {filhos.map((value, index) => (
-                    <Grid item xs={12} sm={6} key={value.idRelacionamento}>
-                      <ListCard
-                        setID={setIdEdit}
-                        index={index}
-                        item={value}
-                        handleMore={handlefilhoMoreOpen}
-                      />
-                    </Grid>
-                  ))}
-                  <MoreOptions
-                    id={idEdit}
-                    anchorEl={filhoEl}
-                    handleMoreClose={handlefilhoMoreClose}
-                    editar={editarFilhoInfo}
-                    apagar={apagarFilhoInfo}
+              <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
+                <Grid container spacing={4} pt="1.5rem">
+                  <VectorUI
+                    Array={filhos}
+                    setItem={setItem}
+                    setEdit={setEditarFilho}
+                    setOpenModal={setOpenModalFilho}
+                    ListCard={ListCard}
                   />
-*/}
-              <Card sx={{ padding: 3, pb: 4 }}>
-                <VectorUI
-                  Array={filhos}
-                  setItem={setItem}
-                  setEdit={setEditarFilho}
-                  setOpenModal={setOpenModalFilho}
-                  ListCard={ListCard}
-                />
 
-                <Grid item xs={12} sm={6}>
-                  <FlexBox alignItems="center">
-                    <AddIconButton onClick={() => setOpenModalFilho(true)} />
-                    <Box ml="1rem">
-                      <Typography variant="h6">Adicionar</Typography>
-                      <Tiny color="secondary.400">novo Filho(a)</Tiny>
-                    </Box>
+                  <Grid item xs={12} sm={6}>
+                    <FlexBox alignItems="center">
+                      <AddIconButton onClick={() => setOpenModalFilho(true)} />
+                      <Grid ml="1rem">
+                        <Typography variant="h6">Adicionar</Typography>
+                        <Tiny color="secondary.400">novo Filho(a)</Tiny>
+                      </Grid>
 
-                    <ModalFilho
-                      open={openModalFilho}
-                      setOpen={setOpenModalFilho}
-                      setDadosAtributos={setNewFilhoDados}
-                      itemDados={filhos[itemDados]}
-                      editar={editarFilho}
-                    />
-                  </FlexBox>
+                      <ModalFilho
+                        open={openModalFilho}
+                        setOpen={setOpenModalFilho}
+                        setDadosAtributos={setNewFilhoDados}
+                        itemDados={filhos[itemDados]}
+                        editar={editarFilho}
+                      />
+                    </FlexBox>
+                  </Grid>
                 </Grid>
               </Card>
-              {/*</Grid> 
-                </Grid> 
-                </Card> */}
               <FlexBox
                 display="flex"
                 my="1.5rem"
@@ -1328,28 +1270,8 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
               >
                 <Typography variant="h5">Irmão</Typography>
               </FlexBox>
-              {/* <Card sx={{ padding: 3, pb: 4 }}>
-                <Grid container spacing={3} pt={3}>
-                  {irmaos.map((value, index) => (
-                    <Grid item xs={12} sm={6} key={index}>
-                      <ListCard
-                        setID={setIdEdit}
-                        index={index}
-                        item={value}
-                        handleMore={handleirmaoMoreOpen}
-                      />
-                    </Grid>
-                  ))}
-                  <MoreOptions
-                    id={idEdit}
-                    anchorEl={irmaoEl}
-                    handleMoreClose={handleirmaoMoreClose}
-                    editar={editarIrmaoInfo}
-                    apagar={apagarIrmaoInfo}
-                  />
-*/}
-              <Card sx={{ padding: 3, pb: 4 }}>
-                <Grid container spacing={3} pt={3}>
+              <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
+                <Grid container spacing={4} pt="1.5rem">
                   <VectorUI
                     Array={irmaos}
                     setEdit={setEditarIrmao}
@@ -1357,13 +1279,14 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                     setOpenModal={setOpenModalIrmao}
                     ListCard={ListCard}
                   />
+
                   <Grid item xs={12} sm={6}>
                     <FlexBox alignItems="center">
                       <AddIconButton onClick={() => setOpenModalIrmao(true)} />
-                      <FlexBox ml="1rem">
+                      <Grid ml="1rem">
                         <Typography variant="h6">Adicionar</Typography>
                         <Tiny color="secondary.400">novo irmão(a)</Tiny>
-                      </FlexBox>
+                      </Grid>
                       <ModalIrmao
                         open={openModalIrmao}
                         setOpen={setOpenModalIrmao}
@@ -1375,9 +1298,6 @@ const Anamnese: FC<AnamneseProps> = ({ idPessoa }) => {
                   </Grid>
                 </Grid>
               </Card>
-              {/*</Grid>
-                </Grid>
-              </Card> */}
               <FlexBox
                 display="flex"
                 my="1.5rem"

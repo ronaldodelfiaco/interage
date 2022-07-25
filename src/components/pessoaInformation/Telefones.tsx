@@ -1,12 +1,10 @@
 import { Card, Grid, Typography } from '@mui/material';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { FC, MouseEvent, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { FC, useEffect, useState } from 'react';
 import { herokuConfig } from '../../config';
 import AddIconButton from '../AddIconButton';
 import FlexBox from '../FlexBox';
-import MoreOptions from '../MoreOptions';
 import ModalTelefone from '../pessoaInformation/itens/modalTelefone';
 import { H3, Tiny } from '../Typography';
 import VectorUI from '../VectorUI';
@@ -31,12 +29,6 @@ type telefone = {
 };
 
 const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
-  const { t } = useTranslation();
-  const [moreEl, setMoreEl] = useState<null | HTMLElement>(null);
-  const handleMoreOpen = (event: MouseEvent<HTMLButtonElement>) => {
-    setMoreEl(event.currentTarget);
-  };
-  const handleMoreClose = () => setMoreEl(null);
   const [TelefonesPessoa, setTelefonesPessoa] = useState<telefone[]>([]);
 
   const [newTelefone, setNewTelefone] = useState<telefone>();
@@ -51,7 +43,6 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_telefones`;
 
   const [editar, setEditar] = useState(false);
-  const [idEdit, setIdEdit] = useState(0);
 
   const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
 
@@ -59,7 +50,6 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
     axios
       .get(herokuFiltro)
       .then(({ data }: any) => {
-        // setPessoa(data.body.rows[0]);
         setTelefonesPessoa(data.body.rows);
       })
       .catch((error) => {
@@ -138,9 +128,6 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
           });
         TelefonesPessoa.forEach((Element) => {
           if (Element.id === newTelefone.id) {
-            // const index = TelefonesPessoa.indexOf(Element);
-            // TelefonesPessoa.splice(index, 1, newTelefone);
-            // TelefonesPessoa.splice(newTelefone.id, 1, newTelefone);
             setEditar(false);
             setItemDados(0);
           }
@@ -149,48 +136,10 @@ const Telefones: FC<TelefonesProps> = ({ idPessoa }) => {
     }
   }, [newTelefone]);
 
-  const editarNumero = () => {
-    setItemDados(idEdit);
-    setOpenModalTelefone(true), setEditar(true);
-    handleMoreClose();
-  };
-
-  const apagarNumero = () => {
-    // const index = TelefonesPessoa.indexOf(Element);
-    // TelefonesPessoa.splice(index, 1);
-    axios
-      .delete(heroku + '&id=' + TelefonesPessoa[idEdit].id)
-      .then((response) => {
-        console.log(response);
-        loadTable();
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    handleMoreClose();
-  };
-
   return (
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
       <H3>Telefones</H3>
       <Grid container spacing={4} pt="1.5rem">
-        {/* {TelefonesPessoa.map((item, index) => (
-          <Grid item xs={12} sm={6} key={index}>
-            <ListTelefone
-              setID={setIdEdit}
-              index={index}
-              item={item}
-              handleMore={handleMoreOpen}
-            />
-          </Grid>
-        ))}
-        <MoreOptions
-          id={idEdit}
-          anchorEl={moreEl}
-          handleMoreClose={handleMoreClose}
-          editar={editarNumero}
-          apagar={apagarNumero}
-        /> */}
         <VectorUI
           Array={TelefonesPessoa}
           setItem={setItemDados}

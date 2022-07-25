@@ -1,7 +1,7 @@
 import { Card, Grid, Typography } from '@mui/material';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { FC, MouseEvent, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { herokuConfig } from '../../config';
 import AddIconButton from '../AddIconButton';
 import FlexBox from '../FlexBox';
@@ -31,7 +31,6 @@ type Endereco = {
 const Endereco: FC<EnderecoProps> = ({ idPessoa }) => {
   const [EnderecoPessoa, setEnderecoPessoa] = useState<Endereco[]>([]);
   const [newEndereco, setNewEndereco] = useState<Endereco>();
-  const [moreEl, setMoreEl] = useState<null | HTMLElement>(null);
   const [openModalEndereco, setOpenModalEndereco] = useState(false);
   const [itemDados, setItem] = useState<number>(0);
   let user = localStorage.getItem('user');
@@ -40,12 +39,6 @@ const Endereco: FC<EnderecoProps> = ({ idPessoa }) => {
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_enderecos`;
   const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
   const [editar, setEditar] = useState(false);
-  const [idEdit, setIdEdit] = useState(0);
-
-  const handleMoreOpen = (event: MouseEvent<HTMLButtonElement>) => {
-    setMoreEl(event.currentTarget);
-  };
-  const handleMoreClose = () => setMoreEl(null);
 
   // Carregar Tabela
   function loadTable() {
@@ -134,70 +127,34 @@ const Endereco: FC<EnderecoProps> = ({ idPessoa }) => {
     }
   }, [openModalEndereco]);
 
-  function editarEndereco() {
-    setItem(idEdit);
-    setEditar(true), setOpenModalEndereco(true);
-    handleMoreClose();
-  }
-
-  function apagarEndereco() {
-    axios
-      .delete(heroku + '&id=' + EnderecoPessoa[idEdit].id)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    loadTable();
-    handleMoreClose();
-  }
-
   return (
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
       <H3>Endereço</H3>
-       <Grid container spacing={4} pt="1.5rem">
-        {/*{EnderecoPessoa.map((item, index) => (
-          <Grid item xs={12} sm={6} key={index}>
-            <ListEndereco
-              setID={setIdEdit}
-              index={index}
-              item={item}
-              handleMore={handleMoreOpen}
+      <Grid container spacing={4} pt="1.5rem">
+        <VectorUI
+          Array={EnderecoPessoa}
+          setItem={setItem}
+          setEdit={setEditar}
+          setOpenModal={setOpenModalEndereco}
+          heroku={heroku}
+          ListCard={ListEndereco}
+        />
+        <Grid item xs={12} sm={6}>
+          <FlexBox alignItems={'center'}>
+            <AddIconButton onClick={() => setOpenModalEndereco(true)} />
+            <Grid ml="1rem">
+              <Typography variant="h6">Adicionar</Typography>
+              <Tiny color="secondary.400">novo Endereco</Tiny>
+            </Grid>
+            <ModalEndereco
+              open={openModalEndereco}
+              setOpen={setOpenModalEndereco}
+              setDadosAtributos={setNewEndereco}
+              itemDados={EnderecoPessoa[itemDados]}
+              editar={editar}
             />
-          </Grid>
-        ))}
-        <MoreOptions
-          id={idEdit}
-          anchorEl={moreEl}
-          handleMoreClose={handleMoreClose}
-          editar={editarEndereco}
-          apagar={apagarEndereco}
-        /> */}
-      <VectorUI
-        Array={EnderecoPessoa}
-        setItem={setItem}
-        setEdit={setEditar}
-        setOpenModal={setOpenModalEndereco}
-        heroku={heroku}
-        ListCard={ListEndereco}
-      />
-      <Grid item xs={12} sm={6}>
-        <FlexBox alignItems={'center'}>
-          <AddIconButton onClick={() => setOpenModalEndereco(true)} />
-          <Grid ml="1rem">
-            <Typography variant="h6">Adicionar</Typography>
-            <Tiny color="secondary.400">novo Endereco</Tiny>
-          </Grid>
-          <ModalEndereco
-            open={openModalEndereco}
-            setOpen={setOpenModalEndereco}
-            setDadosAtributos={setNewEndereco}
-            itemDados={EnderecoPessoa[itemDados]}
-            editar={editar}
-          />
-        </FlexBox>
-      </Grid>
+          </FlexBox>
+        </Grid>
       </Grid>
     </Card>
   );

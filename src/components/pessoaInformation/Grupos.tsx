@@ -1,12 +1,10 @@
 import { Card, Grid, Typography } from '@mui/material';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { FC, MouseEvent, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { FC, useEffect, useState } from 'react';
 import { herokuConfig } from '../../config';
 import AddIconButton from '../AddIconButton';
 import FlexBox from '../FlexBox';
-import MoreOptions from '../MoreOptions';
 import ModalGrupo from '../pessoaInformation/itens/modalGrupo';
 import { H3, Tiny } from '../Typography';
 import VectorUI from '../VectorUI';
@@ -32,12 +30,6 @@ type view_Table = {
 };
 
 const Grupos: FC<GruposProps> = ({ idPessoa }) => {
-  const { t } = useTranslation();
-  const [moreEl, setMoreEl] = useState<null | HTMLElement>(null);
-  const handleMoreOpen = (event: MouseEvent<HTMLButtonElement>) => {
-    setMoreEl(event.currentTarget);
-  };
-  const handleMoreClose = () => setMoreEl(null);
   const [GruposPessoa, setGruposPessoa] = useState<grupo[]>([]);
 
   const [newGrupo, setNewGrupo] = useState<grupo>();
@@ -52,8 +44,6 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
   const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas_grupos`;
 
   const [editar, setEditar] = useState(false);
-
-  const [idEdit, setIdEdit] = useState(0);
 
   const herokuFiltro = heroku + `&filter=id_pessoa=${idPessoa}`;
 
@@ -143,48 +133,10 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
     }
   }, [newGrupo]);
 
-  const editarNumero = () => {
-    setItem(idEdit);
-    setOpenModalGrupo(true), setEditar(true);
-    handleMoreClose();
-  };
-
-  const apagarNumero = () => {
-    // const index = GruposPessoa.indexOf(Element);
-    // GruposPessoa.splice(index, 1);
-    axios
-      .delete(heroku + '&id=' + GruposPessoa[idEdit].id)
-      .then((response) => {
-        console.log(response);
-        loadTable();
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    handleMoreClose();
-  };
-
   return (
     <Card sx={{ padding: '1.5rem', pb: '4rem' }}>
       <H3>Grupos</H3>
       <Grid container spacing={4} pt="1.5rem">
-        {/* {GruposPessoa.map((item, index) => (
-          <Grid item xs={12} sm={6} key={index}>
-            <ListGrupo
-              setID={setIdEdit}
-              index={index}
-              item={item}
-              handleMore={handleMoreOpen}
-            />
-          </Grid>
-        ))}
-        <MoreOptions
-          id={idEdit}
-          anchorEl={moreEl}
-          handleMoreClose={handleMoreClose}
-          editar={editarNumero}
-          apagar={apagarNumero}
-        /> */}
         <VectorUI
           Array={GruposPessoa}
           setItem={setItem}
@@ -207,7 +159,6 @@ const Grupos: FC<GruposProps> = ({ idPessoa }) => {
               setOpen={setOpenModalGrupo}
               setDadosAtributos={setNewGrupo}
               itemDados={GruposPessoa[itemDados]}
-              // setItemDados={setItemDados}
             />
           </FlexBox>
         </Grid>
