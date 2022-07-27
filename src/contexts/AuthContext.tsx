@@ -4,12 +4,11 @@ import { createContext, ReactNode, useEffect, useState } from 'react';
 import sha1 from 'sha1';
 import { herokuConfig } from '../config';
 
-const agora = new Date();
-
 const AuthContext = createContext({
   login: (email: string, password: string) => Promise.resolve(),
   logout: (user: any) => Promise.resolve(),
   isAuthenticated: false,
+  user: {},
 });
 
 // props type
@@ -74,12 +73,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const isAuthenticated = Authenticated;
 
+  // localStorage não existe na parte do servidor
+  // para resolver isso verifica se esta parte esta sendo renderizada no navegador
+  const userJson =
+    typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+  const userInfo = userJson ? JSON.parse(userJson) : null;
+  const userName = userInfo?.name;
+  const avatar = userInfo?.avatar || 'static/avatar/001-man.svg';
+
+  const user = {
+    avatar: avatar,
+    name: userName,
+  };
+
   return (
     <AuthContext.Provider
       value={{
         login,
         logout,
         isAuthenticated,
+        user,
       }}
     >
       {children}

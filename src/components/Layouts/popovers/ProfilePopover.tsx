@@ -62,10 +62,7 @@ const ProfilePopover: FC = () => {
             <UkoAvatar src={user?.avatar} sx={{ width: 35, height: 35 }} />
 
             <Box ml={1}>
-              <H6>{user?.name}</H6>
-              <Tiny display="block" fontWeight={500} color="text.disabled">
-                {user?.email}
-              </Tiny>
+              <H6>{user?.name }</H6>
             </Box>
           </FlexBox>
         }
