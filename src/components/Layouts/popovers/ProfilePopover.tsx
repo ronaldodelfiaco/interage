@@ -71,13 +71,13 @@ const ProfilePopover: FC = () => {
         }
       >
         <Box pt={1}>
-          <StyledSmall>Set Status</StyledSmall>
+          {/* <StyledSmall>Set Status</StyledSmall>
 
           <StyledSmall>Profile & Account</StyledSmall>
           <StyledSmall>Settings</StyledSmall>
-          <StyledSmall>Manage Team</StyledSmall>
+          <StyledSmall>Manage Team</StyledSmall> */}
 
-          <Divider sx={{ my: 1 }} />
+          {/* <Divider sx={{ my: 1 }} /> */}
           <StyledSmall
             onClick={() => {
               logout(user);

@@ -119,10 +119,10 @@ const DashboardNavbar: FC<DashboardNavBarProps> = (props) => {
 
         {upSm && (
           <>
-            <LanguagePopover />
-            <NotificationsPopover />
+            {/* <LanguagePopover /> */}
+            {/* <NotificationsPopover /> */}
             {/* <ServicePopover /> */}
-            <ActivityPopover />
+            {/* <ActivityPopover /> */}
           </>
         )}
         <ProfilePopover />
