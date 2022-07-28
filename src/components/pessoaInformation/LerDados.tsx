@@ -25,16 +25,9 @@ export const adicionarPessoa = (info: any) => {
   let user = localStorage.getItem('user');
   user = user === null ? '...' : user;
   const _user = JSON.parse(user);
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async (resolve) => {
     const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=pessoas`;
-    axios
-      .post(heroku, info)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    resolve(await axios.post(heroku, info));
   });
 };
 

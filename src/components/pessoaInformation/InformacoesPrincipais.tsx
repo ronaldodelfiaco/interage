@@ -14,7 +14,7 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import { format, parseISO } from 'date-fns';
 import { useFormik } from 'formik';
-import { useRouter } from 'next/router';
+import Router, { useRouter } from 'next/router';
 import * as React from 'react';
 import { FC, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -133,7 +133,10 @@ const InformacoesPrincipais: FC<InformacoesPrincipaisProps> = ({
         .replaceAll('-', '')
         .replaceAll('/', '');
       !idPessoa
-        ? adicionarPessoa(values)
+        ? adicionarPessoa(values).then((row: any) => {
+          console.log(row?.data.body.rows[0].id);
+          Router.push(`/pessoa/${row?.data.body.rows[0].id}`);
+        })
         : atualizarPessoa(values, parseInt(idPessoa));
       !idPessoa
         ? toast.success('Adicionado Com Sucesso!')
