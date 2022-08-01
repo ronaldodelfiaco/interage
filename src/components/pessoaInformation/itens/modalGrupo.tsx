@@ -129,15 +129,15 @@ const modalTelefone: FC<ModalGrupoProps> = ({
   // const heroku = `${herokuConfig}genericCRUD?id_usuario=${_user?.id}&token=${_user?.token}&table=grupos`;
   const heroku = `${herokuConfig}executaSQL?id_usuario=${_user?.id}&token=${_user?.token}`;
   const herokuBody = `sql=select DISTINCT g.id, g.nome
-                      from grupos g,pessoas_grupos pg
-                      where
-                      g.status and
-                      g.id not in (
-                        select pg.id_grupo 
-                        from pessoas_grupos pg
-                        where pg.dt_final is null 
-                        and pg.id_pessoa = ${idPessoa}
-                      )`;
+  from public.grupos g, public.pessoas_grupos pg
+  where
+  g.status and
+  g.id not in (
+    select pg.id_grupo 
+    from public.pessoas_grupos pg
+    where pg.dt_final is null 
+    and pg.id_pessoa = ${idPessoa}
+  )`;
   const [grupoAtual, setGrupoAtual] = React.useState<Grupos[]>([]);
 
   React.useEffect(() => {
@@ -146,7 +146,7 @@ const modalTelefone: FC<ModalGrupoProps> = ({
         heroku,
         editar
           ? `sql=select DISTINCT g.id, g.nome
-          from grupos g`
+          from public.grupos g`
           : herokuBody,
       )
       .then((response) => {
